@@ -80,9 +80,8 @@ coverage.xml
 tmp/
 temp/
 
-# Claude AI artifacts
-.claude/
-*.claude
+# Claude Code - ignore only local settings
+.claude/settings.local.json
 
 # Development outputs
 outputs/
