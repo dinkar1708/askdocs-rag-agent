@@ -2,7 +2,7 @@
 
 > Ask questions to your documents and get grounded, cited answers — a production-style Document Q&A service built with FastAPI, RAG, and LangGraph.
 
-**Stack:** Python 3.12 · FastAPI · LangGraph · PostgreSQL + pgvector · Docker
+**Stack:** Python 3.12 · FastAPI · LangGraph · PostgreSQL + pgvector · Nuxt 4 · Tailwind CSS · Docker
 
 ## Description
 
@@ -77,7 +77,7 @@ See [Why Not Just Use ChatGPT?](docs/getting-started/WHY.md) for detailed compar
   - **Gemini API** (free tier) - best quality
   - **Ollama** (local) - 100% offline, zero cost
 
-**Run it:**
+**Run Backend API:**
 ```bash
 git clone https://github.com/dinkar1708/askdocs-rag-agent.git
 cd askdocs-rag-agent
@@ -87,11 +87,20 @@ cp .env.example .env
 # Edit .env: set LLM_PROVIDER=gemini and add your GEMINI_API_KEY
 # OR set LLM_PROVIDER=ollama for fully offline mode
 
-# Start services
+# Start backend services
 docker compose up --build
 
-# Open Swagger UI
-# → http://localhost:8000/docs
+# API available at http://localhost:8000
+# Swagger UI at http://localhost:8000/docs
+```
+
+**Run Web UI (optional):**
+```bash
+cd web-ui
+npm install
+npm run dev
+
+# Web UI available at http://localhost:3000
 ```
 
 **Test the service:**
@@ -148,7 +157,7 @@ See [Architecture Guide](docs/core/architecture/ARCHITECTURE.md) for deep dive.
 
 ```
 askdocs-rag-agent/
-├── app/
+├── app/                   # Backend (Python/FastAPI)
 │   ├── api/               # FastAPI routes
 │   ├── ingest/            # PDF extraction, chunking, embedding
 │   ├── rag/               # Retrieval, answer generation, citations
@@ -158,6 +167,11 @@ askdocs-rag-agent/
 │   ├── db/                # SQLAlchemy models, pgvector setup
 │   ├── core/              # Config, logging
 │   └── tests/             # pytest suites with auto-generated API docs
+├── web-ui/                # Frontend (Nuxt 4/Vue/Tailwind)
+│   ├── app/               # Vue components and pages
+│   ├── composables/       # Vue composables and API services
+│   ├── public/            # Static assets
+│   └── nuxt.config.ts     # Nuxt configuration
 ├── docs/
 │   ├── testing/
 │   │   └── api-results/   # Auto-generated API request/response examples

@@ -1,6 +1,6 @@
 # Web UI Documentation
 
-Simple web interface for AskDocs.
+Modern web interface for AskDocs built with Nuxt 4, Vue 3, and Tailwind CSS.
 
 ---
 
@@ -11,7 +11,16 @@ Simple web interface for AskDocs.
 1. **Demo** - Show product to prospects
 2. **Client Use** - Simple interface for non-technical users
 
-**Access:** http://localhost:8000 (after deployment: https://your-domain.com)
+**Tech Stack:**
+- **Nuxt 4** - Vue-based framework
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Utility-first styling
+- **Vue 3** - Reactive UI framework
+
+**Access:**
+- Development: http://localhost:3000
+- Backend API: http://localhost:8000
+- Production: https://your-domain.com (Vercel deployment)
 
 ---
 
