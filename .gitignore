@@ -84,6 +84,9 @@ temp/
 .claude/
 *.claude
 
+# Development outputs
+outputs/
+
 # IDE
 *.swp
 *.swo
