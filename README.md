@@ -6,18 +6,18 @@
 
 ## Description
 
-A production-ready RAG (Retrieval-Augmented Generation) system that enables natural language Q&A over document collections with guaranteed citation accuracy. Built with enterprise-grade architecture featuring LangGraph-powered query routing, vector similarity search using pgvector, and multi-LLM support (Gemini, Ollama, Azure OpenAI).
+A production-style RAG (Retrieval-Augmented Generation) system that enables natural language Q&A over document collections with guaranteed citation accuracy. Built with enterprise-grade architecture featuring LangGraph-powered query routing, vector similarity search using pgvector, and multi-LLM support (Gemini, Ollama, Azure OpenAI).
 
 **Key Differentiators:**
 - **Grounded-or-refuse architecture** - Never hallucinates; returns "not_found" when answers aren't in documents
 - **Citation tracking** - Every answer includes exact document and page references
 - **Multi-interface support** - REST API, Web UI, Slack bot, and MCP integration for Claude Desktop
-- **Production-ready** - Security hardened, cloud-native deployment (GCP/Azure), comprehensive testing
+- **Production-style** - Security hardened, cloud-native deployment (GCP/Azure), comprehensive testing
 - **Flexible LLM backend** - Swappable providers via adapter pattern (cloud or local)
 
 **Target Use Cases:** HR knowledge bases, customer support documentation, legal/compliance document search, IT helpdesk automation, sales enablement.
 
-**Market Position:** Developer-first alternative to enterprise solutions (Glean, Writer) at 10x lower cost, with full control over deployment and data.
+**Market Position:** Developer-first, self-hosted alternative to enterprise search products (Glean, Writer) — full data control and per-query costs instead of per-seat licensing. See docs/business for cost model.
 
 ---
 
@@ -50,7 +50,7 @@ A: "not_found - This question cannot be answered from the uploaded documents."
 - **Grounded answers only** - responses use retrieved document chunks, with confidence thresholds
 - **Persistent knowledge base** - upload once, query forever (unlike ChatGPT's per-conversation uploads)
 - **API-first** - integrate into Slack, web apps, customer support tools
-- **Production-ready** - typed code, tests, CI/CD, cloud deployment paths
+- **Production-style** - typed code, tests, CI/CD, cloud deployment paths
 
 **What makes this different from ChatGPT/Claude?**
 See [Why Not Just Use ChatGPT?](docs/getting-started/WHY.md) for detailed comparison.
