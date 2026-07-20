@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.documents import router as documents_router
 from app.api.questions import router as questions_router
+from app.api.sessions import router as sessions_router
 
 app = FastAPI(
     title="AskDocs RAG Agent",
@@ -24,6 +25,7 @@ app.add_middleware(
 # Include routers
 app.include_router(documents_router)
 app.include_router(questions_router)
+app.include_router(sessions_router)
 
 
 @app.get("/")

@@ -1,7 +1,7 @@
 """SQLAlchemy database models"""
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Float
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Float, JSON
 from sqlalchemy.orm import relationship
 from pgvector.sqlalchemy import Vector
 
@@ -46,3 +46,23 @@ class Session(Base):
     id = Column(Integer, primary_key=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     last_accessed = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    conversation_history = Column(JSON, default=list)  # List of {role, content, timestamp}
+
+    # Relationship to messages
+    messages = relationship("Message", back_populates="session", cascade="all, delete-orphan")
+
+
+class Message(Base):
+    """Individual message in a chat session"""
+
+    __tablename__ = "messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(Integer, ForeignKey("sessions.id"), nullable=False)
+    role = Column(String(50), nullable=False)  # 'user' or 'assistant'
+    content = Column(Text, nullable=False)
+    sources = Column(JSON, nullable=True)  # Source citations for assistant messages
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationship to session
+    session = relationship("Session", back_populates="messages")

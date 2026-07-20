@@ -1,6 +1,6 @@
 """Initialize database tables"""
 from app.db.database import engine, Base
-from app.db.models import Document, Chunk, Session
+from app.db.models import Document, Chunk, Session, Message
 
 def init_db():
     """Create all tables"""

@@ -1,0 +1,10 @@
+{
+  "api": "POST /sessions/",
+  "request": {},
+  "response": {
+    "id": 1,
+    "created_at": "2026-07-20T07:30:00.123456",
+    "last_accessed": "2026-07-20T07:30:00.123456",
+    "message_count": 0
+  }
+}
