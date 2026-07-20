@@ -1,0 +1,13 @@
+{
+  "api": "POST /documents/",
+  "request": {
+    "file": "test.pdf (binary content)"
+  },
+  "response": {
+    "id": 1,
+    "filename": "test.pdf",
+    "page_count": 1,
+    "uploaded_at": "2026-07-20T07:15:30.123456",
+    "chunk_count": 3
+  }
+}

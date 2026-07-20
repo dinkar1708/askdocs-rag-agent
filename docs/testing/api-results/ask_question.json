@@ -1,0 +1,23 @@
+{
+  "api": "POST /ask/",
+  "request": {
+    "question": "How many vacation days do employees get?",
+    "top_k": 3,
+    "include_sources": true
+  },
+  "response": {
+    "question": "How many vacation days do employees get?",
+    "answer": "According to the employee handbook [company_policy.pdf - Page 1], full-time employees accrue 15 days of paid vacation per year, starting from their first day of employment.",
+    "sources": [
+      {
+        "chunk_id": 12,
+        "filename": "company_policy.pdf",
+        "page_number": 1,
+        "similarity_score": 0.628,
+        "text_excerpt": "Paid Time Off (PTO): Full-time employees accrue 15 days of paid vacation per year..."
+      }
+    ],
+    "timestamp": "2026-07-20T07:15:45.123456",
+    "model_used": "mock"
+  }
+}

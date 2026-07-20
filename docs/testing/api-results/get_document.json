@@ -1,0 +1,11 @@
+{
+  "api": "GET /documents/{id}",
+  "request": {},
+  "response": {
+    "id": 1,
+    "filename": "company_policy.pdf",
+    "page_count": 4,
+    "uploaded_at": "2026-07-20T07:10:00.000000",
+    "chunk_count": 9
+  }
+}

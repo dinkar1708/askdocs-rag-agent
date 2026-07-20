@@ -104,8 +104,11 @@ Sample PDFs are in `samples/` directory.
 
 **Verify it works:**
 ```bash
-# Run tests
+# Run tests (auto-generates API examples in docs/testing/api-results/)
 docker compose exec api pytest
+
+# Check API documentation examples
+cat docs/testing/api-results/health.json
 
 # Run evaluation (retrieval quality metrics)
 docker compose exec api python -m eval.run
@@ -153,11 +156,14 @@ askdocs-rag-agent/
 │   ├── llm/               # Provider adapters (Gemini/Ollama/Azure)
 │   ├── mcp/               # MCP server
 │   ├── db/                # SQLAlchemy models, pgvector setup
-│   └── core/              # Config, logging
-├── tests/                 # pytest suites
-├── eval/                  # Evaluation harness (retrieval + groundedness)
+│   ├── core/              # Config, logging
+│   └── tests/             # pytest suites with auto-generated API docs
+├── docs/
+│   ├── testing/
+│   │   └── api-results/   # Auto-generated API request/response examples
+│   ├── core/              # Architecture, deployment guides
+│   └── interfaces/        # API, Web UI, Slack bot docs
 ├── samples/               # Sample PDFs for testing
-├── docs/                  # Documentation
 └── docker-compose.yml
 ```
 

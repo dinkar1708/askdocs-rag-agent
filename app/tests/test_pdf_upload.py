@@ -3,6 +3,7 @@
 import pytest
 import io
 from PyPDF2 import PdfWriter
+from app.tests.utils import document_api_call
 
 
 def create_test_pdf(text: str = "Test PDF content") -> bytes:
@@ -33,6 +34,17 @@ def test_upload_pdf_success(client, db_session):
 
     assert response.status_code == 201
     data = response.json()
+
+    # Document API call
+    document_api_call(
+        "upload_document.json",
+        "POST",
+        "/documents/",
+        {"file": "test.pdf (binary content)"},
+        data,
+        response.status_code
+    )
+
     assert data["filename"] == "test.pdf"
     assert data["page_count"] == 1
     assert data["id"] is not None
@@ -64,6 +76,17 @@ def test_list_documents(client, db_session):
 
     assert response.status_code == 200
     data = response.json()
+
+    # Document API call
+    document_api_call(
+        "list_documents.json",
+        "GET",
+        "/documents/",
+        {},
+        data,
+        response.status_code
+    )
+
     assert "documents" in data
     assert "total" in data
     assert data["total"] >= 1
@@ -85,6 +108,17 @@ def test_get_document(client, db_session):
 
     assert response.status_code == 200
     data = response.json()
+
+    # Document API call
+    document_api_call(
+        "get_document.json",
+        "GET",
+        f"/documents/{doc_id}",
+        {},
+        data,
+        response.status_code
+    )
+
     assert data["id"] == doc_id
     assert data["filename"] == "test.pdf"
 

@@ -53,18 +53,32 @@ class MockLLMProvider(BaseLLMProvider):
             }
         }
 
-    def generate(self, prompt: str, **kwargs) -> str:
+    async def generate(self, system_prompt: str = "", user_prompt: str = "", **kwargs) -> str:
         """Generate simple text completion
 
         Args:
-            prompt: Input prompt
+            system_prompt: System instructions
+            user_prompt: User's input prompt
             **kwargs: Ignored for mock provider
 
         Returns:
-            Mock generated text
+            Mock generated text based on prompt content
         """
         self.call_count += 1
-        return f"Mock LLM response to: {prompt[:50]}..."
+
+        # Combine prompts for pattern matching
+        combined = f"{system_prompt} {user_prompt}".lower()
+
+        if "vacation" in combined or "time off" in combined:
+            return "According to the employee handbook [company_policy.pdf - Page 1], full-time employees accrue 15 days of paid vacation per year, starting from their first day of employment."
+        elif "benefit" in combined or "insurance" in combined:
+            return "The company offers comprehensive benefits [company_policy.pdf - Page 3], including health insurance (80% premium covered), dental, vision, and 401k with 50% match up to 6% of salary."
+        elif "work" in combined and ("remote" in combined or "schedule" in combined):
+            return "According to the work policy [company_policy.pdf - Page 2], employees may work remotely up to 2 days per week with manager approval. Standard hours are Monday-Friday, 9 AM to 5 PM."
+        elif "sick" in combined:
+            return "Per company policy [company_policy.pdf - Page 1], employees receive 10 days of sick leave annually. Sick leave does not roll over to the next year."
+        else:
+            return "Based on the provided context, I can help answer questions about company policies. Please refer to the relevant sections in the documents provided."
 
     def generate_with_context(
         self,

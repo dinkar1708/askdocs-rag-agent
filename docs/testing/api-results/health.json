@@ -1,0 +1,9 @@
+{
+  "api": "GET /health",
+  "request": {},
+  "response": {
+    "status": "healthy",
+    "service": "askdocs-rag-agent",
+    "version": "0.1.0"
+  }
+}

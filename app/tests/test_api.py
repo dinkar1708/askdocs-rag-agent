@@ -1,6 +1,7 @@
 """Test API endpoints"""
 
 import pytest
+from app.tests.utils import document_api_call
 
 
 def test_root_endpoint(client):
@@ -8,6 +9,17 @@ def test_root_endpoint(client):
     response = client.get("/")
     assert response.status_code == 200
     data = response.json()
+
+    # Document API call
+    document_api_call(
+        "root.json",
+        "GET",
+        "/",
+        {},
+        data,
+        response.status_code
+    )
+
     assert data["message"] == "AskDocs API"
     assert data["version"] == "0.1.0"
     assert data["status"] == "running"
@@ -18,6 +30,17 @@ def test_health_endpoint(client):
     response = client.get("/health")
     assert response.status_code == 200
     data = response.json()
+
+    # Document API call
+    document_api_call(
+        "health.json",
+        "GET",
+        "/health",
+        {},
+        data,
+        response.status_code
+    )
+
     assert data["status"] == "healthy"
     assert data["service"] == "askdocs-rag-agent"
     assert data["version"] == "0.1.0"

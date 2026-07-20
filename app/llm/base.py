@@ -8,11 +8,12 @@ class BaseLLMProvider(ABC):
     """Abstract base class for all LLM providers"""
 
     @abstractmethod
-    def generate(self, prompt: str, **kwargs) -> str:
+    async def generate(self, system_prompt: str = "", user_prompt: str = "", **kwargs) -> str:
         """Generate text completion from prompt
 
         Args:
-            prompt: The input prompt
+            system_prompt: System instructions
+            user_prompt: User's input prompt
             **kwargs: Provider-specific parameters
 
         Returns:

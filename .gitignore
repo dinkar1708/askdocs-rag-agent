@@ -117,3 +117,4 @@ eval/*.csv
 
 # Alembic
 alembic/versions/*.pyc
+!outputs/api-examples/*.json
