@@ -1,0 +1,20 @@
+{
+  "api": "POST /ask/",
+  "request": {
+    "question": "What's the weather today?",
+    "top_k": 3,
+    "include_sources": true
+  },
+  "response": {
+    "question": "What's the weather today?",
+    "answer": "not_found - This question cannot be answered from the uploaded documents.",
+    "sources": [],
+    "timestamp": "2026-07-20T08:01:00.123456",
+    "model_used": "mock",
+    "metadata": {
+      "intent": "refuse",
+      "confidence": 0.12,
+      "reason": "Question is not related to uploaded documents"
+    }
+  }
+}

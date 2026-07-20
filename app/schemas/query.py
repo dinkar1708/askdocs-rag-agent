@@ -1,6 +1,6 @@
 """Pydantic schemas for query/answer operations"""
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from datetime import datetime
 
 
@@ -27,6 +27,10 @@ class AnswerResponse(BaseModel):
     sources: List[SourceCitation]
     timestamp: datetime
     model_used: str = Field(..., description="LLM provider used (mock/gemini)")
+    metadata: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Router metadata (intent, confidence, reason)"
+    )
 
     class Config:
         json_schema_extra = {
@@ -43,6 +47,11 @@ class AnswerResponse(BaseModel):
                     }
                 ],
                 "timestamp": "2024-01-15T10:30:00",
-                "model_used": "mock"
+                "model_used": "mock",
+                "metadata": {
+                    "intent": "answer",
+                    "confidence": 0.87,
+                    "reason": "High confidence match found"
+                }
             }
         }
