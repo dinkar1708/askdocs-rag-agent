@@ -1,0 +1,70 @@
+name: CI - Build and Test
+
+on:
+  push:
+    branches: [ 'release/*' ]
+  pull_request:
+    branches: [ 'release/*' ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build Docker images
+      working-directory: ./app
+      run: docker compose build
+
+    - name: Start services
+      working-directory: ./app
+      run: docker compose up -d
+
+    - name: Wait for services to be ready
+      run: |
+        echo "Waiting for services to start..."
+        sleep 15
+
+    - name: Check service health
+      working-directory: ./app
+      run: |
+        docker compose ps
+        curl -f http://localhost:8000/health || exit 1
+
+    - name: Initialize database
+      working-directory: ./app
+      run: |
+        docker compose exec -T db psql -U postgres -d askdocs -c "CREATE EXTENSION IF NOT EXISTS vector;"
+        docker compose exec -T api python init_db.py
+
+    - name: Run tests
+      working-directory: ./app
+      run: docker compose exec -T api pytest tests/ -v
+
+    - name: Check Swagger docs
+      run: |
+        curl -f http://localhost:8000/docs > /dev/null || exit 1
+        echo "✅ Swagger UI is accessible"
+
+    - name: Test API endpoints
+      run: |
+        echo "Testing /health..."
+        curl -f http://localhost:8000/health
+        echo ""
+        echo "Testing /documents/..."
+        curl -f http://localhost:8000/documents/
+
+    - name: Show logs on failure
+      if: failure()
+      working-directory: ./app
+      run: docker compose logs
+
+    - name: Clean up
+      if: always()
+      working-directory: ./app
+      run: docker compose down -v
