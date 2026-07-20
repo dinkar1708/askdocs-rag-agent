@@ -229,6 +229,8 @@ Brief setup: [docs/core/deployment/AZURE.md](docs/core/deployment/AZURE.md)
 - [ ] Multi-turn chat with memory
 - [ ] MCP server tools
 - [ ] Evaluation harness
+- [ ] Web UI (Nuxt 4 + Tailwind CSS)
+- [ ] User authentication & authorization
 - [ ] GCP Cloud Run deployment + CI/CD
 - [ ] Azure Container Apps deployment
 - [ ] Multi-tenant support
