@@ -9,7 +9,7 @@ Essential commands to get started.
 ```bash
 # Clone repo
 git clone https://github.com/dinkar1708/askdocs-rag-agent.git
-cd askdocs-rag-agent
+cd askdocs-rag-agent/app
 
 # Copy environment file
 cp .env.example .env
@@ -85,7 +85,7 @@ docker compose exec api python -m eval.run
 
 ```bash
 # Install dependencies locally (for IDE)
-pip install -r requirements.txt
+cd app && pip install -r requirements.txt
 
 # Format code
 docker compose exec api ruff format app/
@@ -174,7 +174,7 @@ docker compose up --build
 ```bash
 # 1. Clone and setup
 git clone https://github.com/dinkar1708/askdocs-rag-agent.git
-cd askdocs-rag-agent
+cd askdocs-rag-agent/app
 cp .env.example .env
 
 # 2. Add Gemini API key to .env
