@@ -115,6 +115,10 @@ CREATE TABLE api_keys (
 
 -- Add user_id to documents table
 ALTER TABLE documents ADD COLUMN user_id UUID REFERENCES users(id);
+
+-- Add user_id to sessions table (for chat history)
+ALTER TABLE sessions ADD COLUMN user_id INTEGER REFERENCES users(id);
+-- nullable=True for backward compatibility with anonymous sessions
 ```
 
 **Backend APIs:**
@@ -234,6 +238,117 @@ curl -X POST http://localhost:8000/documents \
   -H "Authorization: Bearer eyJhbGc..." \
   -F "file=@document.pdf"
 ```
+
+---
+
+## Session Management with Authentication
+
+### Current Implementation (v1.0 - Anonymous Sessions)
+
+**Status:** ✅ Implemented
+
+Sessions are stored in localStorage without user authentication:
+- Session ID stored in browser localStorage
+- Anyone with session_id can access the chat history
+- No login required
+
+```typescript
+// Frontend: localStorage stores session
+localStorage.setItem('askdocs_session_id', '123')
+
+// Backend: No user ownership check
+GET /sessions/123  // Returns session if exists
+```
+
+### Future Implementation (v2.0 - User-Owned Sessions)
+
+**Status:** 🔴 Planned
+
+Sessions will be linked to authenticated users:
+
+**Backend Changes:**
+```python
+# Create session linked to user
+@router.post("/sessions/")
+async def create_session(
+    current_user: User = Depends(get_current_user)
+):
+    session = Session(user_id=current_user.id)
+    db.add(session)
+    db.commit()
+    return session
+
+# Get session (verify ownership)
+@router.get("/sessions/{session_id}")
+async def get_session(
+    session_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    session = db.query(Session).filter(
+        Session.id == session_id,
+        Session.user_id == current_user.id  # Ownership check
+    ).first()
+
+    if not session:
+        raise HTTPException(404, "Session not found")
+
+    return session
+```
+
+**Frontend Changes:**
+```typescript
+// Store JWT token + session_id
+const token = localStorage.getItem('jwt_token')
+const sessionId = localStorage.getItem('session_id')
+
+// Send token in all requests
+await $fetch('/sessions/123', {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+})
+```
+
+### Migration Strategy
+
+**Option 1: Backward Compatible (Recommended)**
+- Keep `user_id` nullable in sessions table
+- `user_id = NULL` → Anonymous session (current behavior)
+- `user_id = X` → User-owned session (after login)
+- Existing anonymous sessions continue working
+
+**Option 2: Require Login**
+- Make `user_id` required
+- All existing sessions become invalid
+- Users must login to create new sessions
+
+### Session Lifecycle Comparison
+
+| Feature | Anonymous (Current) | Authenticated (Planned) |
+|---------|-------------------|----------------------|
+| **Create Session** | No auth required | Requires login |
+| **Access Session** | Anyone with ID | Only session owner |
+| **List Sessions** | Not available | User's sessions only |
+| **Persist Across Devices** | ❌ No (localStorage) | ✅ Yes (server-side) |
+| **Privacy** | ⚠️ Public if ID known | ✅ Private per user |
+| **Multi-device Sync** | ❌ No | ✅ Yes |
+
+### Implementation Effort
+
+**Low Effort (2-3 days):**
+- ✅ Add `user_id` column to sessions
+- ✅ Modify session creation endpoint
+- ✅ Add ownership checks to session access
+- ✅ Update frontend to send JWT token
+
+**Medium Effort (1 week):**
+- Add full authentication system (register/login/logout)
+- Frontend login UI
+- Token refresh logic
+- Migration script for existing sessions
+
+---
 
 ---
 
