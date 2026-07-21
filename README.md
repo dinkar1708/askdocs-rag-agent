@@ -107,9 +107,22 @@ npm run dev
 1. **Upload a document** - `POST /documents` with a PDF file
 2. **Ask a question** - `POST /ask` with `{"question": "what is X?"}`
 3. **Verify grounding** - Check the `sources` array in the response
-4. **Test refusal** - Ask an off-topic question, expect `"not_found"`
 
-Sample PDFs are in `samples/` directory.
+**Try the demo with sample data:**
+```bash
+# Upload sample company policy document
+curl -X POST http://localhost:8000/documents/ \
+  -F "file=@app/samples/company_policy.pdf"
+
+# Ask a test question
+curl -X POST http://localhost:8000/ask/ \
+  -H "Content-Type: application/json" \
+  -d '{"question": "How many vacation days do employees get?"}'
+
+# Expected: "15 days of paid vacation per year" with citations
+```
+
+📋 **Quick Demo:** See [docs/QUICK_DEMO.md](docs/QUICK_DEMO.md) for copy-paste questions with expected answers.
 
 **Verify it works:**
 ```bash

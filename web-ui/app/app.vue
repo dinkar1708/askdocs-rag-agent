@@ -42,22 +42,12 @@
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div v-if="activeTab === 'chat'" class="bg-white rounded-lg shadow-md p-8">
-        <div class="text-center py-12">
-          <div class="text-6xl mb-4">💬</div>
-          <h2 class="text-2xl font-bold text-gray-900 mb-2">Chat Interface</h2>
-          <p class="text-gray-600">Ask questions and get grounded answers with citations</p>
-          <p class="text-sm text-gray-500 mt-4">Coming soon...</p>
-        </div>
+      <div v-if="activeTab === 'chat'" class="h-[calc(100vh-280px)]">
+        <ChatInterface />
       </div>
 
-      <div v-if="activeTab === 'documents'" class="bg-white rounded-lg shadow-md p-8">
-        <div class="text-center py-12">
-          <div class="text-6xl mb-4">📄</div>
-          <h2 class="text-2xl font-bold text-gray-900 mb-2">Document Management</h2>
-          <p class="text-gray-600">Upload and manage your PDF documents</p>
-          <p class="text-sm text-gray-500 mt-4">Coming soon...</p>
-        </div>
+      <div v-if="activeTab === 'documents'">
+        <DocumentUpload />
       </div>
     </main>
 
