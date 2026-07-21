@@ -46,7 +46,6 @@ class Session(Base):
     id = Column(Integer, primary_key=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     last_accessed = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    conversation_history = Column(JSON, default=list)  # List of {role, content, timestamp}
 
     # Relationship to messages
     messages = relationship("Message", back_populates="session", cascade="all, delete-orphan")

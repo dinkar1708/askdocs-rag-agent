@@ -108,15 +108,47 @@ const isLoading = ref(false)
 const sessionId = ref<string | null>(null)
 const messagesContainer = ref<HTMLDivElement | null>(null)
 
-// Create session on mount
+// Restore or create session on mount
 onMounted(async () => {
+  // Check localStorage for existing session
+  const storedSessionId = localStorage.getItem('askdocs_session_id')
+
+  if (storedSessionId) {
+    // Try to verify session exists
+    try {
+      const session = await api.getSession(storedSessionId)
+      sessionId.value = storedSessionId
+
+      // Load message history
+      if (session.messages && session.messages.length > 0) {
+        messages.value = session.messages.map((msg: any) => ({
+          id: msg.id.toString(),
+          role: msg.role,
+          content: msg.content,
+          sources: msg.sources,
+          timestamp: msg.created_at
+        }))
+      }
+    } catch (error) {
+      console.warn('Stored session not found, creating new session')
+      await createNewSession()
+    }
+  } else {
+    // No stored session, create new one
+    await createNewSession()
+  }
+})
+
+// Helper to create new session
+const createNewSession = async () => {
   try {
     const session = await api.createSession()
-    sessionId.value = session.id
+    sessionId.value = session.id.toString()
+    localStorage.setItem('askdocs_session_id', sessionId.value)
   } catch (error) {
     console.error('Failed to create session:', error)
   }
-})
+}
 
 // Auto-scroll to bottom when new messages arrive
 watch(messages, () => {
@@ -174,7 +206,8 @@ const sendMessage = async () => {
 const newChat = async () => {
   try {
     const session = await api.createSession()
-    sessionId.value = session.id
+    sessionId.value = session.id.toString()
+    localStorage.setItem('askdocs_session_id', sessionId.value)
     messages.value = []
     inputMessage.value = ''
   } catch (error) {

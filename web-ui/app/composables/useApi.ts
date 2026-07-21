@@ -82,9 +82,22 @@ export const useApi = () => {
    * Create a new chat session
    */
   const createSession = async (): Promise<Session> => {
-    const response = await $fetch<Session>('/sessions', {
+    const response = await $fetch<Session>('/sessions/', {
       baseURL: apiBase,
       method: 'POST',
+      body: {},
+    })
+
+    return response
+  }
+
+  /**
+   * Get a specific session with messages
+   */
+  const getSession = async (sessionId: string): Promise<any> => {
+    const response = await $fetch(`/sessions/${sessionId}`, {
+      baseURL: apiBase,
+      method: 'GET',
     })
 
     return response
@@ -148,6 +161,7 @@ export const useApi = () => {
     listDocuments,
     deleteDocument,
     createSession,
+    getSession,
     getSessionHistory,
     deleteSession,
     askQuestion,

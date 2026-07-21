@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime
 from app.db.database import get_db
+from app.db.models import Session as SessionModel, Message
 from app.schemas.query import QuestionRequest, AnswerResponse, SourceCitation
 from app.services.retriever import retrieve_relevant_chunks, format_context_for_llm
 from app.llm.factory import get_llm_provider
@@ -33,6 +34,17 @@ async def ask_question(
         top_k=request.top_k
     )
 
+    # Step 1.5: Verify session exists (if provided)
+    session_id = request.session_id
+    if session_id:
+        session = db.query(SessionModel).filter(SessionModel.id == session_id).first()
+        if not session:
+            raise HTTPException(status_code=404, detail=f"Session {session_id} not found")
+
+        # Update last accessed time
+        session.last_accessed = datetime.utcnow()
+        db.commit()
+
     # Step 2: Route the query
     router = get_query_router()
     route_result = router.route(
@@ -43,6 +55,28 @@ async def ask_question(
     intent = route_result["intent"]
     confidence = route_result["confidence"]
     reason = route_result["reason"]
+
+    # Helper function to save messages
+    def save_to_session(user_question: str, assistant_answer: str, sources_list: list):
+        if session_id:
+            # Save user message
+            user_msg = Message(
+                session_id=session_id,
+                role="user",
+                content=user_question,
+                sources=None
+            )
+            db.add(user_msg)
+
+            # Save assistant message
+            assistant_msg = Message(
+                session_id=session_id,
+                role="assistant",
+                content=assistant_answer,
+                sources=[source.dict() for source in sources_list] if sources_list else None
+            )
+            db.add(assistant_msg)
+            db.commit()
 
     # Step 3: Handle based on intent
     sources = []
@@ -58,12 +92,16 @@ async def ask_question(
 
     # REFUSE: Not enough confidence or off-topic
     if intent == QueryIntent.REFUSE:
+        answer_text = "not_found - This question cannot be answered from the uploaded documents."
+        save_to_session(request.question, answer_text, sources)
+
         return AnswerResponse(
             question=request.question,
-            answer="not_found - This question cannot be answered from the uploaded documents.",
+            answer=answer_text,
             sources=sources,
             timestamp=datetime.utcnow(),
             model_used=settings.LLM_PROVIDER,
+            session_id=session_id,
             metadata={
                 "intent": intent,
                 "confidence": confidence,
@@ -73,12 +111,16 @@ async def ask_question(
 
     # CLARIFY: Ambiguous question
     elif intent == QueryIntent.CLARIFY:
+        answer_text = "Could you please provide more context or be more specific? Your question seems ambiguous."
+        save_to_session(request.question, answer_text, sources)
+
         return AnswerResponse(
             question=request.question,
-            answer="Could you please provide more context or be more specific? Your question seems ambiguous.",
+            answer=answer_text,
             sources=sources,
             timestamp=datetime.utcnow(),
             model_used=settings.LLM_PROVIDER,
+            session_id=session_id,
             metadata={
                 "intent": intent,
                 "confidence": confidence,
@@ -116,12 +158,16 @@ Answer the question using ONLY the information provided above. Include citations
             user_prompt=user_prompt
         )
 
+        # Save to session
+        save_to_session(request.question, answer_text, sources)
+
         return AnswerResponse(
             question=request.question,
             answer=answer_text,
             sources=sources,
             timestamp=datetime.utcnow(),
             model_used=settings.LLM_PROVIDER,
+            session_id=session_id,
             metadata={
                 "intent": intent,
                 "confidence": confidence,

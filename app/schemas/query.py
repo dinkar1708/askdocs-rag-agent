@@ -9,6 +9,7 @@ class QuestionRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=1000, description="User's question")
     top_k: int = Field(default=5, ge=1, le=20, description="Number of chunks to retrieve")
     include_sources: bool = Field(default=True, description="Include source citations in response")
+    session_id: Optional[int] = Field(default=None, description="Session ID for conversation history")
 
 
 class SourceCitation(BaseModel):
@@ -27,6 +28,7 @@ class AnswerResponse(BaseModel):
     sources: List[SourceCitation]
     timestamp: datetime
     model_used: str = Field(..., description="LLM provider used (mock/gemini)")
+    session_id: Optional[int] = Field(default=None, description="Session ID for this conversation")
     metadata: Optional[Dict[str, Any]] = Field(
         default=None,
         description="Router metadata (intent, confidence, reason)"
