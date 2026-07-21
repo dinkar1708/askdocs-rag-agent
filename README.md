@@ -21,6 +21,23 @@ A production-style RAG (Retrieval-Augmented Generation) system that enables natu
 
 ---
 
+## 📸 Demo Screenshots
+
+<div align="center">
+
+| Question 1: Vacation Days | Question 2: Accrual Rate | Question 3: Carry Over |
+|:-------------------------:|:------------------------:|:----------------------:|
+| ![Demo 1](docs/screenshots/demo-question-1.png) | ![Demo 2](docs/screenshots/demo-question-2.png) | ![Demo 3](docs/screenshots/demo-question-3.png) |
+| *15 days per year with sources* | *1.25 days per month* | *Up to 5 days carry over* |
+
+</div>
+
+**See it in action:** Each question returns a unique answer with exact citations (document + page). Try it yourself with [sample questions](docs/QUICK_DEMO.md)!
+
+> **Note:** Screenshots show mock mode (no API key needed). With real LLM (Gemini), answers are even more contextually accurate. See [DEMO_QUESTIONS.md](docs/DEMO_QUESTIONS.md) for mock vs real LLM comparison.
+
+---
+
 ## What It Does
 
 Upload PDF documents → Ask questions in natural language → Get answers grounded in those documents with citations, or an honest "not found."

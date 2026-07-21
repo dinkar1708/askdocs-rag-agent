@@ -47,9 +47,9 @@
               <li v-for="(source, idx) in message.sources" :key="idx" class="flex items-start gap-2">
                 <span class="text-purple-200">📄</span>
                 <span>
-                  {{ source.document_name }}, page {{ source.page_number }}
-                  <span v-if="source.relevance_score" class="text-purple-300 ml-1">
-                    ({{ (source.relevance_score * 100).toFixed(1) }}%)
+                  {{ source.filename || source.document_name }}, page {{ source.page_number }}
+                  <span v-if="source.similarity_score || source.relevance_score" class="text-purple-300 ml-1">
+                    ({{ ((source.similarity_score || source.relevance_score) * 100).toFixed(1) }}%)
                   </span>
                 </span>
               </li>
