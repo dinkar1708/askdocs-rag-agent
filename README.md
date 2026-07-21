@@ -25,10 +25,9 @@ A production-style RAG (Retrieval-Augmented Generation) system that enables natu
 
 <div align="center">
 
-| Question 1: Vacation Days | Question 2: Accrual Rate | Question 3: Carry Over |
-|:-------------------------:|:------------------------:|:----------------------:|
 | ![Demo 1](docs/screenshots/demo-question-1.png) | ![Demo 2](docs/screenshots/demo-question-2.png) | ![Demo 3](docs/screenshots/demo-question-3.png) |
-| *15 days per year with sources* | *1.25 days per month* | *Up to 5 days carry over* |
+|:-------------------------:|:------------------------:|:----------------------:|
+| *Chat Page* | *Chat QA* | *Upload Document* |
 
 </div>
 
