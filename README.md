@@ -23,6 +23,18 @@ A production-style RAG (Retrieval-Augmented Generation) system that enables natu
 
 ## 📸 Demo Screenshots
 
+### ✨ Live Test with Ollama Local LLM
+
+<div align="center">
+
+![Ollama Local LLM Test](docs/screenshots/ollama-local-test.png)
+
+*Testing with Ollama (llama3.2) - 100% offline, zero API costs. Notice the clean source display showing "5 chunks" instead of 5 duplicate entries!*
+
+</div>
+
+### 📱 More Screenshots
+
 <div align="center">
 
 | ![Demo 1](docs/screenshots/demo-question-1.png) | ![Demo 2](docs/screenshots/demo-question-2.png) | ![Demo 3](docs/screenshots/demo-question-3.png) |
@@ -31,9 +43,11 @@ A production-style RAG (Retrieval-Augmented Generation) system that enables natu
 
 </div>
 
-**See it in action:** Each question returns a unique answer with exact citations (document + page). Try it yourself with [sample questions](docs/QUICK_DEMO.md)!
+**See it in action:** Each question returns a unique answer with exact citations (document + page).
 
-> **Note:** Screenshots show mock mode (no API key needed). With real LLM (Gemini), answers are even more contextually accurate. See [DEMO_QUESTIONS.md](docs/DEMO_QUESTIONS.md) for mock vs real LLM comparison.
+📋 **Quick Demo:** [Getting Started](docs/demo/getting-started.md) | [Sample Questions](docs/demo/sample-questions.md) | [Ollama Local LLM](docs/demo/ollama-local-llm-demo.md)
+
+> **Screenshots above:** Live test with Ollama local LLM (100% offline). For production, use [Ollama (free, 100% offline)](docs/demo/ollama-local-llm-demo.md) or [Gemini (cloud, best quality)](docs/core/configuration/CONFIGURATION.md).
 
 ---
 
@@ -138,7 +152,7 @@ curl -X POST http://localhost:8000/ask/ \
 # Expected: "15 days of paid vacation per year" with citations
 ```
 
-📋 **Quick Demo:** See [docs/QUICK_DEMO.md](docs/QUICK_DEMO.md) for copy-paste questions with expected answers.
+📋 **Quick Demo:** See [Getting Started Guide](docs/demo/getting-started.md) for copy-paste questions with expected answers.
 
 **Verify it works:**
 ```bash

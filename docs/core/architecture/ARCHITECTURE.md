@@ -2,6 +2,33 @@
 
 This document explains the system design, data flows, and key architectural decisions.
 
+## RAG Architecture Pattern
+
+This project follows the **classic RAG (Retrieval-Augmented Generation)** pipeline as defined by LangChain:
+
+### Indexing Pipeline (Offline)
+1. **Load** - PDF documents via PyPDF2
+2. **Split** - Text chunking (512 chars, 128 overlap)
+3. **Embed** - sentence-transformers (`all-MiniLM-L6-v2`, local, no API)
+4. **Store** - pgvector (persistent vector database)
+
+### Query Pipeline (Runtime)
+1. **Retrieve** - Vector similarity search (top-k chunks via pgvector)
+2. **Route** - LangGraph query router (answer/clarify/refuse intents)
+3. **Generate** - LLM with grounded context (Gemini/Ollama/Mock)
+4. **Validate** - Citation grading (ensures answers cite retrieved sources)
+
+### Production Advantages Over Tutorial Patterns
+- ✅ **Persistent storage** - pgvector (tutorials often use in-memory stores)
+- ✅ **Citation validation** - Automatic grounding verification
+- ✅ **Query routing** - LangGraph-based intent classification
+- ✅ **100% offline capable** - Local embeddings + Ollama LLM
+
+### References
+- [LangChain RAG Concepts](https://docs.langchain.com/oss/python/langchain/retrieval)
+- [Deep Agents RAG](https://docs.langchain.com/oss/python/deepagents/rag) (advanced agentic pattern for future roadmap)
+- [Ollama Integration](https://python.langchain.com/docs/integrations/chat/ollama/)
+
 ---
 
 ## System Overview

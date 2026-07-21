@@ -44,12 +44,15 @@
           <div v-if="message.sources && message.sources.length > 0" class="mt-3 pt-3 border-t border-purple-500/20">
             <div class="text-sm font-semibold mb-2">Sources:</div>
             <ul class="text-sm space-y-1">
-              <li v-for="(source, idx) in message.sources" :key="idx" class="flex items-start gap-2">
+              <li v-for="(source, idx) in getUniqueSources(message.sources)" :key="idx" class="flex items-start gap-2">
                 <span class="text-purple-200">📄</span>
                 <span>
-                  {{ source.filename || source.document_name }}, page {{ source.page_number }}
-                  <span v-if="source.similarity_score || source.relevance_score" class="text-purple-300 ml-1">
-                    ({{ ((source.similarity_score || source.relevance_score) * 100).toFixed(1) }}%)
+                  {{ source.filename }}, page {{ source.page_number }}
+                  <span v-if="source.chunk_count > 1" class="text-purple-300 ml-1">
+                    ({{ source.chunk_count }} chunks)
+                  </span>
+                  <span v-if="source.similarity_score" class="text-purple-300 ml-1">
+                    - {{ (source.similarity_score * 100).toFixed(1) }}% match
                   </span>
                 </span>
               </li>
@@ -177,5 +180,32 @@ const newChat = async () => {
   } catch (error) {
     console.error('Failed to create new session:', error)
   }
+}
+
+// Deduplicate sources by document and page
+const getUniqueSources = (sources: any[] | undefined) => {
+  if (!sources || sources.length === 0) return []
+
+  const sourceMap = new Map()
+
+  sources.forEach(source => {
+    const key = `${source.filename || source.document_name}_page_${source.page_number}`
+
+    if (!sourceMap.has(key)) {
+      sourceMap.set(key, {
+        filename: source.filename || source.document_name,
+        page_number: source.page_number,
+        similarity_score: source.similarity_score || source.relevance_score,
+        chunk_count: 1
+      })
+    } else {
+      // Increment chunk count and average the similarity score
+      const existing = sourceMap.get(key)
+      existing.chunk_count += 1
+      existing.similarity_score = Math.max(existing.similarity_score, source.similarity_score || source.relevance_score || 0)
+    }
+  })
+
+  return Array.from(sourceMap.values()).sort((a, b) => b.similarity_score - a.similarity_score)
 }
 </script>

@@ -62,11 +62,30 @@ LLM_PROVIDER=mock  # No API key needed for local dev
 DATABASE_URL=postgresql://postgres:postgres@db:5432/askdocs
 ```
 
-To use real Gemini:
-```bash
-LLM_PROVIDER=gemini
-GEMINI_API_KEY=your-key-here
-```
+**LLM Provider Options:**
+
+1. **Mock (default)** - No setup needed
+   ```bash
+   LLM_PROVIDER=mock
+   ```
+
+2. **Ollama (100% local, no API key)**
+   ```bash
+   # Install Ollama
+   brew install ollama
+   brew services start ollama
+   ollama pull llama3.2
+
+   # Configure
+   LLM_PROVIDER=ollama
+   OLLAMA_MODEL=llama3.2
+   ```
+
+3. **Gemini (cloud)**
+   ```bash
+   LLM_PROVIDER=gemini
+   GEMINI_API_KEY=your-key-here
+   ```
 
 ## Common Commands
 

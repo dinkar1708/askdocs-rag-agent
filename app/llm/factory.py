@@ -3,6 +3,7 @@
 from app.llm.base import BaseLLMProvider
 from app.llm.mock_provider import MockLLMProvider
 from app.llm.gemini_provider import GeminiProvider
+from app.llm.ollama_provider import OllamaProvider
 from app.core.config import settings
 
 
@@ -35,10 +36,12 @@ def get_llm_provider(provider_name: str = None) -> BaseLLMProvider:
         _llm_provider_instance = MockLLMProvider()
     elif provider_name == "gemini":
         _llm_provider_instance = GeminiProvider()
+    elif provider_name == "ollama":
+        _llm_provider_instance = OllamaProvider()
     else:
         raise ValueError(
             f"Unsupported LLM provider: {provider_name}. "
-            f"Supported: mock, gemini"
+            f"Supported: mock, gemini, ollama"
         )
 
     return _llm_provider_instance

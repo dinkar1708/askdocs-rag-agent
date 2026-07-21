@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     # LLM Provider
     LLM_PROVIDER: str = "gemini"
     GEMINI_API_KEY: str = ""
+    OLLAMA_MODEL: str = "llama3.2"
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
 
     # API
     API_KEY: str = "test-key"
