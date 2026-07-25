@@ -49,6 +49,7 @@ jobs:
     - name: Set up database
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/askdocs_test
+        PYTHONPATH: ${{ github.workspace }}
       run: |
         cd app
         alembic upgrade head
