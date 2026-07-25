@@ -87,7 +87,7 @@ REASONING: [brief explanation]
             elif line.startswith("CONFIDENCE:"):
                 try:
                     confidence = float(line.replace("CONFIDENCE:", "").strip())
-                except:
+                except (ValueError, TypeError) as e:
                     confidence = 0.5
             elif line.startswith("REASONING:"):
                 reasoning = line.replace("REASONING:", "").strip()

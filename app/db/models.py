@@ -12,6 +12,7 @@ class Document(Base):
     """Uploaded document"""
 
     __tablename__ = "documents"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     filename = Column(String(255), nullable=False)
@@ -26,6 +27,7 @@ class Chunk(Base):
     """Text chunk with embedding from a document"""
 
     __tablename__ = "chunks"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     document_id = Column(Integer, ForeignKey("documents.id"), nullable=False)
@@ -42,6 +44,7 @@ class Session(Base):
     """Chat session for multi-turn conversations"""
 
     __tablename__ = "sessions"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -55,6 +58,7 @@ class Message(Base):
     """Individual message in a chat session"""
 
     __tablename__ = "messages"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(Integer, ForeignKey("sessions.id"), nullable=False)

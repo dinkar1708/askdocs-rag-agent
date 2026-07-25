@@ -1,10 +1,7 @@
-# TODO - Features Status
-
-**Last Updated:** 2026-07-20
 
 ---
 
-## ✅ DONE (Implemented & Documented)
+## DONE (Implemented & Documented)
 
 - [x] **Feature 01:** Document Ingestion
 - [x] **Feature 02:** Grounded Question Answering
@@ -13,12 +10,12 @@
 - [x] **Feature 05:** Query Routing (LangGraph)
 - [x] **Feature 06:** MCP Integration
 - [x] **Feature 07:** Evaluation Harness
+- [x] **Feature 08:** Structured Data Extraction
 
 ---
 
-## 📝 DOCUMENTED (Ready to Implement)
+## DOCUMENTED (Ready to Implement)
 
-- [x] **Feature 08:** Structured Data Extraction (docs done ✓)
 - [x] **Feature 09:** Comparative Analysis (docs done ✓)
 - [x] **Feature 10:** Advanced Filters & Metadata (docs done ✓)
 - [x] **Feature 11:** Document Summarization (docs done ✓)
@@ -62,5 +59,3 @@
 4. Mark as DONE above
 
 ---
-
-**Last Updated:** 2026-07-20

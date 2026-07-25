@@ -12,9 +12,10 @@ def test_mock_provider_initialization():
     assert len(llm.sample_responses) > 0
 
 
-def test_mock_generate(mock_llm):
+@pytest.mark.asyncio
+async def test_mock_generate(mock_llm):
     """Test simple text generation"""
-    response = mock_llm.generate("What is the capital of France?")
+    response = await mock_llm.generate("What is the capital of France?")
     assert isinstance(response, str)
     assert "Mock LLM response" in response
     assert mock_llm.call_count == 1
@@ -59,11 +60,12 @@ def test_mock_generate_not_found(mock_llm):
     assert len(result["sources"]) == 0
 
 
-def test_mock_call_counter(mock_llm):
+@pytest.mark.asyncio
+async def test_mock_call_counter(mock_llm):
     """Test call counter increments"""
     assert mock_llm.call_count == 0
 
-    mock_llm.generate("test 1")
+    await mock_llm.generate("test 1")
     assert mock_llm.call_count == 1
 
     mock_llm.generate_with_context("test 2", "context")

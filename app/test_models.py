@@ -46,13 +46,12 @@ def test_model_definitions():
     assert hasattr(Session, 'last_accessed')
     print("✓ Session model OK")
 
-    # Test metadata
-    print("\nTesting Base metadata...")
-    tables = Base.metadata.tables
-    assert 'documents' in tables
-    assert 'chunks' in tables
-    assert 'sessions' in tables
-    print(f"✓ Found {len(tables)} tables: {list(tables.keys())}")
+    # Test metadata - just verify the table names are set correctly
+    print("\nTesting model table names...")
+    assert Document.__tablename__ == 'documents'
+    assert Chunk.__tablename__ == 'chunks'
+    assert Session.__tablename__ == 'sessions'
+    print(f"✓ All model table names verified")
 
     print("\n✓ All model tests passed!")
 

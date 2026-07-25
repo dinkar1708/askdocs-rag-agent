@@ -15,6 +15,11 @@ class Settings(BaseSettings):
     OLLAMA_MODEL: str = "llama3.2"
     OLLAMA_BASE_URL: str = "http://localhost:11434"
 
+    # Azure OpenAI (optional)
+    AZURE_OPENAI_ENDPOINT: str = ""
+    AZURE_OPENAI_KEY: str = ""
+    AZURE_OPENAI_DEPLOYMENT: str = ""
+
     # API
     API_KEY: str = "test-key"
 
@@ -24,6 +29,7 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
 
 settings = Settings()

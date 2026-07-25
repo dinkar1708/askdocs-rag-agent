@@ -6,7 +6,7 @@ from alembic import context
 
 # Import models
 from app.db.database import Base
-from app.db.models import Document, Chunk, Session
+from app.db.models import Document, Chunk, Session, Message
 from app.core.config import settings
 
 # Alembic Config object

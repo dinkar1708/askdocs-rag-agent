@@ -1,0 +1,10 @@
+{
+  "api": "GET /sessions/",
+  "request": {},
+  "response": {
+    "sessions": [],
+    "total": 0,
+    "skip": 0,
+    "limit": 10
+  }
+}

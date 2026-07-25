@@ -10,14 +10,34 @@
     "answer": "According to the employee handbook [company_policy.pdf - Page 1], full-time employees accrue 15 days of paid vacation per year, starting from their first day of employment.",
     "sources": [
       {
-        "chunk_id": 12,
+        "chunk_id": 7,
         "filename": "company_policy.pdf",
         "page_number": 1,
-        "similarity_score": 0.628,
-        "text_excerpt": "Paid Time Off (PTO): Full-time employees accrue 15 days of paid vacation per year..."
+        "similarity_score": 0.623486179813331,
+        "text_excerpt": "Paid Time Off (PTO): Full-time employees accrue 15 days of paid vacation per year, starting from their first day of employment."
+      },
+      {
+        "chunk_id": 8,
+        "filename": "company_policy.pdf",
+        "page_number": 1,
+        "similarity_score": 0.5595372915267944,
+        "text_excerpt": "Sick Leave: Employees receive 10 days of sick leave annually. Sick leave does not roll over to the next year."
+      },
+      {
+        "chunk_id": 10,
+        "filename": "company_policy.pdf",
+        "page_number": 2,
+        "similarity_score": 0.45048409700393677,
+        "text_excerpt": "Remote Work Policy: Employees may work remotely up to 2 days per week with manager approval."
       }
     ],
-    "timestamp": "2026-07-20T07:15:45.123456",
-    "model_used": "mock"
+    "timestamp": "2026-07-25T06:36:02.943307",
+    "model_used": "mock",
+    "session_id": null,
+    "metadata": {
+      "intent": "answer",
+      "confidence": 0.623486179813331,
+      "reason": "High confidence match found"
+    }
   }
 }

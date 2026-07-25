@@ -546,6 +546,7 @@ def ask_question(
 
 - **Documentation:** See `docs/` folder
 - **Features:** See `features/` folder
+- **Official References:** See [REFERENCES.md](../REFERENCES.md) - 40+ links to official docs & best practices
 - **Issues:** [GitHub Issues](https://github.com/dinkar1708/askdocs-rag-agent/issues)
 - **Architecture questions:** See `docs/ARCHITECTURE.md`
 - **Deployment help:** See `docs/DEPLOYMENT.md`

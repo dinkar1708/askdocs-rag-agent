@@ -7,22 +7,15 @@
   },
   "response": {
     "question": "How?",
-    "answer": "Could you please provide more context or be more specific? Your question seems ambiguous.",
-    "sources": [
-      {
-        "chunk_id": 5,
-        "filename": "company_policy.pdf",
-        "page_number": 2,
-        "similarity_score": 0.42,
-        "text_excerpt": "Employees should follow the standard procedure..."
-      }
-    ],
-    "timestamp": "2026-07-20T08:02:00.123456",
+    "answer": "not_found - This question cannot be answered from the uploaded documents.",
+    "sources": [],
+    "timestamp": "2026-07-25T06:36:43.767992",
     "model_used": "mock",
+    "session_id": null,
     "metadata": {
-      "intent": "clarify",
-      "confidence": 0.42,
-      "reason": "Question is ambiguous, needs clarification"
+      "intent": "refuse",
+      "confidence": 0.0,
+      "reason": "No relevant documents found"
     }
   }
 }

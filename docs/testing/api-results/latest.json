@@ -1,0 +1,517 @@
+{
+  "timestamp": "2026-07-25T15:36:47.936272",
+  "run_mode": "individual",
+  "total_tests": 101,
+  "passed": 94,
+  "failed": 7,
+  "error": 0,
+  "skipped": 0,
+  "summary": "======= 7 failed, 94 passed, 0 skipped, 0 errors (individual runs) =======",
+  "tests": [
+    {
+      "file": "test_extraction_feature.py",
+      "name": "test_extraction",
+      "status": "passed"
+    },
+    {
+      "file": "test_extraction_standalone.py",
+      "name": "test_extraction_implementation",
+      "status": "passed"
+    },
+    {
+      "file": "test_extraction_unit.py",
+      "name": "test_type_validation",
+      "status": "passed"
+    },
+    {
+      "file": "test_extraction_unit.py",
+      "name": "test_response_parsing",
+      "status": "passed"
+    },
+    {
+      "file": "test_extraction_unit.py",
+      "name": "test_prompt_generation",
+      "status": "passed"
+    },
+    {
+      "file": "test_extraction_unit.py",
+      "name": "test_schemas",
+      "status": "passed"
+    },
+    {
+      "file": "test_models.py",
+      "name": "test_model_definitions",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_api.py",
+      "name": "test_root_endpoint",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_api.py",
+      "name": "test_health_endpoint",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_api.py",
+      "name": "test_docs_available",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_api.py",
+      "name": "test_openapi_schema",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_ask_endpoint.py",
+      "name": "test_ask_question_success",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_ask_endpoint.py",
+      "name": "test_ask_question_without_sources",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_ask_endpoint.py",
+      "name": "test_ask_question_no_documents",
+      "status": "failed"
+    },
+    {
+      "file": "tests/test_ask_endpoint.py",
+      "name": "test_ask_question_invalid_top_k",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_ask_endpoint.py",
+      "name": "test_ask_question_empty_string",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_ask_endpoint.py",
+      "name": "test_ask_question_long_string",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_ask_endpoint.py",
+      "name": "test_ask_health_check",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_ask_endpoint.py",
+      "name": "test_ask_question_default_parameters",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_ask_endpoint.py",
+      "name": "test_ask_question_model_used",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_ask_endpoint.py",
+      "name": "test_source_citation_format",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_embeddings.py",
+      "name": "test_generate_embedding",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_embeddings.py",
+      "name": "test_embedding_consistency",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_embeddings.py",
+      "name": "test_different_texts_different_embeddings",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_embeddings.py",
+      "name": "test_chunk_text_basic",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_embeddings.py",
+      "name": "test_chunk_text_with_sentences",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_embeddings.py",
+      "name": "test_chunk_text_empty",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_embeddings.py",
+      "name": "test_chunk_text_overlap",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_extraction.py",
+      "name": "test_extract_endpoint_structure",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_extraction.py",
+      "name": "test_extraction_service_mock",
+      "status": "failed"
+    },
+    {
+      "file": "tests/test_extraction.py",
+      "name": "test_extraction_type_validation",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_extraction.py",
+      "name": "test_extraction_response_parsing",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_extraction.py",
+      "name": "test_batch_extraction_endpoint",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_extraction.py",
+      "name": "test_csv_export_format",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_extraction.py",
+      "name": "test_json_export_format",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_llm_factory.py",
+      "name": "test_get_mock_provider",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_llm_factory.py",
+      "name": "test_get_provider_case_insensitive",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_llm_factory.py",
+      "name": "test_unsupported_provider",
+      "status": "failed"
+    },
+    {
+      "file": "tests/test_llm_factory.py",
+      "name": "test_provider_from_env",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_llm_mock.py",
+      "name": "test_mock_provider_initialization",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_llm_mock.py",
+      "name": "test_mock_generate",
+      "status": "failed"
+    },
+    {
+      "file": "tests/test_llm_mock.py",
+      "name": "test_mock_generate_with_context_vacation",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_llm_mock.py",
+      "name": "test_mock_generate_with_context_benefits",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_llm_mock.py",
+      "name": "test_mock_generate_not_found",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_llm_mock.py",
+      "name": "test_mock_call_counter",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_llm_mock.py",
+      "name": "test_mock_sources_structure",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_llm_mock.py",
+      "name": "test_mock_deterministic_responses",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_models.py",
+      "name": "test_create_document",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_models.py",
+      "name": "test_create_chunk",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_models.py",
+      "name": "test_document_chunks_relationship",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_models.py",
+      "name": "test_cascade_delete",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_models.py",
+      "name": "test_create_session",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_pdf_upload.py",
+      "name": "test_upload_pdf_success",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_pdf_upload.py",
+      "name": "test_upload_non_pdf_fails",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_pdf_upload.py",
+      "name": "test_list_documents",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_pdf_upload.py",
+      "name": "test_get_document",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_pdf_upload.py",
+      "name": "test_get_nonexistent_document",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_pdf_upload.py",
+      "name": "test_delete_document",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_pdf_upload.py",
+      "name": "test_delete_nonexistent_document",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_retriever.py",
+      "name": "test_retrieve_relevant_chunks",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_retriever.py",
+      "name": "test_retrieve_with_no_matches",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_retriever.py",
+      "name": "test_retrieve_empty_database",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_retriever.py",
+      "name": "test_retrieve_top_k_parameter",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_retriever.py",
+      "name": "test_format_context_for_llm",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_retriever.py",
+      "name": "test_format_context_empty",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_retriever.py",
+      "name": "test_similarity_threshold",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_retriever.py",
+      "name": "test_retrieve_includes_document_metadata",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router.py",
+      "name": "test_router_high_confidence_answer",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router.py",
+      "name": "test_router_medium_confidence_answer",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router.py",
+      "name": "test_router_low_confidence_refuse",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router.py",
+      "name": "test_router_no_chunks_refuse",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router.py",
+      "name": "test_router_off_topic_question",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router.py",
+      "name": "test_router_ambiguous_question_clarify",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router.py",
+      "name": "test_router_short_question_clarify",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router.py",
+      "name": "test_router_is_off_topic",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router.py",
+      "name": "test_router_is_ambiguous",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router.py",
+      "name": "test_router_singleton",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router.py",
+      "name": "test_router_format_response_answer",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router.py",
+      "name": "test_router_format_response_clarify",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router.py",
+      "name": "test_router_format_response_refuse",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router.py",
+      "name": "test_router_multiple_off_topic_keywords",
+      "status": "failed"
+    },
+    {
+      "file": "tests/test_router.py",
+      "name": "test_router_edge_case_empty_question",
+      "status": "failed"
+    },
+    {
+      "file": "tests/test_router.py",
+      "name": "test_router_confidence_boundaries",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router_integration.py",
+      "name": "test_ask_with_router_answer_intent",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router_integration.py",
+      "name": "test_ask_with_router_refuse_intent_off_topic",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router_integration.py",
+      "name": "test_ask_with_router_clarify_intent",
+      "status": "failed"
+    },
+    {
+      "file": "tests/test_router_integration.py",
+      "name": "test_ask_with_router_metadata_included",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router_integration.py",
+      "name": "test_ask_with_router_no_documents",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router_integration.py",
+      "name": "test_ask_with_router_different_confidence_levels",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_router_integration.py",
+      "name": "test_ask_router_sources_included_all_intents",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_sessions.py",
+      "name": "test_create_session",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_sessions.py",
+      "name": "test_list_sessions_empty",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_sessions.py",
+      "name": "test_list_sessions_with_data",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_sessions.py",
+      "name": "test_list_sessions_with_pagination",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_sessions.py",
+      "name": "test_get_session",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_sessions.py",
+      "name": "test_get_nonexistent_session",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_sessions.py",
+      "name": "test_delete_session",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_sessions.py",
+      "name": "test_delete_nonexistent_session",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_sessions.py",
+      "name": "test_session_last_accessed_update",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_sessions.py",
+      "name": "test_session_message_count",
+      "status": "passed"
+    },
+    {
+      "file": "tests/test_sessions.py",
+      "name": "test_session_cascade_delete",
+      "status": "passed"
+    }
+  ]
+}

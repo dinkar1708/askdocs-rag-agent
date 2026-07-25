@@ -1,0 +1,69 @@
+{
+  "api": "POST /ask/",
+  "request": {
+    "note": "Testing sources for all intent types"
+  },
+  "response": {
+    "answer_intent": {
+      "question": "What is the vacation policy?",
+      "answer": "According to the employee handbook [company_policy.pdf - Page 1], full-time employees accrue 15 days of paid vacation per year, starting from their first day of employment.",
+      "sources": [
+        {
+          "chunk_id": 124,
+          "filename": "company_policy.pdf",
+          "page_number": 1,
+          "similarity_score": 0.493162542174014,
+          "text_excerpt": "Paid Time Off (PTO): Full-time employees accrue 15 days of paid vacation per year, starting from their first day of employment."
+        },
+        {
+          "chunk_id": 127,
+          "filename": "company_policy.pdf",
+          "page_number": 2,
+          "similarity_score": 0.3606394636821588,
+          "text_excerpt": "Remote Work Policy: Employees may work remotely up to 2 days per week with manager approval."
+        },
+        {
+          "chunk_id": 125,
+          "filename": "company_policy.pdf",
+          "page_number": 1,
+          "similarity_score": 0.3134551141695714,
+          "text_excerpt": "Sick Leave: Employees receive 10 days of sick leave annually. Sick leave does not roll over to the next year."
+        }
+      ],
+      "timestamp": "2026-07-25T06:36:44.003539",
+      "model_used": "mock",
+      "session_id": null,
+      "metadata": {
+        "intent": "answer",
+        "confidence": 0.493162542174014,
+        "reason": "Medium confidence match, proceeding with answer"
+      }
+    },
+    "refuse_intent": {
+      "question": "What's the weather?",
+      "answer": "not_found - This question cannot be answered from the uploaded documents.",
+      "sources": [],
+      "timestamp": "2026-07-25T06:36:44.010852",
+      "model_used": "mock",
+      "session_id": null,
+      "metadata": {
+        "intent": "refuse",
+        "confidence": 0.0,
+        "reason": "No relevant documents found"
+      }
+    },
+    "clarify_intent": {
+      "question": "How?",
+      "answer": "not_found - This question cannot be answered from the uploaded documents.",
+      "sources": [],
+      "timestamp": "2026-07-25T06:36:44.017673",
+      "model_used": "mock",
+      "session_id": null,
+      "metadata": {
+        "intent": "refuse",
+        "confidence": 0.0,
+        "reason": "No relevant documents found"
+      }
+    }
+  }
+}

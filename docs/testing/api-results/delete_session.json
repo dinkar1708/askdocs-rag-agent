@@ -1,5 +1,5 @@
 {
-  "api": "DELETE /sessions/{session_id}",
+  "api": "DELETE /sessions/13",
   "request": {},
   "response": {}
 }

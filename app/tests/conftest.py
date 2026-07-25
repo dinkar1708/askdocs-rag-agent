@@ -1,5 +1,6 @@
 """Pytest configuration and fixtures"""
 
+import os
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -10,26 +11,40 @@ from app.db.database import Base, get_db
 from app.llm.mock_provider import MockLLMProvider
 
 
-# Test database (in-memory SQLite)
-SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./test.db"
-
-engine = create_engine(
-    SQLALCHEMY_TEST_DATABASE_URL,
-    connect_args={"check_same_thread": False}
+# Test database - use PostgreSQL from environment or default
+SQLALCHEMY_TEST_DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://postgres:postgres@localhost:5432/askdocs_test"
 )
+
+engine = create_engine(SQLALCHEMY_TEST_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+# Create tables once at session start
+@pytest.fixture(scope="session", autouse=True)
+def setup_database():
+    """Create all tables once at the start of test session"""
+    Base.metadata.create_all(bind=engine)
+    yield
+    # Optionally drop all tables at end
+    # Base.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture(scope="function")
 def db_session():
-    """Create test database session"""
-    Base.metadata.create_all(bind=engine)
-    db = TestingSessionLocal()
+    """Create test database session with automatic cleanup"""
+    session = TestingSessionLocal()
+
     try:
-        yield db
+        yield session
     finally:
-        db.close()
-        Base.metadata.drop_all(bind=engine)
+        session.rollback()
+        # Clean all data
+        for table in reversed(Base.metadata.sorted_tables):
+            session.execute(table.delete())
+        session.commit()
+        session.close()
 
 
 @pytest.fixture(scope="function")
@@ -75,7 +90,7 @@ def sample_document_with_chunks(db_session):
         page_count=4
     )
     db_session.add(doc)
-    db_session.commit()
+    db_session.flush()  # Use flush instead of commit for transactional tests
     db_session.refresh(doc)
 
     # Sample text chunks about company policies
@@ -100,7 +115,7 @@ def sample_document_with_chunks(db_session):
         db_session.add(chunk)
         chunks.append(chunk)
 
-    db_session.commit()
+    db_session.flush()  # Use flush instead of commit for transactional tests
     for chunk in chunks:
         db_session.refresh(chunk)
 

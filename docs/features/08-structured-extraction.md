@@ -1,8 +1,36 @@
-# Feature: Structured Data Extraction
+# Feature 08: Structured Data Extraction
+
+**Status:** **IMPLEMENTED**
 
 **What:** Extract key-value pairs from documents (job requirements, salary, skills, etc.) into structured JSON.
 
 **Why it matters:** Auto-parse documents to extract specific fields without manual reading. Perfect for job descriptions, invoices, contracts, and forms.
+
+---
+
+## Implementation Status
+
+**Implemented Components:**
+- `app/schemas/extraction.py` - Request/response schemas (6 schemas)
+- `app/services/extractor.py` - Extraction service with LLM integration
+- `app/api/extraction.py` - REST API endpoints (3 endpoints)
+- `app/tests/test_extraction.py` - Comprehensive test suite
+
+**API Endpoints:**
+- `POST /extract` - Single document extraction
+- `POST /extract/batch` - Batch extraction
+- `GET /extract/batch/export/{batch_id}.{format}` - Export results (CSV/JSON)
+
+**Supported Types:** string, number, array, boolean, object
+
+**Export Formats:** CSV, JSON (Excel planned)
+
+**Test Results:**
+- Type validation: Passed
+- Response parsing: Passed
+- Schema validation: Passed
+- Batch processing: Tested with 3 documents
+- CSV export: Verified
 
 ---
 
@@ -25,7 +53,7 @@ So I can populate our job database without manual data entry.
 curl -X POST http://localhost:8000/extract \
   -H "Content-Type: application/json" \
   -d '{
-    "document_id": "doc_123",
+    "document_id": 1,
     "schema": {
       "title": "string",
       "experience_years": "number",
@@ -39,7 +67,7 @@ curl -X POST http://localhost:8000/extract \
 **Response:**
 ```json
 {
-  "document_id": "doc_123",
+  "document_id": 1,
   "extracted_data": {
     "title": "Senior AI Engineer (GG11)",
     "experience_years": 8,
@@ -71,36 +99,40 @@ curl -X POST http://localhost:8000/extract \
 curl -X POST http://localhost:8000/extract/batch \
   -H "Content-Type: application/json" \
   -d '{
-    "document_ids": ["doc_123", "doc_456", "doc_789"],
+    "document_ids": [1, 2, 3],
     "schema": {
       "title": "string",
       "experience_years": "number",
       "required_skills": "array"
-    }
+    },
+    "export_format": "csv"
   }'
 ```
 
 **Response:**
 ```json
 {
+  "batch_id": "batch_abc123",
   "results": [
     {
-      "document_id": "doc_123",
+      "document_id": 1,
       "filename": "job_gg11.pdf",
       "extracted_data": {
         "title": "Senior AI Engineer (GG11)",
         "experience_years": 8,
         "required_skills": ["Python", "ML", "AWS"]
-      }
+      },
+      "warnings": []
     },
     {
-      "document_id": "doc_456",
+      "document_id": 2,
       "filename": "job_gg10.pdf",
       "extracted_data": {
         "title": "AI Developer (GG10)",
         "experience_years": 5,
         "required_skills": ["Python", "ML"]
-      }
+      },
+      "warnings": []
     }
   ],
   "total": 2,
@@ -302,7 +334,7 @@ EXTRACTION_LLM_PROVIDER=gemini  # or ollama, azure_openai
 
 **Extraction:** `8`
 
-**Validation:** ✅ Pass (valid number)
+**Validation:** Pass (valid number)
 
 ---
 
@@ -310,7 +342,7 @@ EXTRACTION_LLM_PROVIDER=gemini  # or ollama, azure_openai
 
 **Extraction:** `null`
 
-**Validation:** ⚠️ Warning (couldn't extract number)
+**Validation:** Warning (couldn't extract number)
 
 **Response:**
 ```json
@@ -345,17 +377,12 @@ curl http://localhost:8000/extract/batch/export/batch_abc123.csv
 **Output:**
 ```csv
 document_id,filename,title,experience_years,required_skills
-doc_123,job_gg11.pdf,Senior AI Engineer,8,"Python,ML,AWS"
-doc_456,job_gg10.pdf,AI Developer,5,"Python,ML"
+1,job_gg11.pdf,Senior AI Engineer (GG11),8,"Python, ML, AWS"
+2,job_gg10.pdf,AI Developer (GG10),5,"Python, ML"
+3,job_gg9.pdf,Junior AI Engineer (GG9),3,"Python"
 ```
 
----
-
-### Excel Export
-
-```bash
-curl http://localhost:8000/extract/batch/export/batch_abc123.xlsx
-```
+**Note:** Arrays are converted to comma-separated strings in CSV format.
 
 ---
 
@@ -398,6 +425,7 @@ curl http://localhost:8000/extract/batch/export/batch_abc123.json
 - English-optimized (multilingual works but less accurate)
 
 **Future enhancements:**
+- [ ] Excel (.xlsx) export format
 - [ ] Auto-generate schema from document analysis
 - [ ] Cross-document field aggregation (e.g., "Compare salaries across all job docs")
 - [ ] Multi-language optimization
@@ -415,7 +443,7 @@ Extract structured data from a single document.
 **Request:**
 ```json
 {
-  "document_id": "string",
+  "document_id": 1,
   "schema": {
     "field_name": "type"
   }
@@ -425,10 +453,10 @@ Extract structured data from a single document.
 **Response:**
 ```json
 {
-  "document_id": "string",
+  "document_id": 1,
   "extracted_data": {},
-  "confidence": 0.0-1.0,
-  "sources": [],
+  "confidence": 0.92,
+  "sources": [{"page": 1, "field": "field_name"}],
   "warnings": []
 }
 ```
@@ -442,19 +470,29 @@ Extract structured data from multiple documents.
 **Request:**
 ```json
 {
-  "document_ids": ["string"],
-  "schema": {},
-  "export_format": "csv|xlsx|json"
+  "document_ids": [1, 2, 3],
+  "schema": {
+    "title": "string",
+    "years": "number"
+  },
+  "export_format": "csv"
 }
 ```
 
 **Response:**
 ```json
 {
-  "batch_id": "string",
-  "results": [],
-  "total": 0,
-  "export_url": "string"
+  "batch_id": "batch_abc123",
+  "results": [
+    {
+      "document_id": 1,
+      "filename": "doc1.pdf",
+      "extracted_data": {"title": "Engineer", "years": 5},
+      "warnings": []
+    }
+  ],
+  "total": 1,
+  "export_url": "/extract/batch/export/batch_abc123.csv"
 }
 ```
 

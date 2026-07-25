@@ -1,11 +1,11 @@
 {
-  "api": "GET /documents/{id}",
+  "api": "GET /documents/17",
   "request": {},
   "response": {
-    "id": 1,
-    "filename": "company_policy.pdf",
-    "page_count": 4,
-    "uploaded_at": "2026-07-20T07:10:00.000000",
-    "chunk_count": 9
+    "id": 17,
+    "filename": "test.pdf",
+    "page_count": 1,
+    "uploaded_at": "2026-07-25T06:36:28.759691",
+    "chunk_count": 1
   }
 }

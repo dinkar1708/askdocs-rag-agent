@@ -1,0 +1,10 @@
+{
+  "api": "GET /sessions/14",
+  "request": {},
+  "response": {
+    "id": 14,
+    "created_at": "2026-07-25T06:36:47.436631",
+    "last_accessed": "2026-07-25T06:36:47.438083",
+    "messages": []
+  }
+}
