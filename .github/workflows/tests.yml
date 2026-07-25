@@ -63,7 +63,7 @@ jobs:
         PYTHONPATH: ${{ github.workspace }}
       run: |
         cd app
-        pytest -v --tb=short
+        pytest tests/ -v --tb=short
 
     # TODO: Re-enable coverage reporting once pytest-cov installation issue is resolved
     # - name: Upload coverage to Codecov
