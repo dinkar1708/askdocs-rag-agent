@@ -95,7 +95,7 @@
           <input
             type="checkbox"
             :checked="selectedDocuments.includes(doc.id)"
-            @click.stop
+            @change="toggleDocument(doc.id)"
             class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
           />
           <span class="flex-1 font-medium text-gray-900">{{ doc.filename }}</span>
