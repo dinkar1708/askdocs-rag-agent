@@ -73,7 +73,7 @@
               </h4>
               <div class="text-sm text-gray-500 mt-1 space-y-0.5">
                 <p>{{ doc.chunk_count }} chunks</p>
-                <p>{{ formatDate(doc.upload_date) }}</p>
+                <p>{{ formatDate(doc.uploaded_at) }}</p>
               </div>
             </div>
             <button

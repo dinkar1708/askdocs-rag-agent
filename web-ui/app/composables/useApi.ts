@@ -26,8 +26,9 @@ export interface Session {
 export interface Document {
   id: string
   filename: string
-  upload_date: string
+  uploaded_at: string
   chunk_count: number
+  page_count: number
 }
 
 export interface AskResponse {
@@ -60,12 +61,12 @@ export const useApi = () => {
    * Get list of all documents
    */
   const listDocuments = async (): Promise<Document[]> => {
-    const response = await $fetch<Document[]>('/documents', {
+    const response = await $fetch<{documents: Document[], total: number}>('/documents', {
       baseURL: apiBase,
       method: 'GET',
     })
 
-    return response
+    return response.documents
   }
 
   /**

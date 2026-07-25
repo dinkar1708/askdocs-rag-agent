@@ -41,6 +41,10 @@ A production-style RAG (Retrieval-Augmented Generation) system that enables natu
 |:-------------------------:|:------------------------:|:----------------------:|
 | *Chat Page* | *Chat QA* | *Upload Document* |
 
+| ![Extraction 1](docs/screenshots/extraction-schema.png) | ![Extraction 2](docs/screenshots/extraction-results.png) |
+|:-------------------------:|:------------------------:|
+| *Data Extraction - Schema Builder* | *Data Extraction - Results with Confidence* |
+
 </div>
 
 **See it in action:** Each question returns a unique answer with exact citations (document + page).
@@ -92,6 +96,7 @@ See [Why Not Just Use ChatGPT?](docs/getting-started/WHY.md) for detailed compar
 - **Grounded Q&A** - Answers only from retrieved chunks, with `[doc, page]` citations
 - **Honest refusal** - Returns "not_found" if confidence is too low (no guessing)
 - **LangGraph router** - Classifies queries: answer / clarify / refuse
+- **Structured Data Extraction** - Extract custom fields (text, numbers, arrays) from documents with schema templates
 - **Multi-turn chat** - Conversation history for follow-up questions
 - **MCP integration** - Tools for AI assistants (Claude Desktop, etc.)
 - **Swappable LLM** - Gemini, Ollama, Azure OpenAI via adapter pattern
