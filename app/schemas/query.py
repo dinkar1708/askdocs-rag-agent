@@ -19,6 +19,8 @@ class SourceCitation(BaseModel):
     page_number: int
     similarity_score: float
     text_excerpt: str = Field(..., description="First 200 chars of the chunk")
+    reranking_score: Optional[float] = Field(default=None, description="Cross-encoder reranking score")
+    original_similarity: Optional[float] = Field(default=None, description="Original vector similarity before reranking")
 
 
 class AnswerResponse(BaseModel):

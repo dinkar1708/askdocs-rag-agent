@@ -17,14 +17,16 @@ PostgreSQL database with pgvector extension for vector similarity search.
 Stores uploaded PDF metadata.
 
 **Fields:**
-- `id` - Unique document identifier (UUID)
-- `filename` - Original filename
-- `page_count` - Number of pages
-- `uploaded_at` - Upload timestamp
-- `tenant_id` - For multi-tenant isolation (optional)
-- `metadata` - JSON for custom fields
+- `id` - Integer primary key (auto-increment)
+- `filename` - VARCHAR(255), original filename
+- `page_count` - Integer, number of pages
+- `uploaded_at` - TIMESTAMP, upload timestamp (defaults to UTC now)
 
 **Purpose:** Track which documents exist in the system.
+
+**Planned additions:**
+- `tenant_id` - For multi-tenant isolation
+- `metadata` - JSON for custom fields (file type, source, etc.)
 
 ---
 
@@ -32,34 +34,65 @@ Stores uploaded PDF metadata.
 
 Stores document text chunks with embeddings.
 
-**Fields:**
-- `id` - Unique chunk identifier (UUID)
-- `document_id` - References documents table
-- `text` - The actual text content
-- `embedding` - Vector embedding (384 dimensions for sentence-transformers)
-- `page_num` - Which page this chunk came from
-- `chunk_index` - Order within document (0, 1, 2...)
-- `created_at` - When chunk was created
+**Current Fields:**
+- `id` - Integer primary key (auto-increment)
+- `document_id` - Integer, foreign key to documents.id
+- `text` - TEXT, the actual text content
+- `embedding` - VECTOR(384), embedding from all-MiniLM-L6-v2
+- `page_number` - Integer, which page this chunk came from
+- `created_at` - TIMESTAMP, when chunk was created
 
 **Purpose:** Store searchable text chunks with vector embeddings.
 
 **Indexes:**
-- Vector similarity index on `embedding` (ivfflat or hnsw)
-- Foreign key index on `document_id`
+- Primary key index on `id`
+- B-tree index on `id` (ix_chunks_id)
+- Foreign key constraint on `document_id`
+- **Note:** Vector index not yet created for performance (planned)
+
+**Planned additions for advanced features:**
+- `chunk_type` - ENUM ('text', 'table', 'image', 'code') - Type of content
+- `chunk_index` - Integer - Order within document (0, 1, 2...)
+- `parent_chunk_id` - Integer - For hierarchical chunking
+- `metadata` - JSON - Table headers, image captions, hierarchy level, etc.
+- `bm25_vector` - For hybrid search (semantic + keyword)
+- Vector similarity index (IVFFlat or HNSW) on `embedding`
 
 ---
 
-### 3. sessions (for multi-turn chat)
+### 3. sessions
 
-Stores conversation history.
+Stores conversation sessions for multi-turn chat.
 
-**Fields:**
-- `id` - Session identifier (UUID)
-- `history` - JSON array of messages: `[{role, content}, ...]`
-- `created_at` - Session start time
-- `updated_at` - Last message time
+**Current Fields:**
+- `id` - Integer primary key (auto-increment)
+- `created_at` - TIMESTAMP, session start time
+- `last_accessed` - TIMESTAMP, last message time (auto-updates)
 
-**Purpose:** Maintain conversation context across multiple questions.
+**Purpose:** Group related messages into conversations.
+
+**Relationship:** Has many messages (see below)
+
+---
+
+### 4. messages
+
+Stores individual chat messages within sessions.
+
+**Current Fields:**
+- `id` - Integer primary key (auto-increment)
+- `session_id` - Integer, foreign key to sessions.id
+- `role` - VARCHAR(50), 'user' or 'assistant'
+- `content` - TEXT, message text
+- `sources` - JSON, source citations for assistant messages (nullable)
+- `created_at` - TIMESTAMP, when message was created
+
+**Purpose:** Store conversation history with citations.
+
+**Planned additions:**
+- `retrieval_scores` - JSON - Store chunk IDs and similarity scores
+- `reranking_scores` - JSON - Store reranked scores for analysis
+- `feedback` - ENUM ('helpful', 'not_helpful') - User feedback on answers
 
 ---
 
@@ -68,11 +101,13 @@ Stores conversation history.
 ```
 documents (1) ──< (many) chunks
     │
-    └─ One document has many chunks
+    └─ One document has many chunks (CASCADE DELETE)
 
-sessions (independent)
+sessions (1) ──< (many) messages
     │
-    └─ No direct relationship, stores conversation history
+    └─ One session has many messages (CASCADE DELETE)
+
+Future: chunks may have parent-child relationships for hierarchical chunking
 ```
 
 ---
@@ -156,10 +191,11 @@ Use **Alembic** for schema migrations:
 - ✅ PostgreSQL has excellent JSON support
 - ✅ Easy to query and index
 
-### Why UUID over auto-increment?
-- ✅ Globally unique (multi-tenant safe)
-- ✅ No sequential leakage
-- ✅ Safe for distributed systems
+### Why Integer IDs currently?
+- ✅ Simpler implementation for MVP
+- ✅ Better PostgreSQL performance for joins
+- ✅ Smaller index size
+- ⚠️ May migrate to UUIDs for multi-tenant version
 
 ---
 

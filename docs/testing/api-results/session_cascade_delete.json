@@ -1,5 +1,5 @@
 {
-  "api": "GET /sessions/16",
+  "api": "GET /sessions/47",
   "request": {},
   "response": {
     "detail": "Session not found"

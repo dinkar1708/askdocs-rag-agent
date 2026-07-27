@@ -34,6 +34,8 @@ class Chunk(Base):
     text = Column(Text, nullable=False)
     page_number = Column(Integer, nullable=False)
     embedding = Column(Vector(384))  # sentence-transformers/all-MiniLM-L6-v2
+    chunk_type = Column(String(50), default='text')  # 'text' or 'table'
+    chunk_metadata = Column(JSON, nullable=True)  # Additional metadata (headers, bbox, etc.)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationship to document

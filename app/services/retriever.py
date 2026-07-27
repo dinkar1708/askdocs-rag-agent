@@ -1,9 +1,12 @@
 """RAG retrieval service for semantic search using pgvector"""
-from typing import List, Dict
+from typing import List, Dict, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+import logging
 from app.db.models import Chunk, Document
 from app.services.embeddings import generate_embedding
+
+logger = logging.getLogger(__name__)
 
 
 def retrieve_relevant_chunks(
@@ -89,3 +92,74 @@ def format_context_for_llm(chunks: List[Dict]) -> str:
         context_parts.append(f"{citation}\n{chunk['text']}")
 
     return "\n\n".join(context_parts)
+
+
+# Singleton pattern for reranker model loading
+_reranker = None
+
+
+def get_reranker():
+    """
+    Get or create reranker instance (lazy loading singleton)
+
+    Returns:
+        Reranker instance
+    """
+    global _reranker
+    if _reranker is None:
+        from app.services.reranker import create_reranker
+        _reranker = create_reranker()
+    return _reranker
+
+
+def retrieve_with_reranking(
+    query: str,
+    db: Session,
+    initial_k: int = 30,
+    final_k: int = 5,
+    similarity_threshold: float = 0.2
+) -> List[Dict]:
+    """
+    Two-stage retrieval with reranking for better relevance
+
+    Process:
+    1. Stage 1 (Fast): Vector search retrieves initial_k candidate chunks
+    2. Stage 2 (Precise): Cross-encoder reranks candidates by relevance
+    3. Return top final_k chunks after reranking
+
+    Args:
+        query: User's question
+        db: Database session
+        initial_k: Number of candidates to retrieve in stage 1 (default 30)
+        final_k: Number of final results after reranking (default 5)
+        similarity_threshold: Minimum cosine similarity for stage 1 (default 0.2)
+
+    Returns:
+        Top-k reranked chunks with reranking_score and original_similarity fields
+    """
+    # Stage 1: Fast vector search for candidates
+    logger.info(f"Stage 1: Retrieving {initial_k} candidates via vector search")
+    candidates = retrieve_relevant_chunks(
+        query=query,
+        db=db,
+        top_k=initial_k,
+        similarity_threshold=similarity_threshold
+    )
+
+    if not candidates:
+        logger.warning("No candidates found in vector search")
+        return []
+
+    logger.info(f"Found {len(candidates)} candidates")
+
+    # Stage 2: Rerank with cross-encoder
+    try:
+        logger.info(f"Stage 2: Reranking with cross-encoder")
+        reranker = get_reranker()
+        final_chunks = reranker.rerank(query, candidates, top_k=final_k)
+        logger.info(f"Reranking complete, returning {len(final_chunks)} chunks")
+        return final_chunks
+    except Exception as e:
+        # Fallback to original retrieval if reranking fails
+        logger.error(f"Reranking failed: {e}, falling back to original retrieval")
+        return candidates[:final_k]

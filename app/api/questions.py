@@ -5,7 +5,7 @@ from datetime import datetime
 from app.db.database import get_db
 from app.db.models import Session as SessionModel, Message
 from app.schemas.query import QuestionRequest, AnswerResponse, SourceCitation
-from app.services.retriever import retrieve_relevant_chunks, format_context_for_llm
+from app.services.retriever import retrieve_relevant_chunks, retrieve_with_reranking, format_context_for_llm
 from app.llm.factory import get_llm_provider
 from app.core.config import settings
 from app.graph.router import get_query_router, QueryIntent
@@ -22,17 +22,25 @@ async def ask_question(
     Ask a question about uploaded documents with intelligent routing
 
     Process:
-    1. Retrieve relevant document chunks using vector similarity
+    1. Retrieve relevant document chunks using vector similarity (with optional reranking)
     2. Route query (answer/clarify/refuse) based on confidence
     3. Generate appropriate response based on intent
     4. Return answer with source citations or clarification/refusal message
     """
-    # Step 1: Retrieve relevant chunks
-    chunks = retrieve_relevant_chunks(
-        query=request.question,
-        db=db,
-        top_k=request.top_k
-    )
+    # Step 1: Retrieve relevant chunks (with reranking if enabled)
+    if settings.RERANKING_ENABLED:
+        chunks = retrieve_with_reranking(
+            query=request.question,
+            db=db,
+            initial_k=settings.RETRIEVAL_INITIAL_K,
+            final_k=request.top_k
+        )
+    else:
+        chunks = retrieve_relevant_chunks(
+            query=request.question,
+            db=db,
+            top_k=request.top_k
+        )
 
     # Step 1.5: Verify session exists (if provided)
     session_id = request.session_id
@@ -87,7 +95,9 @@ async def ask_question(
                 filename=chunk["filename"],
                 page_number=chunk["page_number"],
                 similarity_score=chunk["similarity_score"],
-                text_excerpt=chunk["text"][:200] + "..." if len(chunk["text"]) > 200 else chunk["text"]
+                text_excerpt=chunk["text"][:200] + "..." if len(chunk["text"]) > 200 else chunk["text"],
+                reranking_score=chunk.get("reranking_score"),
+                original_similarity=chunk.get("original_similarity")
             ))
 
     # REFUSE: Not enough confidence or off-topic

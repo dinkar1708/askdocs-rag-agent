@@ -63,7 +63,9 @@ async def upload_document(
             document_id=document.id,
             text=chunk_data["text"],
             page_number=chunk_data["page_number"],
-            embedding=chunk_data["embedding"]
+            embedding=chunk_data["embedding"],
+            chunk_type=chunk_data.get("chunk_type", "text"),
+            chunk_metadata=chunk_data.get("metadata", {})
         )
         db.add(chunk)
 

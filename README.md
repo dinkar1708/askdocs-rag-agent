@@ -1,8 +1,13 @@
 # askdocs-rag-agent
 
+[![Tests](https://img.shields.io/badge/tests-166%20passing-brightgreen)](app/tests/)
+[![Advanced RAG](https://img.shields.io/badge/advanced%20RAG-3%20phases-blue)](#advanced-rag-features)
+
 > Ask questions to your documents and get grounded, cited answers — a production-style Document Q&A service built with FastAPI, RAG, and LangGraph.
 
 **Stack:** Python 3.12 · FastAPI · LangGraph · PostgreSQL + pgvector · Nuxt 4 · Tailwind CSS · Docker
+
+**Latest Update (2026-07-27):** ✨ Added advanced RAG features - Reranking (+15-30% accuracy), Table Extraction, and Semantic Chunking
 
 ## Description
 

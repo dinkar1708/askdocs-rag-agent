@@ -12,28 +12,34 @@
       "answer": "According to the employee handbook [company_policy.pdf - Page 1], full-time employees accrue 15 days of paid vacation per year, starting from their first day of employment.",
       "sources": [
         {
-          "chunk_id": 118,
+          "chunk_id": 377,
           "filename": "company_policy.pdf",
           "page_number": 1,
           "similarity_score": 0.4772251234784797,
-          "text_excerpt": "Paid Time Off (PTO): Full-time employees accrue 15 days of paid vacation per year, starting from their first day of employment."
+          "text_excerpt": "Paid Time Off (PTO): Full-time employees accrue 15 days of paid vacation per year, starting from their first day of employment.",
+          "reranking_score": 0.2732069790363312,
+          "original_similarity": 0.4772251234784797
         },
         {
-          "chunk_id": 119,
+          "chunk_id": 378,
           "filename": "company_policy.pdf",
           "page_number": 1,
           "similarity_score": 0.36702720424613977,
-          "text_excerpt": "Sick Leave: Employees receive 10 days of sick leave annually. Sick leave does not roll over to the next year."
+          "text_excerpt": "Sick Leave: Employees receive 10 days of sick leave annually. Sick leave does not roll over to the next year.",
+          "reranking_score": 0.009679481387138367,
+          "original_similarity": 0.36702720424613977
         },
         {
-          "chunk_id": 120,
+          "chunk_id": 382,
           "filename": "company_policy.pdf",
-          "page_number": 2,
-          "similarity_score": 0.357782710856716,
-          "text_excerpt": "Standard Hours: Our standard work week is Monday through Friday, 9:00 AM to 5:00 PM, with a one-hour lunch break."
+          "page_number": 3,
+          "similarity_score": 0.21206428742600347,
+          "text_excerpt": "401(k) Retirement Plan: Employees are eligible to participate after 90 days of employment. Company matches 50% up to 6%.",
+          "reranking_score": 0.0013369693187996745,
+          "original_similarity": 0.21206428742600347
         }
       ],
-      "timestamp": "2026-07-25T06:36:43.936958",
+      "timestamp": "2026-07-27T15:09:47.970570",
       "model_used": "mock",
       "session_id": null,
       "metadata": {
@@ -46,7 +52,7 @@
       "question": "Tell me about the organization structure",
       "answer": "not_found - This question cannot be answered from the uploaded documents.",
       "sources": [],
-      "timestamp": "2026-07-25T06:36:43.946788",
+      "timestamp": "2026-07-27T15:09:47.979527",
       "model_used": "mock",
       "session_id": null,
       "metadata": {

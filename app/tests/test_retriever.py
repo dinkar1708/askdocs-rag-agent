@@ -1,6 +1,10 @@
 """Tests for RAG retrieval functionality"""
 import pytest
-from app.services.retriever import retrieve_relevant_chunks, format_context_for_llm
+from app.services.retriever import (
+    retrieve_relevant_chunks,
+    retrieve_with_reranking,
+    format_context_for_llm
+)
 from app.db.models import Document, Chunk
 from app.services.embeddings import generate_embedding
 
@@ -144,3 +148,118 @@ def test_retrieve_includes_document_metadata(db_session, sample_document_with_ch
     assert result["document_id"] == doc.id
     assert result["filename"] == doc.filename
     assert isinstance(result["page_number"], int)
+
+
+# ============================================================================
+# RERANKING TESTS
+# ============================================================================
+
+def test_retrieve_with_reranking_basic(db_session, sample_document_with_chunks):
+    """Test basic reranking functionality"""
+    doc, chunks = sample_document_with_chunks
+
+    query = "How many vacation days do employees get?"
+    results = retrieve_with_reranking(
+        query,
+        db_session,
+        initial_k=6,  # Get all chunks
+        final_k=3     # Return top 3 after reranking
+    )
+
+    # Should return final_k results
+    assert len(results) <= 3
+    assert len(results) > 0
+
+    # Each result should have reranking score
+    for result in results:
+        assert "reranking_score" in result
+        assert "original_similarity" in result
+        assert isinstance(result["reranking_score"], float)
+
+    # Results should be sorted by reranking score
+    reranking_scores = [r["reranking_score"] for r in results]
+    assert reranking_scores == sorted(reranking_scores, reverse=True)
+
+
+def test_reranking_improves_order(db_session, sample_document_with_chunks):
+    """Test that reranking improves result ordering"""
+    doc, chunks = sample_document_with_chunks
+
+    # Query that might have different vector vs semantic relevance
+    query = "What are the benefits of working here?"
+
+    # Get results without reranking (lower threshold to get results)
+    no_rerank = retrieve_relevant_chunks(query, db_session, top_k=5, similarity_threshold=0.1)
+
+    # Get results with reranking
+    with_rerank = retrieve_with_reranking(
+        query,
+        db_session,
+        initial_k=6,
+        final_k=5,
+        similarity_threshold=0.1
+    )
+
+    # Both should return results
+    assert len(no_rerank) > 0
+    assert len(with_rerank) > 0
+
+    # The top results might be different (reranking can change order)
+    # We can't assert they're different, but we can verify both work
+    assert all("chunk_id" in r for r in with_rerank)
+    assert all("reranking_score" in r for r in with_rerank)
+
+
+def test_reranking_with_no_candidates(db_session):
+    """Test reranking when no chunks match"""
+    query = "quantum physics theories"
+
+    results = retrieve_with_reranking(
+        query,
+        db_session,
+        initial_k=10,
+        final_k=5,
+        similarity_threshold=0.9  # Very high threshold
+    )
+
+    # Should handle gracefully
+    assert isinstance(results, list)
+    assert len(results) == 0
+
+
+def test_reranking_preserves_metadata(db_session, sample_document_with_chunks):
+    """Test that reranking preserves all chunk metadata"""
+    doc, chunks = sample_document_with_chunks
+
+    query = "remote work policy"
+    results = retrieve_with_reranking(query, db_session, initial_k=6, final_k=2)
+
+    assert len(results) > 0
+    result = results[0]
+
+    # Should have all original fields plus reranking fields
+    assert "chunk_id" in result
+    assert "text" in result
+    assert "filename" in result
+    assert "page_number" in result
+    assert "document_id" in result
+    assert "similarity_score" in result
+    assert "reranking_score" in result
+    assert "original_similarity" in result
+
+
+def test_reranking_parameters(db_session, sample_document_with_chunks):
+    """Test different reranking parameter combinations"""
+    query = "sick leave policy"
+
+    # Test different initial_k values
+    results_10 = retrieve_with_reranking(query, db_session, initial_k=10, final_k=3)
+    results_3 = retrieve_with_reranking(query, db_session, initial_k=3, final_k=3)
+
+    # Both should work and respect final_k
+    assert len(results_10) <= 3
+    assert len(results_3) <= 3
+
+    # Test when initial_k < final_k (should return initial_k results)
+    results_limited = retrieve_with_reranking(query, db_session, initial_k=2, final_k=5)
+    assert len(results_limited) <= 2

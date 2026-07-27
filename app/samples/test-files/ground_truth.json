@@ -1,0 +1,110 @@
+{
+  "plain-text.pdf": [
+    {
+      "query": "How many days of PTO do full-time employees get per year?",
+      "expected_answer": "Full-time employees are entitled to 20 days of paid time off (PTO) per year.",
+      "category": "benefits"
+    },
+    {
+      "query": "What are the standard working hours?",
+      "expected_answer": "Standard working hours are Monday through Friday, 9:00 AM to 5:00 PM.",
+      "category": "policy"
+    },
+    {
+      "query": "How much does the company match for 401(k)?",
+      "expected_answer": "The company provides a 401(k) with 5% company match.",
+      "category": "benefits"
+    },
+    {
+      "query": "How many days per week can employees work remotely?",
+      "expected_answer": "Employees may work remotely up to 3 days per week with manager approval.",
+      "category": "policy"
+    },
+    {
+      "query": "What is the professional development budget?",
+      "expected_answer": "Employees receive a $2,000 annual budget for training and conferences.",
+      "category": "benefits"
+    }
+  ],
+  "financial-report-with-tables.pdf": [
+    {
+      "query": "What was the total revenue in Q2 2024?",
+      "expected_answer": "The total revenue in Q2 2024 was $125,500 thousand or $125.5 million.",
+      "category": "financial_metrics"
+    },
+    {
+      "query": "What was the net income for Q2 2024?",
+      "expected_answer": "The net income for Q2 2024 was $23,400 thousand or $23.4 million.",
+      "category": "financial_metrics"
+    },
+    {
+      "query": "How much did revenue increase year-over-year?",
+      "expected_answer": "Revenue increased by 18.0% year-over-year from Q2 2023 to Q2 2024.",
+      "category": "financial_analysis"
+    },
+    {
+      "query": "What was the total cash at the end of Q2 2024?",
+      "expected_answer": "Cash and cash equivalents at June 30, 2024 was $145,200 thousand or $145.2 million.",
+      "category": "financial_metrics"
+    },
+    {
+      "query": "What were the operating expenses in Q2 2024?",
+      "expected_answer": "Total operating expenses in Q2 2024 were $52,100 thousand, consisting of R&D ($28,500), Sales & Marketing ($18,200), and G&A ($5,400).",
+      "category": "financial_metrics"
+    }
+  ],
+  "product-catalog.xlsx": [
+    {
+      "query": "What is the price of the Mechanical Keyboard?",
+      "expected_answer": "The Mechanical Keyboard (SKU: KB-003) costs $89.99.",
+      "category": "product_info"
+    },
+    {
+      "query": "How many Wireless Mouse units are in stock?",
+      "expected_answer": "There are 150 units of Wireless Mouse in stock.",
+      "category": "inventory"
+    },
+    {
+      "query": "What products are in the Furniture category?",
+      "expected_answer": "The Ergonomic Chair (CH-007) is in the Furniture category.",
+      "category": "product_info"
+    },
+    {
+      "query": "What is the most expensive product?",
+      "expected_answer": "The most expensive product is the Monitor 27 inch at $349.99.",
+      "category": "product_info"
+    },
+    {
+      "query": "Which products have stock level below 100?",
+      "expected_answer": "Products with stock below 100 include: Mechanical Keyboard (75), HD Webcam (60), Ergonomic Chair (45), Monitor 27 inch (30), Noise Cancelling Headphones (85), External SSD 1TB (90), Document Scanner (50), Wireless Keyboard (95), Monitor Arm Mount (65), Graphics Tablet (40), and Wireless Presenter (70).",
+      "category": "inventory"
+    }
+  ],
+  "technical-manual-with-diagrams.pdf": [
+    {
+      "query": "What are the RAM specifications for CloudServer Pro X500?",
+      "expected_answer": "The CloudServer Pro X500 has 256 GB DDR4 ECC RAM.",
+      "category": "specifications"
+    },
+    {
+      "query": "How many cores does the CPU have?",
+      "expected_answer": "The server has Dual Intel Xeon Gold 6248R processors with 48 cores total.",
+      "category": "specifications"
+    },
+    {
+      "query": "What is the recommended DMZ subnet?",
+      "expected_answer": "The recommended DMZ subnet is 192.168.10.0/24.",
+      "category": "configuration"
+    },
+    {
+      "query": "What should I do if the server won't boot?",
+      "expected_answer": "If the server won't boot, check power connections to both PSUs, verify RAM is properly seated, check BIOS error codes on front panel, and reset CMOS if configuration is corrupted.",
+      "category": "troubleshooting"
+    },
+    {
+      "query": "What storage configuration does the server use?",
+      "expected_answer": "The server uses 4x 2TB NVMe SSD in RAID 10 configuration.",
+      "category": "specifications"
+    }
+  ]
+}

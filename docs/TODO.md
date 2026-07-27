@@ -1,34 +1,36 @@
 
 ---
 
-## DONE (Implemented & Documented)
+## 📄 DOCUMENTED (Ready to Implement)
 
-- [x] **Feature 01:** Document Ingestion
-- [x] **Feature 02:** Grounded Question Answering
-- [x] **Feature 03:** Document Management
-- [x] **Feature 04:** Multi-turn Chat
-- [x] **Feature 05:** Query Routing (LangGraph)
-- [x] **Feature 06:** MCP Integration
-- [x] **Feature 07:** Evaluation Harness
-- [x] **Feature 08:** Structured Data Extraction
-
----
-
-## DOCUMENTED (Ready to Implement)
-
-- [x] **Feature 09:** Comparative Analysis (docs done ✓)
-- [x] **Feature 10:** Advanced Filters & Metadata (docs done ✓)
-- [x] **Feature 11:** Document Summarization (docs done ✓)
+- [ ] **Feature 09:** Comparative Analysis (docs done, ready to implement)
+- [ ] **Feature 10:** Advanced Filters & Metadata (docs done, ready to implement)
+- [ ] **Feature 11:** Document Summarization (docs done, ready to implement)
 
 ---
 
 ## ⏳ TODO (Not Started)
 
-### Phase 1: High Priority
-- [ ] **Feature 12:** Multi-format Document Support (Word, Excel, PowerPoint, HTML, Markdown)
+### Advanced RAG - Next Phases
+- [ ] **Phase 4:** Hybrid Search (BM25 + Semantic)
+  - Add keyword-based retrieval alongside vector search
+  - Weighted fusion of BM25 and semantic scores
+  - Better handling of exact matches and acronyms
+
+- [ ] **Phase 5:** Multimodal Support
+  - Extract and describe images/diagrams using vision models
+  - OCR for image-based tables
+  - Preserve visual context in answers
+
+- [ ] **Phase 6:** Excel/CSV Ingestion
+  - Parse spreadsheets with multiple sheets
+  - Preserve formulas and relationships
+  - Query numeric data with aggregations
+
+### High Priority Features
+- [ ] **Feature 12:** Multi-format Document Support (Word, PowerPoint, HTML, Markdown)
 - [ ] **Feature 13:** Query Templates & Saved Queries
 - [ ] **Feature 14:** Batch Q&A Processing
-- [ ] **Feature 15:** Hybrid Search (Keyword + Semantic)
 
 ### Phase 2: Medium Priority
 - [ ] **Feature 16:** Analytics Dashboard

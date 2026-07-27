@@ -49,16 +49,22 @@ curl -X POST http://localhost:8000/documents \
 ```
 Your PDF
     ↓
-1. Extract text from each page (preserves page numbers)
+1. Extract text from each page using PyPDF2 (preserves page numbers)
     ↓
-2. Split text into chunks (512 tokens each, 128 overlap)
+2. Split text into chunks (500 characters each, 50 character overlap)
     ↓
-3. Convert each chunk to a vector embedding
+3. Convert each chunk to a 384-dim vector embedding (all-MiniLM-L6-v2)
     ↓
 4. Store in PostgreSQL with pgvector
     ↓
 Ready for questions!
 ```
+
+**Technical Details:**
+- **Text Extraction:** PyPDF2's `extract_text()` - works well for text-based PDFs
+- **Chunking:** Fixed-size character chunking with sentence boundary detection
+- **Embedding Model:** sentence-transformers/all-MiniLM-L6-v2 (384 dimensions)
+- **Vector Index:** pgvector with cosine similarity
 
 **Example chunks from a handbook:**
 
@@ -67,7 +73,7 @@ Chunk 1 (page 7):
 "Employees receive 15 days of paid vacation per year. Unused vacation
 days can be carried over up to a maximum of 5 days..."
 
-Chunk 2 (page 7-8):  ← 128 token overlap with Chunk 1
+Chunk 2 (page 7-8):  ← 50 character overlap with Chunk 1
 "...days can be carried over up to a maximum of 5 days. Sick leave is
 separate and employees receive 10 days of paid sick leave annually..."
 
@@ -86,26 +92,35 @@ submit a request via the HR portal at least 2 weeks in advance..."
 - Technical manuals, user guides
 - Contract templates, legal documents
 
+### ⚠️ Limited Support
+- **Tables in PDFs** - Text is extracted but table structure is lost
+- **Images/Diagrams** - Currently ignored, only text is extracted
+- **Complex layouts** - Multi-column or hierarchical content may lose structure
+
 ### ❌ Not Currently Supported
-- Scanned PDFs (images, not text) - OCR coming soon
+- Scanned PDFs (images, not text) - OCR required
 - Password-protected PDFs
+- Excel/CSV files with structured data
+- DOCX, TXT, Markdown files
 - Files over 10MB (configurable)
+- PDFs with forms or interactive elements
 
 ---
 
 ## Configuration
 
-**Chunk size:**
-```bash
-# .env
-CHUNK_SIZE=512         # Tokens per chunk
-CHUNK_OVERLAP=128      # Overlap between chunks
+**Chunk size (in code, not configurable via .env yet):**
+```python
+# app/services/embeddings.py
+chunk_size = 500        # Characters per chunk (not tokens)
+overlap = 50            # Character overlap between chunks
 ```
 
-**Tune chunking based on your documents:**
-- **Long documents (100+ pages):** Use smaller chunks (256) for precision
-- **Short documents (<10 pages):** Use larger chunks (1024) for context
-- **Multi-language:** Keep default (512) - works well for most cases
+**Note:** Chunking parameters are currently hardcoded. Configuration via environment variables is planned for a future release.
+
+**Tuning recommendations:**
+- **Current implementation** works well for most text-based documents
+- For documents with tables or technical content, consider the advanced chunking roadmap below
 
 ---
 
@@ -150,17 +165,45 @@ curl -X POST http://localhost:8000/search \
 
 ## Limitations & Future Plans
 
-**Current limitations:**
+### Current Limitations
+
+**Architecture:**
 - Synchronous upload (blocks until complete)
 - No multi-file upload
-- PDFs only
+- Simple character-based chunking (doesn't respect semantic boundaries)
 
-**Future enhancements:**
+**Document Types:**
+- PDFs only (DOCX, Excel, TXT not supported)
+- Text extraction only (tables lose structure, images ignored)
+- No OCR for scanned PDFs
+
+**Chunking Strategy:**
+- Fixed 500-character chunks (not semantically aware)
+- No hierarchical relationships (sections, subsections)
+- Tables split arbitrarily across chunks
+
+### Planned Enhancements
+
+**Phase 1: Better Document Processing** (High Priority)
+- [ ] **Table extraction** - Preserve table structure using pdfplumber
+- [ ] **Semantic chunking** - Chunk by topic/section instead of character count
+- [ ] **Document structure preservation** - Track headers, lists, hierarchies
+- [ ] **Excel/CSV ingestion** - Support structured data files
+- [ ] Sample test files for tables, images, Excel
+
+**Phase 2: Advanced Features**
+- [ ] **Reranking** - Two-stage retrieval for better relevance
+- [ ] **Multimodal support** - Extract and index images/diagrams
+- [ ] **OCR for scanned PDFs** - Support image-based PDFs
+- [ ] DOCX, TXT, Markdown support
+
+**Phase 3: Operational Improvements**
 - [ ] Async ingestion (background queue)
 - [ ] Bulk upload endpoint
-- [ ] DOCX, TXT, Markdown support
-- [ ] OCR for scanned PDFs
 - [ ] Document versioning (track changes over time)
+- [ ] Configurable chunking via environment variables
+
+See [ROADMAP.md](../ROADMAP.md) for detailed technical plans.
 
 ---
 

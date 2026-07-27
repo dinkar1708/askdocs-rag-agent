@@ -36,7 +36,7 @@ def chunk_text(
     chunk_size: int = 500,
     overlap: int = 50
 ) -> List[Dict]:
-    """Split text into overlapping chunks
+    """Split text into overlapping chunks (character-based)
 
     Args:
         text: Text to chunk
@@ -76,5 +76,61 @@ def chunk_text(
         start = end - overlap
         if start >= len(text):
             break
+
+    return chunks
+
+
+def semantic_chunk_text(
+    text: str,
+    page_number: int,
+    use_semantic: bool = True,
+    similarity_threshold: float = 0.5,
+    min_chunk_size: int = 200,
+    max_chunk_size: int = 1000
+) -> List[Dict]:
+    """
+    Chunk text semantically or fall back to character-based.
+
+    If use_semantic=True:
+        - Use SemanticChunker to split at topic boundaries
+    Else:
+        - Use existing character-based chunking
+
+    Args:
+        text: Text to chunk
+        page_number: Page number this text came from
+        use_semantic: Whether to use semantic chunking
+        similarity_threshold: Threshold for semantic similarity (0-1)
+        min_chunk_size: Minimum chunk size in characters
+        max_chunk_size: Maximum chunk size in characters
+
+    Returns:
+        List of chunks with text and page_number
+    """
+    if not use_semantic:
+        # Fall back to character-based chunking
+        return chunk_text(text, page_number)
+
+    # Import here to avoid circular dependency
+    from app.services.semantic_chunker import get_semantic_chunker
+
+    # Get semantic chunker instance
+    chunker = get_semantic_chunker(similarity_threshold=similarity_threshold)
+
+    # Perform semantic chunking
+    chunk_texts = chunker.chunk_by_similarity(
+        text,
+        min_chunk_size=min_chunk_size,
+        max_chunk_size=max_chunk_size
+    )
+
+    # Format chunks with metadata
+    chunks = []
+    for chunk_text_content in chunk_texts:
+        if chunk_text_content.strip():
+            chunks.append({
+                "text": chunk_text_content.strip(),
+                "page_number": page_number
+            })
 
     return chunks

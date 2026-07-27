@@ -8,14 +8,24 @@
   "response": {
     "question": "What's the weather today?",
     "answer": "not_found - This question cannot be answered from the uploaded documents.",
-    "sources": [],
-    "timestamp": "2026-07-25T06:36:43.681890",
+    "sources": [
+      {
+        "chunk_id": 361,
+        "filename": "company_policy.pdf",
+        "page_number": 2,
+        "similarity_score": 0.21630388899995223,
+        "text_excerpt": "Standard Hours: Our standard work week is Monday through Friday, 9:00 AM to 5:00 PM, with a one-hour lunch break.",
+        "reranking_score": 1.6248272004304454e-05,
+        "original_similarity": 0.21630388899995223
+      }
+    ],
+    "timestamp": "2026-07-27T15:09:47.613204",
     "model_used": "mock",
     "session_id": null,
     "metadata": {
       "intent": "refuse",
-      "confidence": 0.0,
-      "reason": "No relevant documents found"
+      "confidence": 0.21630388899995223,
+      "reason": "Question is not related to uploaded documents"
     }
   }
 }

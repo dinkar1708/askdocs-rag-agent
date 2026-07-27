@@ -1,11 +1,11 @@
 {
-  "api": "GET /documents/17",
+  "api": "GET /documents/112",
   "request": {},
   "response": {
-    "id": 17,
+    "id": 112,
     "filename": "test.pdf",
     "page_count": 1,
-    "uploaded_at": "2026-07-25T06:36:28.759691",
+    "uploaded_at": "2026-07-27T15:09:43.939757",
     "chunk_count": 1
   }
 }

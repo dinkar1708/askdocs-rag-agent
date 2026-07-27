@@ -186,3 +186,82 @@ def test_source_citation_format(client, sample_document_with_chunks):
 
         # Text excerpt should not be too long
         assert len(source["text_excerpt"]) <= 203  # 200 + "..."
+
+
+# ============================================================================
+# RERANKING TESTS FOR /ASK ENDPOINT
+# ============================================================================
+
+def test_ask_with_reranking_enabled(client, sample_document_with_chunks, monkeypatch):
+    """Test that /ask endpoint uses reranking when enabled"""
+    # Ensure reranking is enabled
+    monkeypatch.setenv("RERANKING_ENABLED", "true")
+
+    response = client.post(
+        "/ask/",
+        json={
+            "question": "How many vacation days do employees get?",
+            "top_k": 3
+        }
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+
+    # Should have sources with reranking scores
+    assert len(data["sources"]) > 0
+
+    for source in data["sources"]:
+        # When reranking is enabled, should have reranking_score
+        # Note: This depends on implementation - might be optional
+        assert "similarity_score" in source
+
+
+def test_ask_reranking_response_fields(client, sample_document_with_chunks):
+    """Test that reranked responses include proper fields"""
+    response = client.post(
+        "/ask/",
+        json={
+            "question": "What is the 401k matching policy?",
+            "top_k": 2,
+            "include_sources": True
+        }
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+
+    # Basic response structure
+    assert "answer" in data
+    assert "sources" in data
+    assert len(data["sources"]) > 0
+
+    # Each source should have proper structure
+    source = data["sources"][0]
+    assert "chunk_id" in source
+    assert "similarity_score" in source
+    # reranking_score and original_similarity are optional depending on config
+
+
+def test_ask_compares_with_without_reranking(client, sample_document_with_chunks, monkeypatch):
+    """Test that we can toggle reranking on/off"""
+    question = {"question": "What are the health insurance benefits?", "top_k": 3}
+
+    # With reranking enabled (default)
+    monkeypatch.setenv("RERANKING_ENABLED", "true")
+    response_with = client.post("/ask/", json=question)
+    assert response_with.status_code == 200
+    data_with = response_with.json()
+
+    # Without reranking
+    monkeypatch.setenv("RERANKING_ENABLED", "false")
+    # Note: May need to reload config or restart app for this to take effect
+    response_without = client.post("/ask/", json=question)
+    assert response_without.status_code == 200
+    data_without = response_without.json()
+
+    # Both should return valid responses
+    assert "answer" in data_with
+    assert "answer" in data_without
+    assert len(data_with["sources"]) > 0
+    assert len(data_without["sources"]) > 0

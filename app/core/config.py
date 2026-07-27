@@ -27,6 +27,18 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     LOG_LEVEL: str = "INFO"
 
+    # Reranking Configuration
+    RERANKING_ENABLED: bool = True
+    RERANKING_MODEL: str = "BAAI/bge-reranker-v2-m3"
+    RETRIEVAL_INITIAL_K: int = 30  # Candidates to retrieve in stage 1
+    RETRIEVAL_FINAL_K: int = 5     # Final results after reranking
+
+    # Semantic Chunking Configuration
+    SEMANTIC_CHUNKING_ENABLED: bool = False  # Default to False for backward compatibility
+    SEMANTIC_SIMILARITY_THRESHOLD: float = 0.5
+    MIN_CHUNK_SIZE: int = 200
+    MAX_CHUNK_SIZE: int = 1000
+
     class Config:
         env_file = ".env"
         extra = "ignore"

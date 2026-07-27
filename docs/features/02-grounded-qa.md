@@ -93,7 +93,7 @@ curl -X POST http://localhost:8000/ask \
 ```
 Your Question: "What is the vacation policy?"
     ↓
-1. Embed query → convert to vector
+1. Embed query → convert to 384-dim vector (all-MiniLM-L6-v2)
     ↓
 2. Search database for similar chunks (top-5 by cosine similarity)
     ↓
@@ -114,6 +114,8 @@ Your Question: "What is the vacation policy?"
     ↓
 6. LLM generates answer → Extract citations → Return
 ```
+
+**Note:** Current implementation uses single-stage retrieval. Reranking is planned for Phase 2 (see roadmap below).
 
 ---
 
@@ -273,16 +275,43 @@ Correct Refusals: 100% (5/5 off-topic questions refused)
 
 ## Limitations & Future Plans
 
-**Current limitations:**
-- Single-turn only (no conversation history)
-- English-optimized (multilingual works but less accurate)
-- No image/table understanding (text only)
+### Current Limitations
 
-**Future enhancements:**
-- [ ] Multi-turn chat (see [Multi-turn Chat](04-multi-turn-chat.md))
-- [ ] Multi-language optimization
-- [ ] Table extraction and understanding
+**Retrieval:**
+- Single-stage retrieval (no reranking)
+- Cosine similarity only (no hybrid search with BM25)
+- Fixed top-k (no dynamic retrieval based on query complexity)
+
+**Understanding:**
+- Single-turn only (no conversation history - see [Multi-turn Chat](04-multi-turn-chat.md))
+- English-optimized (multilingual works but less accurate)
+- No table structure understanding (tables extracted as plain text)
+- Images/diagrams ignored completely
+
+**Answer Quality:**
+- May miss answers if they're split across chunks poorly
+- No cross-document synthesis (answers from single document only)
+
+### Planned Enhancements
+
+**Phase 1: Better Retrieval** (High Priority)
+- [ ] **Reranking** - Two-stage retrieval (retrieve 20-50, rerank to top 5-10)
+  - Cross-encoder models (bge-reranker-v2-m3)
+  - Better relevance scoring
+- [ ] **Hybrid search** - Combine semantic search + BM25 keyword matching
+- [ ] **Query expansion** - Generate multiple query variants for better recall
+
+**Phase 2: Better Understanding**
+- [ ] Table-aware retrieval - Understand and query table structures
+- [ ] Hierarchical retrieval - Use document structure for better context
+- [ ] Cross-document synthesis - Combine answers from multiple sources
+
+**Phase 3: UX Improvements**
 - [ ] Follow-up question suggestions
+- [ ] Explanation of retrieval (why these chunks were selected)
+- [ ] Multi-language optimization
+
+See [ROADMAP.md](../ROADMAP.md) for technical implementation details.
 
 ---
 

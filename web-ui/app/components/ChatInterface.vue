@@ -51,7 +51,10 @@
                   <span v-if="source.chunk_count > 1" class="text-purple-300 ml-1">
                     ({{ source.chunk_count }} chunks)
                   </span>
-                  <span v-if="source.similarity_score" class="text-purple-300 ml-1">
+                  <span v-if="source.reranking_score" class="text-purple-200 ml-1">
+                    - {{ (source.reranking_score * 100).toFixed(1) }}% relevance
+                  </span>
+                  <span v-else-if="source.similarity_score" class="text-purple-300 ml-1">
                     - {{ (source.similarity_score * 100).toFixed(1) }}% match
                   </span>
                 </span>
