@@ -94,7 +94,10 @@ submit a request via the HR portal at least 2 weeks in advance..."
 
 ### ⚠️ Limited Support
 - **Tables in PDFs** - Text is extracted but table structure is lost
-- **Images/Diagrams** - Currently ignored, only text is extracted
+- **Images/Diagrams** - Currently ignored, only text is extracted (tested for robustness)
+  - Test case: `test_pdf_with_embedded_images_robustness`
+  - Test file: `app/samples/test-files/pdf-with-image.pdf`
+  - Verifies: Text extraction works correctly even with embedded images present
 - **Complex layouts** - Multi-column or hierarchical content may lose structure
 
 ### ❌ Not Currently Supported

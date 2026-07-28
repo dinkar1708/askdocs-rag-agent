@@ -82,6 +82,37 @@ class TestRealPDFProcessingWithAdvancedRAG:
             for table_chunk in table_chunks:
                 assert "|" in table_chunk["text"], "Table chunks should contain markdown table format"
 
+    @pytest.mark.asyncio
+    async def test_pdf_with_embedded_images_robustness(self):
+        """Test PDF with embedded images - verifies text extraction works with images present (Phase 5 prep)"""
+        pdf_path = SAMPLES_DIR / "test-files" / "pdf-with-image.pdf"
+
+        # Read the PDF file with embedded images
+        with open(pdf_path, "rb") as f:
+            pdf_bytes = f.read()
+
+        # Process the PDF
+        result = await process_pdf(pdf_bytes, "pdf-with-image.pdf")
+
+        # Verify basic processing works even with images
+        assert len(result["chunks"]) > 0, "Should extract chunks from PDF with images"
+        assert result["page_count"] == 2, "Should have 2 pages"
+
+        # Verify text extraction works (images should be ignored for now)
+        for chunk in result["chunks"]:
+            assert len(chunk["text"]) > 0, "Chunks should have text even with images present"
+            assert chunk["page_number"] > 0, "Chunks should have page numbers"
+            assert chunk["embedding"] is not None, "Chunks should have embeddings"
+            assert len(chunk["embedding"]) == 384, "Embeddings should be 384-dimensional"
+
+        # Verify content contains expected technical documentation text
+        all_text = " ".join([chunk["text"] for chunk in result["chunks"]])
+        assert "Technical Documentation" in all_text, "Should extract text content"
+        assert "System Architecture" in all_text, "Should extract all text"
+
+        # Images should be present in PDF but ignored (Phase 5 future feature)
+        # This test verifies robustness - no crashes with image-heavy PDFs
+
     def test_verify_real_sample_pdf_files_exist(self):
         """Verify real sample PDF files exist and are readable from disk"""
         required_files = [
