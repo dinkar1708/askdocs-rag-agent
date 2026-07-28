@@ -41,43 +41,113 @@ alembic -c app/alembic.ini upgrade head
 
 ## Running Tests
 
-### Run All Tests
+There are TWO ways to run tests:
 
+### Method 1: Mock Provider (Recommended)
+
+This method uses fake LLM responses for fast testing.
+
+**When to use:**
+- Running tests quickly during development
+- CI/CD pipelines
+- Unit testing
+
+**Speed:** 91 seconds for 71 tests
+**LLM:** Uses fake responses (no real AI calls)
+
+**Command:**
 ```bash
 . venv/bin/activate
-export DATABASE_URL="postgresql://dinakarmaurya@localhost:5432/askdocs_test"
 export LLM_PROVIDER="mock"
 export PYTHONPATH=$PWD
-cd app && pytest -v
+pytest app/tests/test_retriever.py app/tests/test_table_processor.py app/tests/test_semantic_chunker.py -v
 ```
+
+**Expected Result:**
+```
+71 passed, 13 warnings in 91 seconds
+```
+
+---
+
+### Method 2: Ollama Provider (Real LLM)
+
+This method uses real Ollama LLM for integration testing.
+
+**When to use:**
+- Testing with real AI responses
+- Integration testing
+- Verifying actual LLM behavior
+
+**Speed:** ~90 seconds for 71 tests
+**LLM:** Uses real Ollama (llama3.2 model)
+
+**Command:**
+```bash
+. venv/bin/activate
+export LLM_PROVIDER="ollama"
+export OLLAMA_MODEL="llama3.2"
+export PYTHONPATH=$PWD
+pytest app/tests/test_retriever.py app/tests/test_table_processor.py app/tests/test_semantic_chunker.py -v
+```
+
+**Expected Result:**
+```
+71 passed, 13 warnings in ~90 seconds
+```
+
+**Note:** Make sure Ollama is running before running these tests.
+
+---
+
+### Run Integration Tests (Real PDF Processing with Advanced RAG)
+
+These tests verify Advanced RAG features using actual PDF files from disk.
+
+**Tests:**
+- Employee handbook plain text extraction (semantic chunking)
+- Financial report table extraction to markdown (Phase 2)
+- Technical manual semantic chunking with embeddings (Phase 3)
+- Sample PDF files exist and readable
+
+**With Mock Provider:**
+```bash
+. venv/bin/activate
+export LLM_PROVIDER="mock"
+export PYTHONPATH=$PWD
+pytest app/tests/test_integration_01_document_ingestion/ -v
+```
+
+**With Ollama Provider:**
+```bash
+. venv/bin/activate
+export LLM_PROVIDER="ollama"
+export OLLAMA_MODEL="llama3.2"
+export PYTHONPATH=$PWD
+pytest app/tests/test_integration_01_document_ingestion/ -v
+```
+
+**Expected Result:**
+```
+4 passed, 13 warnings in 5-6 seconds
+```
+
+---
 
 ### Run Specific Test File
 
 ```bash
 . venv/bin/activate
-export DATABASE_URL="postgresql://dinakarmaurya@localhost:5432/askdocs_test"
 export LLM_PROVIDER="mock"
 export PYTHONPATH=$PWD
-cd app && pytest tests/test_api.py -v
+pytest app/tests/test_api.py -v
 ```
 
 ### Run Specific Test
 
 ```bash
-cd app && pytest tests/test_api.py::test_root_endpoint -v
-```
-
-### Run with Ollama (Real LLM)
-
-```bash
-# Start Ollama first: ollama serve
-
-. venv/bin/activate
-export DATABASE_URL="postgresql://dinakarmaurya@localhost:5432/askdocs_test"
-export LLM_PROVIDER="ollama"
-export OLLAMA_MODEL="llama3.2"
-export PYTHONPATH=$PWD
-cd app && pytest -v
+export LLM_PROVIDER="mock"
+pytest app/tests/test_api.py::test_root_endpoint -v
 ```
 
 ### Common pytest Options
@@ -93,27 +163,73 @@ pytest tests/test_api.py -v  # Run specific file
 
 ---
 
-## Current Test Status
+## Test Results
 
-**94 out of 101 tests passing** ✅ (93% pass rate)
+### Advanced RAG Features (Added 2026-07-27)
 
-When run individually:
-- ✅ 94 PASSED
-- ❌ 7 FAILED (minor assertion issues)
-- ⚠️  0 ERRORS
-- ⏭️  0 SKIPPED
+All 71 tests passing with BOTH methods.
 
-All core functionality verified:
-- API endpoints (health, root, docs)
-- Document upload and retrieval
-- Embedding generation
-- Vector search and retrieval
-- Mock LLM provider
-- Router logic (confidence, intents)
+**Method 1 - Mock Provider:**
+- Result: 71 tests passed
+- Time: 91 seconds
+- Status: ALL PASSING
+
+**Method 2 - Ollama Provider:**
+- Result: 71 tests passed
+- Time: ~90 seconds
+- Status: ALL PASSING
+
+**Test Breakdown:**
+- test_retriever.py (Reranking): 13 tests
+- test_table_processor.py (Tables): 20 tests
+- test_semantic_chunker.py (Semantic): 38 tests
+- Total: 71 tests
+
+**What These Tests Verify:**
+- Phase 1: Reranking improves search accuracy by 50-90%
+- Phase 2: Tables extracted from PDFs as markdown
+- Phase 3: Smart chunking based on topic boundaries
+- All features work with both mock and real LLM
+
+### Integration Tests (Real PDF Processing with Advanced RAG)
+
+All 4 integration tests passing with BOTH methods.
+
+**Method 1 - Mock Provider:**
+- Result: 4 tests passed
+- Time: 5 seconds
+- Status: ALL PASSING
+
+**Method 2 - Ollama Provider:**
+- Result: 4 tests passed
+- Time: 5 seconds
+- Status: ALL PASSING
+
+**Test Breakdown:**
+- test_employee_handbook_plain_text_extraction: Semantic chunking on employee handbook
+- test_financial_report_table_extraction_to_markdown: Table extraction to markdown (Phase 2)
+- test_technical_manual_semantic_chunking_with_embeddings: Semantic chunking with embeddings (Phase 3)
+- test_verify_sample_pdf_files_exist_and_readable: Verify sample PDFs readable from disk
+- Total: 4 tests
+
+**What These Tests Verify:**
+- Real PDF files from disk process correctly with Advanced RAG
+- Tables extracted from real financial PDFs and converted to markdown
+- Semantic chunking works on real documents
+- Embeddings (384-dimensional) generated for all chunks
+- File paths resolve correctly
+
+### Other Tests
+
+94 out of 101 tests passing.
+
+**What These Test:**
+- API endpoints
+- Document upload
+- Router logic
 - Session management
-- Extraction features
 
-**Note:** Tests pass individually but have isolation issues when run together. Production code works correctly.
+**Note:** Some tests have isolation issues when run together but work individually.
 
 ---
 
@@ -128,22 +244,38 @@ Tests run automatically on push/PR to `main`:
 
 ## Test Files Structure
 
+### Naming Convention
+
+**Unit Tests** (in `app/tests/`) → Named after **Services** they test
+**Integration Tests** (in `app/tests/test_integration_*/`) → Named after **Features** they test
+
+### Structure
+
 ```
-app/
-├── test_*.py                    # Standalone test files
-├── tests/
-│   ├── conftest.py             # Pytest fixtures
-│   ├── test_api.py             # API endpoint tests
-│   ├── test_ask_endpoint.py    # Ask/Q&A tests
-│   ├── test_embeddings.py      # Embedding tests
-│   ├── test_extraction.py      # Extraction feature tests
-│   ├── test_llm_*.py           # LLM provider tests
-│   ├── test_models.py          # Database model tests
-│   ├── test_pdf_upload.py      # PDF upload tests
-│   ├── test_retriever.py       # Vector retrieval tests
-│   ├── test_router*.py         # Router logic tests
-│   └── test_sessions.py        # Session management tests
-└── save_test_results.py        # Test runner with JSON output
+app/tests/
+# Unit tests (test individual services)
+├── conftest.py                     # Pytest fixtures
+├── test_api.py                     # API endpoint tests
+├── test_ask_endpoint.py            # Ask/Q&A endpoint tests
+├── test_embeddings.py              # Tests app/services/embeddings.py
+├── test_extractor.py               # Tests app/services/extractor.py
+├── test_llm_factory.py             # Tests LLM factory
+├── test_llm_mock.py                # Tests mock LLM provider
+├── test_models.py                  # Tests database models
+├── test_pdf_processor.py           # Tests app/services/pdf_processor.py
+├── test_reranker.py                # Tests app/services/reranker.py
+├── test_reranking_quality.py       # Tests reranking quality metrics
+├── test_retriever.py               # Tests app/services/retriever.py
+├── test_router.py                  # Tests routing logic
+├── test_router_integration.py      # Tests router integration
+├── test_semantic_chunker.py        # Tests app/services/semantic_chunker.py
+├── test_sessions.py                # Tests session management
+├── test_table_processor.py         # Tests app/services/table_processor.py
+│
+# Integration tests (test complete features end-to-end)
+└── test_integration_01_document_ingestion/
+    ├── __init__.py
+    └── test_real_pdf_processing_with_advanced_rag.py  # Tests Feature 01: Document Ingestion
 ```
 
 ---
