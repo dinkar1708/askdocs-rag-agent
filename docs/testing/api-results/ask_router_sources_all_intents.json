@@ -9,7 +9,7 @@
       "answer": "According to the employee handbook [company_policy.pdf - Page 1], full-time employees accrue 15 days of paid vacation per year, starting from their first day of employment.",
       "sources": [
         {
-          "chunk_id": 383,
+          "chunk_id": 1081,
           "filename": "company_policy.pdf",
           "page_number": 1,
           "similarity_score": 0.493162542174014,
@@ -18,7 +18,7 @@
           "original_similarity": 0.493162542174014
         },
         {
-          "chunk_id": 384,
+          "chunk_id": 1082,
           "filename": "company_policy.pdf",
           "page_number": 1,
           "similarity_score": 0.3134551141695714,
@@ -27,7 +27,7 @@
           "original_similarity": 0.3134551141695714
         },
         {
-          "chunk_id": 386,
+          "chunk_id": 1084,
           "filename": "company_policy.pdf",
           "page_number": 2,
           "similarity_score": 0.3606394636821588,
@@ -36,7 +36,7 @@
           "original_similarity": 0.3606394636821588
         }
       ],
-      "timestamp": "2026-07-27T15:09:48.169858",
+      "timestamp": "2026-07-28T14:06:35.058777",
       "model_used": "mock",
       "session_id": null,
       "metadata": {
@@ -50,7 +50,7 @@
       "answer": "not_found - This question cannot be answered from the uploaded documents.",
       "sources": [
         {
-          "chunk_id": 385,
+          "chunk_id": 1083,
           "filename": "company_policy.pdf",
           "page_number": 2,
           "similarity_score": 0.21063529817356852,
@@ -59,7 +59,7 @@
           "original_similarity": 0.21063529817356852
         }
       ],
-      "timestamp": "2026-07-27T15:09:48.244126",
+      "timestamp": "2026-07-28T14:06:35.130687",
       "model_used": "mock",
       "session_id": null,
       "metadata": {
@@ -72,7 +72,7 @@
       "question": "How?",
       "answer": "not_found - This question cannot be answered from the uploaded documents.",
       "sources": [],
-      "timestamp": "2026-07-27T15:09:48.254174",
+      "timestamp": "2026-07-28T14:06:35.139276",
       "model_used": "mock",
       "session_id": null,
       "metadata": {

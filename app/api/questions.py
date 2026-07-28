@@ -33,13 +33,15 @@ async def ask_question(
             query=request.question,
             db=db,
             initial_k=settings.RETRIEVAL_INITIAL_K,
-            final_k=request.top_k
+            final_k=request.top_k,
+            metadata_filters=request.metadata_filters
         )
     else:
         chunks = retrieve_relevant_chunks(
             query=request.question,
             db=db,
-            top_k=request.top_k
+            top_k=request.top_k,
+            metadata_filters=request.metadata_filters
         )
 
     # Step 1.5: Verify session exists (if provided)

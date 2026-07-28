@@ -4,11 +4,12 @@
   "response": {
     "documents": [
       {
-        "id": 111,
+        "id": 223,
         "filename": "test1.pdf",
         "page_count": 1,
-        "uploaded_at": "2026-07-27T15:09:43.916326",
-        "chunk_count": 1
+        "uploaded_at": "2026-07-28T14:06:30.457365",
+        "chunk_count": 1,
+        "doc_metadata": {}
       }
     ],
     "total": 1,

@@ -1,14 +1,59 @@
 <template>
   <div class="flex flex-col h-full bg-white rounded-lg shadow-md">
     <!-- Chat Header -->
-    <div class="flex justify-between items-center p-4 border-b border-gray-200">
-      <h2 class="text-xl font-bold text-gray-900">Ask Your Documents</h2>
-      <button
-        @click="newChat"
-        class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
-      >
-        New Chat
-      </button>
+    <div class="p-4 border-b border-gray-200">
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="text-xl font-bold text-gray-900">Ask Your Documents</h2>
+        <button
+          @click="newChat"
+          class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+        >
+          New Chat
+        </button>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="flex flex-wrap gap-2 items-center">
+        <span class="text-sm font-medium text-gray-700">Filters:</span>
+        <select v-model="filters.department" class="text-sm px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600">
+          <option value="">All Departments</option>
+          <option value="HR">HR</option>
+          <option value="IT">IT</option>
+          <option value="Finance">Finance</option>
+          <option value="Operations">Operations</option>
+          <option value="Sales">Sales</option>
+          <option value="Marketing">Marketing</option>
+        </select>
+
+        <select v-model="filters.grade" class="text-sm px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600">
+          <option value="">All Grades</option>
+          <option value="K-8">K-8</option>
+          <option value="9-12">9-12</option>
+          <option value="College">College</option>
+          <option value="All">All Grades</option>
+        </select>
+
+        <select v-model="filters.type" class="text-sm px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600">
+          <option value="">All Types</option>
+          <option value="policy">Policy</option>
+          <option value="handbook">Handbook</option>
+          <option value="guide">Guide</option>
+          <option value="manual">Manual</option>
+          <option value="contract">Contract</option>
+        </select>
+
+        <button
+          v-if="hasActiveFilters"
+          @click="clearFilters"
+          class="text-sm px-3 py-1.5 text-purple-600 hover:text-purple-700 font-medium"
+        >
+          Clear Filters
+        </button>
+
+        <span v-if="hasActiveFilters" class="text-xs text-purple-600 font-medium">
+          (Filtering active)
+        </span>
+      </div>
     </div>
 
     <!-- Messages Container -->
@@ -111,6 +156,27 @@ const isLoading = ref(false)
 const sessionId = ref<string | null>(null)
 const messagesContainer = ref<HTMLDivElement | null>(null)
 
+// Filter state
+const filters = ref({
+  department: '',
+  grade: '',
+  type: ''
+})
+
+// Check if any filters are active
+const hasActiveFilters = computed(() => {
+  return filters.value.department || filters.value.grade || filters.value.type
+})
+
+// Clear all filters
+const clearFilters = () => {
+  filters.value = {
+    department: '',
+    grade: '',
+    type: ''
+  }
+}
+
 // Restore or create session on mount
 onMounted(async () => {
   // Check localStorage for existing session
@@ -178,7 +244,17 @@ const sendMessage = async () => {
   isLoading.value = true
 
   try {
-    const response = await api.askQuestion(question, sessionId.value || undefined)
+    // Prepare metadata filters (only include non-empty values)
+    const metadataFilters: Record<string, any> = {}
+    if (filters.value.department) metadataFilters.department = filters.value.department
+    if (filters.value.grade) metadataFilters.grade = filters.value.grade
+    if (filters.value.type) metadataFilters.type = filters.value.type
+
+    const response = await api.askQuestion(
+      question,
+      sessionId.value || undefined,
+      Object.keys(metadataFilters).length > 0 ? metadataFilters : undefined
+    )
 
     const assistantMessage: Message = {
       id: (Date.now() + 1).toString(),

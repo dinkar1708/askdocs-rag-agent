@@ -10,6 +10,10 @@ class QuestionRequest(BaseModel):
     top_k: int = Field(default=5, ge=1, le=20, description="Number of chunks to retrieve")
     include_sources: bool = Field(default=True, description="Include source citations in response")
     session_id: Optional[int] = Field(default=None, description="Session ID for conversation history")
+    metadata_filters: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Filter documents by metadata (e.g., {'department': 'HR', 'grade': '9-12'})"
+    )
 
 
 class SourceCitation(BaseModel):

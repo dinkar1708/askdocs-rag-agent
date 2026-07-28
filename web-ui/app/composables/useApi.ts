@@ -29,6 +29,7 @@ export interface Document {
   uploaded_at: string
   chunk_count: number
   page_count: number
+  doc_metadata?: Record<string, any>
 }
 
 export interface AskResponse {
@@ -44,9 +45,13 @@ export const useApi = () => {
   /**
    * Upload a PDF document
    */
-  const uploadDocument = async (file: File): Promise<Document> => {
+  const uploadDocument = async (file: File, metadata?: Record<string, any>): Promise<Document> => {
     const formData = new FormData()
     formData.append('file', file)
+
+    if (metadata && Object.keys(metadata).length > 0) {
+      formData.append('metadata', JSON.stringify(metadata))
+    }
 
     const response = await $fetch<Document>('/documents', {
       baseURL: apiBase,
@@ -131,7 +136,8 @@ export const useApi = () => {
    */
   const askQuestion = async (
     question: string,
-    sessionId?: string
+    sessionId?: string,
+    metadataFilters?: Record<string, any>
   ): Promise<AskResponse> => {
     const response = await $fetch<AskResponse>('/ask', {
       baseURL: apiBase,
@@ -139,6 +145,7 @@ export const useApi = () => {
       body: {
         question,
         session_id: sessionId,
+        metadata_filters: metadataFilters,
       },
     })
 

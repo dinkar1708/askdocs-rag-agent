@@ -4,10 +4,11 @@
     "file": "test.pdf (binary content)"
   },
   "response": {
-    "id": 110,
+    "id": 222,
     "filename": "test.pdf",
     "page_count": 1,
-    "uploaded_at": "2026-07-27T15:09:43.892906",
-    "chunk_count": 1
+    "uploaded_at": "2026-07-28T14:06:30.440435",
+    "chunk_count": 1,
+    "doc_metadata": {}
   }
 }

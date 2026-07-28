@@ -18,6 +18,7 @@ class Document(Base):
     filename = Column(String(255), nullable=False)
     page_count = Column(Integer, nullable=False)
     uploaded_at = Column(DateTime, default=datetime.utcnow)
+    doc_metadata = Column(JSON, default={}, nullable=False)  # Custom metadata (department, grade, type, tags, etc.)
 
     # Relationship to chunks
     chunks = relationship("Chunk", back_populates="document", cascade="all, delete-orphan")

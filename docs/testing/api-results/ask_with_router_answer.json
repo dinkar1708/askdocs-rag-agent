@@ -10,7 +10,7 @@
     "answer": "According to the employee handbook [company_policy.pdf - Page 1], full-time employees accrue 15 days of paid vacation per year, starting from their first day of employment.",
     "sources": [
       {
-        "chunk_id": 353,
+        "chunk_id": 1051,
         "filename": "company_policy.pdf",
         "page_number": 1,
         "similarity_score": 0.623486179813331,
@@ -19,7 +19,7 @@
         "original_similarity": 0.623486179813331
       },
       {
-        "chunk_id": 354,
+        "chunk_id": 1052,
         "filename": "company_policy.pdf",
         "page_number": 1,
         "similarity_score": 0.5595372915267944,
@@ -28,7 +28,7 @@
         "original_similarity": 0.5595372915267944
       },
       {
-        "chunk_id": 358,
+        "chunk_id": 1056,
         "filename": "company_policy.pdf",
         "page_number": 3,
         "similarity_score": 0.389352947473526,
@@ -37,7 +37,7 @@
         "original_similarity": 0.389352947473526
       }
     ],
-    "timestamp": "2026-07-27T15:09:47.505971",
+    "timestamp": "2026-07-28T14:06:34.371480",
     "model_used": "mock",
     "session_id": null,
     "metadata": {

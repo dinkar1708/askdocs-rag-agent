@@ -10,7 +10,7 @@
     "answer": "not_found - This question cannot be answered from the uploaded documents.",
     "sources": [
       {
-        "chunk_id": 361,
+        "chunk_id": 1059,
         "filename": "company_policy.pdf",
         "page_number": 2,
         "similarity_score": 0.21630388899995223,
@@ -19,7 +19,7 @@
         "original_similarity": 0.21630388899995223
       }
     ],
-    "timestamp": "2026-07-27T15:09:47.613204",
+    "timestamp": "2026-07-28T14:06:34.486149",
     "model_used": "mock",
     "session_id": null,
     "metadata": {

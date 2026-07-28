@@ -1,10 +1,10 @@
 {
-  "api": "GET /sessions/45",
+  "api": "GET /sessions/63",
   "request": {},
   "response": {
-    "id": 45,
-    "created_at": "2026-07-27T15:10:58.603515",
-    "last_accessed": "2026-07-27T15:10:58.604949",
+    "id": 63,
+    "created_at": "2026-07-28T14:07:45.687701",
+    "last_accessed": "2026-07-28T14:07:45.690587",
     "messages": []
   }
 }

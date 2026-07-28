@@ -13,7 +13,8 @@ def retrieve_relevant_chunks(
     query: str,
     db: Session,
     top_k: int = 5,
-    similarity_threshold: float = 0.3
+    similarity_threshold: float = 0.3,
+    metadata_filters: Optional[Dict] = None
 ) -> List[Dict]:
     """
     Retrieve most relevant document chunks for a query using vector similarity
@@ -23,6 +24,7 @@ def retrieve_relevant_chunks(
         db: Database session
         top_k: Number of chunks to retrieve (default 5)
         similarity_threshold: Minimum cosine similarity score (0-1, default 0.3)
+        metadata_filters: Optional dict to filter documents by metadata (e.g., {'department': 'HR'})
 
     Returns:
         List of dicts with keys: chunk_id, text, score, document_id, filename, page_number
@@ -32,6 +34,30 @@ def retrieve_relevant_chunks(
 
     # Convert embedding to pgvector format
     embedding_str = "[" + ",".join(str(x) for x in query_embedding) + "]"
+
+    # Build metadata filter conditions
+    metadata_conditions = []
+    params = {
+        "threshold": similarity_threshold,
+        "limit": top_k
+    }
+
+    if metadata_filters:
+        for key, value in metadata_filters.items():
+            # Use JSON operator to check if metadata contains the key-value pair
+            if isinstance(value, list):
+                # For array values, check if any element matches
+                metadata_conditions.append(f"d.doc_metadata->>'{key}' = ANY(:filter_{key})")
+                params[f"filter_{key}"] = value
+            else:
+                # For scalar values, do equality check
+                metadata_conditions.append(f"d.doc_metadata->>'{key}' = :filter_{key}")
+                params[f"filter_{key}"] = str(value)
+
+    # Combine all WHERE conditions
+    where_clause = f"WHERE 1 - (c.embedding <=> '{embedding_str}'::vector) >= :threshold"
+    if metadata_conditions:
+        where_clause += " AND " + " AND ".join(metadata_conditions)
 
     # Cosine similarity search using pgvector
     # Note: pgvector uses <=> for cosine distance, so we convert to similarity (1 - distance)
@@ -46,18 +72,12 @@ def retrieve_relevant_chunks(
             1 - (c.embedding <=> '{embedding_str}'::vector) as similarity_score
         FROM chunks c
         JOIN documents d ON c.document_id = d.id
-        WHERE 1 - (c.embedding <=> '{embedding_str}'::vector) >= :threshold
+        {where_clause}
         ORDER BY c.embedding <=> '{embedding_str}'::vector
         LIMIT :limit
     """
 
-    result = db.execute(
-        text(sql_query),
-        {
-            "threshold": similarity_threshold,
-            "limit": top_k
-        }
-    )
+    result = db.execute(text(sql_query), params)
 
     chunks = []
     for row in result:
@@ -117,7 +137,8 @@ def retrieve_with_reranking(
     db: Session,
     initial_k: int = 30,
     final_k: int = 5,
-    similarity_threshold: float = 0.2
+    similarity_threshold: float = 0.2,
+    metadata_filters: Optional[Dict] = None
 ) -> List[Dict]:
     """
     Two-stage retrieval with reranking for better relevance
@@ -133,6 +154,7 @@ def retrieve_with_reranking(
         initial_k: Number of candidates to retrieve in stage 1 (default 30)
         final_k: Number of final results after reranking (default 5)
         similarity_threshold: Minimum cosine similarity for stage 1 (default 0.2)
+        metadata_filters: Optional dict to filter documents by metadata
 
     Returns:
         Top-k reranked chunks with reranking_score and original_similarity fields
@@ -143,7 +165,8 @@ def retrieve_with_reranking(
         query=query,
         db=db,
         top_k=initial_k,
-        similarity_threshold=similarity_threshold
+        similarity_threshold=similarity_threshold,
+        metadata_filters=metadata_filters
     )
 
     if not candidates:

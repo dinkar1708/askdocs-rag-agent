@@ -37,6 +37,58 @@
           <p class="text-lg font-medium text-purple-600">{{ uploadProgress }}</p>
         </div>
       </div>
+
+      <!-- Metadata Form -->
+      <div class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <h4 class="font-semibold text-gray-900 mb-3">Document Metadata (Optional)</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+            <select v-model="metadata.department" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600">
+              <option value="">Select department</option>
+              <option value="HR">HR</option>
+              <option value="IT">IT</option>
+              <option value="Finance">Finance</option>
+              <option value="Operations">Operations</option>
+              <option value="Sales">Sales</option>
+              <option value="Marketing">Marketing</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
+            <select v-model="metadata.grade" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600">
+              <option value="">Select grade</option>
+              <option value="K-8">K-8</option>
+              <option value="9-12">9-12</option>
+              <option value="College">College</option>
+              <option value="All">All Grades</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Document Type</label>
+            <select v-model="metadata.type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600">
+              <option value="">Select type</option>
+              <option value="policy">Policy</option>
+              <option value="handbook">Handbook</option>
+              <option value="guide">Guide</option>
+              <option value="manual">Manual</option>
+              <option value="contract">Contract</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
+            <input
+              v-model="metadata.tags"
+              type="text"
+              placeholder="e.g., vacation, benefits, remote"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+            />
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Documents List -->
@@ -74,6 +126,12 @@
               <div class="text-sm text-gray-500 mt-1 space-y-0.5">
                 <p>{{ doc.chunk_count }} chunks</p>
                 <p>{{ formatDate(doc.uploaded_at) }}</p>
+              </div>
+              <!-- Metadata Badges -->
+              <div v-if="doc.doc_metadata && Object.keys(doc.doc_metadata).length > 0" class="mt-2 flex flex-wrap gap-1">
+                <span v-for="(value, key) in doc.doc_metadata" :key="key" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                  {{ key }}: {{ value }}
+                </span>
               </div>
             </div>
             <button
@@ -130,6 +188,14 @@ const uploadProgress = ref('')
 const fileInput = ref<HTMLInputElement | null>(null)
 const documentToDelete = ref<Document | null>(null)
 
+// Metadata form state
+const metadata = ref({
+  department: '',
+  grade: '',
+  type: '',
+  tags: ''
+})
+
 // Load documents on mount
 onMounted(() => {
   loadDocuments()
@@ -175,16 +241,30 @@ const uploadFile = async (file: File) => {
   uploadProgress.value = `Uploading ${file.name}...`
 
   try {
-    await api.uploadDocument(file)
+    // Prepare metadata object (only include non-empty values)
+    const metadataObj: Record<string, any> = {}
+    if (metadata.value.department) metadataObj.department = metadata.value.department
+    if (metadata.value.grade) metadataObj.grade = metadata.value.grade
+    if (metadata.value.type) metadataObj.type = metadata.value.type
+    if (metadata.value.tags) metadataObj.tags = metadata.value.tags.split(',').map(t => t.trim()).filter(t => t)
+
+    await api.uploadDocument(file, Object.keys(metadataObj).length > 0 ? metadataObj : undefined)
     uploadProgress.value = 'Processing document...'
     await loadDocuments()
     uploadProgress.value = 'Upload complete!'
 
-    // Reset after delay
+    // Reset form and metadata after delay
     setTimeout(() => {
       uploadProgress.value = ''
       if (fileInput.value) {
         fileInput.value.value = ''
+      }
+      // Reset metadata form
+      metadata.value = {
+        department: '',
+        grade: '',
+        type: '',
+        tags: ''
       }
     }, 1500)
   } catch (error: any) {
