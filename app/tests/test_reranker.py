@@ -10,7 +10,7 @@ class TestReranker:
     @pytest.fixture
     def mock_cross_encoder(self):
         """Mock CrossEncoder model"""
-        with patch('app.services.reranker.CrossEncoder') as mock_ce:
+        with patch('sentence_transformers.CrossEncoder') as mock_ce:
             mock_model = Mock()
             mock_ce.return_value = mock_model
             yield mock_model
@@ -184,7 +184,7 @@ class TestReranker:
 
     def test_model_loading_import_error(self):
         """Test handling of missing sentence-transformers package"""
-        with patch('app.services.reranker.CrossEncoder', side_effect=ImportError("No module")):
+        with patch('sentence_transformers.CrossEncoder', side_effect=ImportError("No module")):
             reranker = Reranker()
 
             with pytest.raises(ImportError, match="sentence-transformers is required"):
@@ -192,7 +192,7 @@ class TestReranker:
 
     def test_model_loading_runtime_error(self):
         """Test handling of model loading failures"""
-        with patch('app.services.reranker.CrossEncoder', side_effect=RuntimeError("Model download failed")):
+        with patch('sentence_transformers.CrossEncoder', side_effect=RuntimeError("Model download failed")):
             reranker = Reranker()
 
             with pytest.raises(RuntimeError, match="Failed to load reranker model"):
@@ -201,7 +201,7 @@ class TestReranker:
     def test_create_reranker_factory(self):
         """Test create_reranker factory function"""
         with patch('app.services.reranker.Reranker') as mock_reranker_class:
-            with patch('app.services.reranker.settings') as mock_settings:
+            with patch('app.core.config.settings') as mock_settings:
                 mock_settings.RERANKING_MODEL = 'test-model'
 
                 create_reranker()
@@ -222,25 +222,27 @@ class TestRerankingScores:
     @pytest.fixture
     def reranker_with_real_scores(self):
         """Create reranker with realistic score behavior"""
-        with patch('app.services.reranker.CrossEncoder') as mock_ce:
-            mock_model = Mock()
-            # Simulate realistic cross-encoder scores
-            def predict_func(pairs):
-                # Return different scores based on text relevance
-                scores = []
-                for query, text in pairs:
-                    if "vacation" in text.lower() and "vacation" in query.lower():
-                        scores.append(0.92)
-                    elif "sick" in text.lower():
-                        scores.append(0.65)
-                    else:
-                        scores.append(0.45)
-                return scores
+        mock_model = Mock()
+        # Simulate realistic cross-encoder scores
+        def predict_func(pairs):
+            # Return different scores based on text relevance
+            scores = []
+            for query, text in pairs:
+                if "vacation" in text.lower() and "vacation" in query.lower():
+                    scores.append(0.92)
+                elif "sick" in text.lower():
+                    scores.append(0.65)
+                else:
+                    scores.append(0.45)
+            return scores
 
-            mock_model.predict.side_effect = predict_func
-            mock_ce.return_value = mock_model
+        mock_model.predict.side_effect = predict_func
 
-            return Reranker(model_name='test-model')
+        # Create reranker and directly set the model to bypass lazy loading
+        reranker = Reranker(model_name='test-model')
+        reranker._model = mock_model
+
+        return reranker
 
     def test_reranking_improves_relevance_order(self, reranker_with_real_scores):
         """Integration test: verify reranking puts most relevant chunk first"""

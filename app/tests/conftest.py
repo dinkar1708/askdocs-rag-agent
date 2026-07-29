@@ -72,6 +72,24 @@ def mock_llm():
     llm.reset_call_count()
 
 
+@pytest.fixture(scope="function", autouse=True)
+def reset_singletons():
+    """Reset singleton instances before each test to ensure isolation"""
+    # Reset LLM provider singleton
+    import app.llm.factory
+    app.llm.factory._llm_provider_instance = None
+
+    # Reset Slack bot singleton
+    import app.services.slack_bot
+    app.services.slack_bot._slack_bot = None
+
+    yield
+
+    # Clean up after test
+    app.llm.factory._llm_provider_instance = None
+    app.services.slack_bot._slack_bot = None
+
+
 @pytest.fixture(scope="session")
 def sample_pdf_path():
     """Path to sample PDF for testing"""

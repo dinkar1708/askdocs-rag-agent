@@ -192,20 +192,36 @@ This document lists official documentation and best practices we follow for buil
 
 ---
 
+## Integrations
+
+### Slack Bot
+
+32. **Slack Bolt for Python**
+    - https://slack.dev/bolt-python/
+    - https://github.com/slackapi/bolt-python
+    - **Why:** Official framework for Slack bots, handles events, commands, and request verification
+
+33. **Slack API Documentation**
+    - https://api.slack.com/docs
+    - https://api.slack.com/start
+    - **Why:** Slack platform fundamentals (scopes, events, slash commands)
+
+---
+
 ## Additional Resources
 
 ### RAG-Specific Patterns
 
-32. **Advanced RAG Techniques**
+34. **Advanced RAG Techniques**
     - https://www.anthropic.com/research/contextual-retrieval
     - "Contextual Retrieval" - Anthropic research
     - **Why:** Improving retrieval accuracy
 
-33. **Chunking Strategies**
+35. **Chunking Strategies**
     - https://www.pinecone.io/learn/chunking-strategies/
     - **Why:** Text chunking best practices
 
-34. **Hybrid Search**
+36. **Hybrid Search**
     - https://www.elastic.co/guide/en/elasticsearch/reference/current/knn-search.html
     - **Why:** Combining keyword + semantic search (future feature)
 
@@ -215,22 +231,22 @@ This document lists official documentation and best practices we follow for buil
 
 ### Code Quality
 
-35. **Ruff Linter**
+37. **Ruff Linter**
     - https://docs.astral.sh/ruff/
     - **Why:** Fast Python linter (replaces flake8, isort, etc.)
 
-36. **MyPy Type Checker**
+38. **MyPy Type Checker**
     - https://mypy-lang.org/
     - https://mypy.readthedocs.io/
     - **Why:** Static type checking
 
 ### Database
 
-37. **PostgreSQL Documentation**
+39. **PostgreSQL Documentation**
     - https://www.postgresql.org/docs/
     - **Why:** Primary database
 
-38. **pgAdmin**
+40. **pgAdmin**
     - https://www.pgadmin.org/docs/
     - **Why:** Database management tool
 
@@ -240,15 +256,15 @@ This document lists official documentation and best practices we follow for buil
 
 ### For New Developers
 
-39. **FastAPI Tutorial (Full Stack)**
+41. **FastAPI Tutorial (Full Stack)**
     - https://fastapi.tiangolo.com/tutorial/
     - **Start here:** Complete FastAPI fundamentals
 
-40. **RAG from Scratch**
+42. **RAG from Scratch**
     - https://github.com/langchain-ai/rag-from-scratch
     - **Why:** Understand RAG components step-by-step
 
-41. **LangChain Academy**
+43. **LangChain Academy**
     - https://academy.langchain.com/
     - **Why:** Free courses on LLM applications
 

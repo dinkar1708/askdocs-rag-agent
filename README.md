@@ -5,9 +5,9 @@
 
 > Ask questions to your documents and get grounded, cited answers — a production-style Document Q&A service built with FastAPI, RAG, and LangGraph.
 
-**Stack:** Python 3.12 · FastAPI · LangGraph · PostgreSQL + pgvector · Nuxt 4 · Tailwind CSS · Docker
+**Stack:** Python 3.12 · FastAPI · LangGraph · PostgreSQL + pgvector · Nuxt 4 · Tailwind CSS · Docker · Slack Bot
 
-**Latest Update (2026-07-27):** ✨ Added advanced RAG features - Reranking (+15-30% accuracy), Table Extraction, and Semantic Chunking
+**Latest Update (2026-07-29):** ✨ Added Slack Bot Integration - Ask questions directly from Slack with mentions, DMs, and slash commands
 
 ## Description
 
@@ -101,6 +101,7 @@ See [Why Not Just Use ChatGPT?](docs/getting-started/WHY.md) for detailed compar
 - **Grounded Q&A** - Answers only from retrieved chunks, with `[doc, page]` citations
 - **Honest refusal** - Returns "not_found" if confidence is too low (no guessing)
 - **LangGraph router** - Classifies queries: answer / clarify / refuse
+- **Slack Bot** - Ask questions via @mentions, DMs, or `/askdocs` slash commands
 - **Structured Data Extraction** - Extract custom fields (text, numbers, arrays) from documents with schema templates
 - **Multi-turn chat** - Conversation history for follow-up questions
 - **MCP integration** - Tools for AI assistants (Claude Desktop, etc.)
@@ -143,10 +144,23 @@ npm run dev
 # Web UI available at http://localhost:3000
 ```
 
+**Enable Slack Bot (optional):**
+```bash
+# Add to your .env file:
+SLACK_ENABLED=True
+SLACK_BOT_TOKEN=xoxb-your-bot-token
+SLACK_SIGNING_SECRET=your-signing-secret
+
+# Restart the application
+docker compose restart api
+```
+📋 **Slack Setup:** See [Slack Integration Guide](docs/features/13-slack-integration.md) for complete Slack app configuration.
+
 **Test the service:**
 1. **Upload a document** - `POST /documents` with a PDF file
 2. **Ask a question** - `POST /ask` with `{"question": "what is X?"}`
 3. **Verify grounding** - Check the `sources` array in the response
+4. **Try Slack (if enabled)** - `@askdocs What is the vacation policy?`
 
 **Try the demo with sample data:**
 ```bash
@@ -212,8 +226,15 @@ See [Architecture Guide](docs/core/architecture/ARCHITECTURE.md) for deep dive.
 askdocs-rag-agent/
 ├── app/                   # Backend (Python/FastAPI)
 │   ├── api/               # FastAPI routes
+│   │   ├── documents.py   # Document upload endpoints
+│   │   ├── questions.py   # Q&A endpoints
+│   │   ├── slack.py       # Slack webhook endpoints
+│   │   └── ...
+│   ├── services/          # Business logic
+│   │   ├── slack_bot.py   # Slack bot service
+│   │   ├── retriever.py   # RAG retrieval
+│   │   └── ...
 │   ├── ingest/            # PDF extraction, chunking, embedding
-│   ├── rag/               # Retrieval, answer generation, citations
 │   ├── graph/             # LangGraph query router
 │   ├── llm/               # Provider adapters (Gemini/Ollama/Azure)
 │   ├── mcp/               # MCP server
@@ -266,6 +287,7 @@ Brief setup: [docs/core/deployment/AZURE.md](docs/core/deployment/AZURE.md)
 | [Local Setup](docs/getting-started/LOCAL_DEVELOPMENT.md) | Detailed setup, testing, debugging |
 | [API Guide](docs/interfaces/api/) | API integration guide with examples |
 | [Web UI](docs/interfaces/web-ui/) | Browser interface for end users |
+| [Slack Bot](docs/features/13-slack-integration.md) | Slack integration setup & usage |
 | [Configuration](docs/core/configuration/CONFIGURATION.md) | Environment variables, tuning |
 | [Deployment](docs/core/deployment/) | GCP (detailed), Azure (brief) |
 | [Features](docs/features/) | User-focused feature docs |

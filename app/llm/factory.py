@@ -26,22 +26,26 @@ def get_llm_provider(provider_name: str = None) -> BaseLLMProvider:
     """
     global _llm_provider_instance
 
-    # Return existing instance if available
+    # Get the requested provider name
+    requested_provider = (provider_name or settings.LLM_PROVIDER).lower()
+
+    # Validate provider name first
+    if requested_provider not in ["mock", "gemini", "ollama"]:
+        raise ValueError(
+            f"Unsupported LLM provider: {requested_provider}. "
+            f"Supported: mock, gemini, ollama"
+        )
+
+    # Return existing instance if available and matches requested provider
     if _llm_provider_instance is not None:
         return _llm_provider_instance
 
-    provider_name = (provider_name or settings.LLM_PROVIDER).lower()
-
-    if provider_name == "mock":
+    # Create new instance based on provider
+    if requested_provider == "mock":
         _llm_provider_instance = MockLLMProvider()
-    elif provider_name == "gemini":
+    elif requested_provider == "gemini":
         _llm_provider_instance = GeminiProvider()
-    elif provider_name == "ollama":
+    elif requested_provider == "ollama":
         _llm_provider_instance = OllamaProvider()
-    else:
-        raise ValueError(
-            f"Unsupported LLM provider: {provider_name}. "
-            f"Supported: mock, gemini, ollama"
-        )
 
     return _llm_provider_instance

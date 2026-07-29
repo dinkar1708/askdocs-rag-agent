@@ -53,6 +53,14 @@ class QueryRouter:
         Returns:
             Dict with 'intent' and 'reason' keys
         """
+        # Check for empty or whitespace-only question
+        if not question or not question.strip():
+            return {
+                "intent": QueryIntent.CLARIFY,
+                "reason": "Question is empty or contains only whitespace",
+                "confidence": 0.0
+            }
+
         # Check if we have any chunks
         if not chunks:
             return {
@@ -119,7 +127,7 @@ class QueryRouter:
         off_topic_keywords = [
             "weather", "joke", "game", "score", "news",
             "movie", "recipe", "song", "video", "meme",
-            "current events", "today's date", "time now"
+            "current events", "today's date", "time now", "time is it"
         ]
 
         return any(keyword in question_lower for keyword in off_topic_keywords)

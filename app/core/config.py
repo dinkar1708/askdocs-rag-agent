@@ -39,6 +39,11 @@ class Settings(BaseSettings):
     MIN_CHUNK_SIZE: int = 200
     MAX_CHUNK_SIZE: int = 1000
 
+    # Slack Integration
+    SLACK_ENABLED: bool = False
+    SLACK_BOT_TOKEN: str = ""
+    SLACK_SIGNING_SECRET: str = ""
+
     class Config:
         env_file = ".env"
         extra = "ignore"
