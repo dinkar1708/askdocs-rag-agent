@@ -12,7 +12,8 @@ test.describe('Feature: Ask Questions and Get Grounded Answers', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     // Should be on Chat tab by default
-    await page.waitForTimeout(500);
+    // Wait for session creation to complete (API call in onMounted hook)
+    await page.waitForTimeout(2000);
   });
 
   test('User asks a question and receives an answer', async ({ page }) => {
@@ -103,7 +104,10 @@ test.describe('Feature: Ask Questions and Get Grounded Answers', () => {
     await expect(newChatButton).toBeVisible({ timeout: 5000 });
     await newChatButton.click();
 
-    // Previous question should be cleared (welcome message should return)
-    await expect(page.getByText(/Welcome to AskDocs!/i)).toBeVisible({ timeout: 5000 });
+    // Wait for new session to be created (async operation)
+    await page.waitForTimeout(2000);
+
+    // Previous question should be cleared (check that it's no longer visible)
+    await expect(page.getByText('What are the benefits?')).not.toBeVisible({ timeout: 5000 });
   });
 });

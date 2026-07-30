@@ -40,7 +40,8 @@ test.describe('Feature: Multi-Turn Conversations', () => {
     // Go back to Chat tab
     const chatTab = page.locator('button:has-text("💬 Chat")');
     await chatTab.click();
-    await page.waitForTimeout(1500);
+    // Wait for session to be ready before asking questions
+    await page.waitForTimeout(2000);
   });
 
   test('User asks follow-up questions in a conversation', async ({ page }) => {

@@ -41,7 +41,7 @@ if ! pg_isready -h localhost -p ${TEST_POSTGRES_PORT} > /dev/null 2>&1; then
       -e POSTGRES_PASSWORD=postgres \
       -e POSTGRES_DB=${TEST_DB_NAME} \
       -p ${TEST_POSTGRES_PORT}:5432 \
-      -d postgres:14 > /dev/null 2>&1
+      -d pgvector/pgvector:pg16 > /dev/null 2>&1
 
     echo "   Waiting for PostgreSQL to be ready..."
     for i in {1..10}; do
@@ -50,6 +50,9 @@ if ! pg_isready -h localhost -p ${TEST_POSTGRES_PORT} > /dev/null 2>&1; then
         fi
         sleep 1
     done
+
+    # Create pgvector extension
+    PGPASSWORD=postgres psql -h localhost -p ${TEST_POSTGRES_PORT} -U postgres -d ${TEST_DB_NAME} -c "CREATE EXTENSION IF NOT EXISTS vector;" > /dev/null 2>&1
 fi
 echo -e "${GREEN}✓${NC} Test PostgreSQL running on localhost:${TEST_POSTGRES_PORT}"
 echo ""
@@ -72,8 +75,10 @@ source venv/bin/activate 2>/dev/null || {
 
 # Run migrations on test database
 echo "   Running database migrations..."
-PYTHONPATH=$PWD DATABASE_URL="postgresql://postgres:postgres@localhost:${TEST_POSTGRES_PORT}/${TEST_DB_NAME}" \
-  alembic upgrade head > /tmp/askdocs-test-migrations.log 2>&1 || true
+cd app
+PYTHONPATH=$PWD/.. DATABASE_URL="postgresql://postgres:postgres@localhost:${TEST_POSTGRES_PORT}/${TEST_DB_NAME}" \
+  alembic upgrade head > /tmp/askdocs-test-migrations.log 2>&1
+cd ..
 
 # Start TEST backend in background
 echo "   Starting test API on port ${TEST_API_PORT}..."
@@ -104,10 +109,14 @@ echo ""
 
 cd web-ui
 
-# Clear Nuxt cache and regenerate with test environment variables
-echo "   Clearing Nuxt cache and regenerating..."
+# Prepare Nuxt with test environment variables
+echo "   Preparing Nuxt with test environment..."
+# Clear cache to ensure fresh build with test API URL
 rm -rf .nuxt
-NUXT_PUBLIC_API_BASE="http://localhost:${TEST_API_PORT}" npx nuxi prepare > /dev/null 2>&1
+# Build Nuxt with test environment (this creates required tsconfig files)
+NUXT_PUBLIC_API_BASE="http://localhost:${TEST_API_PORT}" npx nuxi prepare
+echo "   ✓ Nuxt prepared with test API URL"
+echo ""
 
 # Run Playwright tests (Web UI auto-starts on test port)
 echo "3️⃣  Running Playwright E2E Tests..."

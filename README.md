@@ -1,6 +1,6 @@
 # askdocs-rag-agent
 
-[![Tests](https://img.shields.io/badge/tests-166%20passing-brightgreen)](app/tests/)
+[![Tests](https://img.shields.io/badge/tests-190%20passing-brightgreen)](#testing)
 [![Advanced RAG](https://img.shields.io/badge/advanced%20RAG-3%20phases-blue)](#advanced-rag-features)
 
 > Ask questions to your documents and get grounded, cited answers — a production-style Document Q&A service built with FastAPI, RAG, and LangGraph.
@@ -191,6 +191,47 @@ docker compose exec api python -m eval.run
 ```
 
 See [Local Development Guide](docs/LOCAL_DEVELOPMENT.md) for detailed setup.
+
+---
+
+## Testing
+
+**Total: 190 tests passing**
+
+- **166 Unit/Integration Tests** (Backend)
+  - API endpoints (health, documents, Q&A, extraction, Slack)
+  - RAG retrieval & reranking
+  - LLM adapters (Gemini, Ollama, Azure OpenAI, Mock)
+  - Document ingestion & chunking
+  - Database operations
+
+- **24 End-to-End Tests** (Frontend + Backend)
+  - Document upload & management
+  - Question answering with citations
+  - Multi-turn conversations
+  - Source citation verification
+  - Structured data extraction
+
+**Run Tests:**
+```bash
+# Backend tests (pytest)
+docker compose exec api pytest                    # All tests
+docker compose exec api pytest app/tests/api/     # API tests only
+docker compose exec api pytest -v                 # Verbose output
+
+# E2E tests (Playwright)
+cd web-ui
+./run-e2e-tests.sh           # Run with mock LLM (fast, for CI/CD)
+./run-e2e-with-ollama.sh     # Run with Ollama (real LLM, slower)
+npm run test:e2e:ui          # Interactive mode (debug tests)
+```
+
+**Test Isolation:**
+- E2E tests run on isolated ports (8001/3001) - won't affect development server (8000/3000)
+- Separate test database on port 5433
+- Mock LLM provider for fast, deterministic tests
+
+See [Testing Guide](docs/testing/) for details.
 
 ---
 

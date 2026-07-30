@@ -39,12 +39,11 @@ test('DEMO: Upload PDF and ask question with AI response', async ({ page }) => {
 
   await fileInput.setInputFiles(testFilePath);
 
-  // Wait for upload progress
+  // Wait for upload to complete
   console.log('⏳ Uploading and processing PDF...');
-  await expect(page.getByText(/Uploading|Processing document|Upload complete/i)).toBeVisible({ timeout: 30000 });
 
-  // Wait for document to appear in list
-  await page.waitForTimeout(3000);
+  // Wait for document to appear in the list (more reliable than waiting for progress text)
+  await expect(page.locator('text=sample-policy.pdf').first()).toBeVisible({ timeout: 30000 });
 
   console.log('✅ PDF uploaded successfully!');
 
