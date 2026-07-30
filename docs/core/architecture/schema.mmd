@@ -1,0 +1,37 @@
+erDiagram
+    DOCUMENTS ||--o{ CHUNKS : "has many"
+    SESSIONS ||--o{ MESSAGES : "has many"
+
+    DOCUMENTS {
+        int id PK "Primary Key"
+        string filename "VARCHAR(255)"
+        int page_count "Number of pages"
+        timestamp uploaded_at "Upload timestamp"
+        json doc_metadata "Custom metadata (dept, grade, tags)"
+    }
+
+    CHUNKS {
+        int id PK "Primary Key"
+        int document_id FK "Foreign Key to documents"
+        text text "Chunk text content"
+        int page_number "Page number"
+        vector embedding "Vector(384) - MiniLM embeddings"
+        string chunk_type "Type: text or table"
+        json chunk_metadata "Headers, bbox, etc."
+        timestamp created_at "Creation timestamp"
+    }
+
+    SESSIONS {
+        int id PK "Primary Key"
+        timestamp created_at "Session start time"
+        timestamp last_accessed "Last activity (auto-updated)"
+    }
+
+    MESSAGES {
+        int id PK "Primary Key"
+        int session_id FK "Foreign Key to sessions"
+        string role "user or assistant"
+        text content "Message text"
+        json sources "Source citations (nullable)"
+        timestamp created_at "Message timestamp"
+    }

@@ -1,0 +1,107 @@
+# Database Schema Details
+
+Auto-generated from SQLAlchemy models
+
+---
+
+## DOCUMENTS
+
+**Model:** Document
+
+**Description:** Uploaded document
+
+**Columns:**
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| `id` | INTEGER | No | None | 🔑 Primary Key, 📇 Indexed |
+| `filename` | VARCHAR(255) | No | None | - |
+| `page_count` | INTEGER | No | None | - |
+| `uploaded_at` | DATETIME | Yes | <function datetime.utcnow at 0x108a0eb60> | - |
+| `doc_metadata` | JSON | No | {} | - |
+
+**Relationships:**
+
+- `chunks` → Chunk (cascade: CascadeOptions('delete,delete-orphan,expunge,merge,refresh-expire,save-update'))
+
+---
+
+## CHUNKS
+
+**Model:** Chunk
+
+**Description:** Text chunk with embedding from a document
+
+**Columns:**
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| `id` | INTEGER | No | None | 🔑 Primary Key, 📇 Indexed |
+| `document_id` | INTEGER | No | None | 🔗 FK → documents.id |
+| `text` | TEXT | No | None | - |
+| `page_number` | INTEGER | No | None | - |
+| `embedding` | VECTOR(384) | Yes | None | - |
+| `chunk_type` | VARCHAR(50) | Yes | text | - |
+| `chunk_metadata` | JSON | Yes | None | - |
+| `created_at` | DATETIME | Yes | <function datetime.utcnow at 0x1095b6f20> | - |
+
+**Relationships:**
+
+- `document` → Document (cascade: CascadeOptions('merge,save-update'))
+
+---
+
+## SESSIONS
+
+**Model:** Session
+
+**Description:** Chat session for multi-turn conversations
+
+**Columns:**
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| `id` | INTEGER | No | None | 🔑 Primary Key, 📇 Indexed |
+| `created_at` | DATETIME | Yes | <function datetime.utcnow at 0x109580040> | - |
+| `last_accessed` | DATETIME | Yes | <function datetime.utcnow at 0x1095800e0> | - |
+
+**Relationships:**
+
+- `messages` → Message (cascade: CascadeOptions('delete,delete-orphan,expunge,merge,refresh-expire,save-update'))
+
+---
+
+## MESSAGES
+
+**Model:** Message
+
+**Description:** Individual message in a chat session
+
+**Columns:**
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| `id` | INTEGER | No | None | 🔑 Primary Key, 📇 Indexed |
+| `session_id` | INTEGER | No | None | 🔗 FK → sessions.id |
+| `role` | VARCHAR(50) | No | None | - |
+| `content` | TEXT | No | None | - |
+| `sources` | JSON | Yes | None | - |
+| `created_at` | DATETIME | Yes | <function datetime.utcnow at 0x109581080> | - |
+
+**Relationships:**
+
+- `session` → Session (cascade: CascadeOptions('merge,save-update'))
+
+---
+
+## Indexes
+
+- `documents.id` - B-tree (primary key)
+- `chunks.id` - B-tree (primary key)
+- `chunks.document_id` - B-tree (foreign key)
+- `sessions.id` - B-tree (primary key)
+- `messages.id` - B-tree (primary key)
+- `messages.session_id` - B-tree (foreign key)
+
+**Note:** Vector similarity index should be added in production for performance.
+
