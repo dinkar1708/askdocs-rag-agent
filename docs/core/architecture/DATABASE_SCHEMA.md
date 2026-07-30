@@ -2,11 +2,61 @@
 
 High-level database design for askdocs-rag-agent.
 
+> **📊 Auto-generated diagrams:** Run `python scripts/docs/generate_schema.py` to regenerate schema diagrams from SQLAlchemy models.
+
 ---
 
 ## Overview
 
 PostgreSQL database with pgvector extension for vector similarity search.
+
+---
+
+## Visual Schema Diagram
+
+```mermaid
+erDiagram
+    DOCUMENTS ||--o{ CHUNKS : "has many"
+    SESSIONS ||--o{ MESSAGES : "has many"
+
+    DOCUMENTS {
+        int id PK "Primary Key"
+        string filename "VARCHAR(255)"
+        int page_count "Number of pages"
+        timestamp uploaded_at "Upload timestamp"
+        json doc_metadata "Custom metadata (dept, grade, tags)"
+    }
+
+    CHUNKS {
+        int id PK "Primary Key"
+        int document_id FK "Foreign Key to documents"
+        text text "Chunk text content"
+        int page_number "Page number"
+        vector embedding "Vector(384) - MiniLM embeddings"
+        string chunk_type "Type: text or table"
+        json chunk_metadata "Headers, bbox, etc."
+        timestamp created_at "Creation timestamp"
+    }
+
+    SESSIONS {
+        int id PK "Primary Key"
+        timestamp created_at "Session start time"
+        timestamp last_accessed "Last activity (auto-updated)"
+    }
+
+    MESSAGES {
+        int id PK "Primary Key"
+        int session_id FK "Foreign Key to sessions"
+        string role "user or assistant"
+        text content "Message text"
+        json sources "Source citations (nullable)"
+        timestamp created_at "Message timestamp"
+    }
+```
+
+**Also available as:**
+- PNG diagram: [schema.png](./schema.png)
+- Detailed text: [schema_details.txt](./schema_details.txt)
 
 ---
 
@@ -16,17 +66,18 @@ PostgreSQL database with pgvector extension for vector similarity search.
 
 Stores uploaded PDF metadata.
 
-**Fields:**
+**Current Fields:**
 - `id` - Integer primary key (auto-increment)
 - `filename` - VARCHAR(255), original filename
 - `page_count` - Integer, number of pages
 - `uploaded_at` - TIMESTAMP, upload timestamp (defaults to UTC now)
+- `doc_metadata` - JSON, custom metadata (department, grade, document type, tags, etc.) ✅ **IMPLEMENTED**
 
-**Purpose:** Track which documents exist in the system.
+**Purpose:** Track which documents exist in the system with flexible metadata support.
 
 **Planned additions:**
 - `tenant_id` - For multi-tenant isolation
-- `metadata` - JSON for custom fields (file type, source, etc.)
+- `file_hash` - SHA256 hash for deduplication
 
 ---
 
@@ -36,27 +87,27 @@ Stores document text chunks with embeddings.
 
 **Current Fields:**
 - `id` - Integer primary key (auto-increment)
-- `document_id` - Integer, foreign key to documents.id
+- `document_id` - Integer, foreign key to documents.id (CASCADE DELETE)
 - `text` - TEXT, the actual text content
-- `embedding` - VECTOR(384), embedding from all-MiniLM-L6-v2
 - `page_number` - Integer, which page this chunk came from
+- `embedding` - VECTOR(384), embedding from all-MiniLM-L6-v2
+- `chunk_type` - VARCHAR(50), content type ('text' or 'table') ✅ **IMPLEMENTED**
+- `chunk_metadata` - JSON, additional metadata (headers, bbox, etc.) ✅ **IMPLEMENTED**
 - `created_at` - TIMESTAMP, when chunk was created
 
-**Purpose:** Store searchable text chunks with vector embeddings.
+**Purpose:** Store searchable text chunks with vector embeddings, supporting both text and table content.
 
 **Indexes:**
 - Primary key index on `id`
 - B-tree index on `id` (ix_chunks_id)
 - Foreign key constraint on `document_id`
-- **Note:** Vector index not yet created for performance (planned)
+- **Note:** Vector index (IVFFlat or HNSW) should be added in production for performance
 
 **Planned additions for advanced features:**
-- `chunk_type` - ENUM ('text', 'table', 'image', 'code') - Type of content
 - `chunk_index` - Integer - Order within document (0, 1, 2...)
 - `parent_chunk_id` - Integer - For hierarchical chunking
-- `metadata` - JSON - Table headers, image captions, hierarchy level, etc.
 - `bm25_vector` - For hybrid search (semantic + keyword)
-- Vector similarity index (IVFFlat or HNSW) on `embedding`
+- Vector similarity index (IVFFlat or HNSW) on `embedding` for faster searches
 
 ---
 
