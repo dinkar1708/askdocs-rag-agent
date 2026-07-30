@@ -91,6 +91,26 @@ Pick how you want to use AskDocs:
 
 ---
 
+### Testing
+
+**Backend (pytest) - Unit & Integration Tests:**
+- **[testing/README.md](testing/README.md)** - Python API testing (71 tests)
+  - Tests: Retrieval, reranking, semantic chunking, table extraction
+  - Providers: Mock (fast) or Ollama (real LLM)
+  - Quick start: `pytest app/tests/ -v`
+
+**Frontend (Playwright) - E2E Tests:**
+- **[e2e-testing/README.md](e2e-testing/README.md)** - Web UI browser testing (23 tests)
+  - Tests: User flows, document upload, chat, citations
+  - Providers: Mock, Ollama, or Gemini
+  - Quick start: `cd web-ui && ./run-e2e-with-ollama.sh`
+
+**Developer Resources:**
+- **[development/TESTING_AND_SCRIPTS.md](development/TESTING_AND_SCRIPTS.md)** - Quick reference
+- **[development/SHELL_SCRIPTS.md](development/SHELL_SCRIPTS.md)** - Shell script best practices
+
+---
+
 ### Features
 
 What the product does:
@@ -110,6 +130,8 @@ For developers building features:
 - [development/DEVELOPMENT.md](development/DEVELOPMENT.md) - Dev workflow
 - [development/PROMPTS.md](development/PROMPTS.md) - LLM prompts
 - [development/EVALUATION_PLAN.md](development/EVALUATION_PLAN.md) - Quality metrics
+- [development/SCHEMA_GENERATION.md](development/SCHEMA_GENERATION.md) - Auto-generate DB schema docs
+- [development/SCHEMA_COMMANDS.md](development/SCHEMA_COMMANDS.md) - Quick reference for DB commands
 
 ---
 

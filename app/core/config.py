@@ -4,24 +4,28 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    """Application settings"""
+    """Application settings
 
-    # Database
-    DATABASE_URL: str = "postgresql://postgres:postgres@db:5432/askdocs"
+    All settings must be provided via environment variables.
+    Copy .env.example to .env.dev and configure your settings.
+    """
 
-    # LLM Provider
-    LLM_PROVIDER: str = "gemini"
-    GEMINI_API_KEY: str = ""
-    OLLAMA_MODEL: str = "llama3.2"
-    OLLAMA_BASE_URL: str = "http://localhost:11434"
+    # Database - REQUIRED
+    DATABASE_URL: str  # No default - must be set in env file
+
+    # LLM Provider - REQUIRED
+    LLM_PROVIDER: str  # No default - must be set in env file
+    GEMINI_API_KEY: str = ""  # Optional - only needed if using Gemini
+    OLLAMA_MODEL: str = "llama3.2"  # Has default for convenience
+    OLLAMA_BASE_URL: str = "http://localhost:11434"  # Has default for convenience
 
     # Azure OpenAI (optional)
     AZURE_OPENAI_ENDPOINT: str = ""
     AZURE_OPENAI_KEY: str = ""
     AZURE_OPENAI_DEPLOYMENT: str = ""
 
-    # API
-    API_KEY: str = "test-key"
+    # API - REQUIRED
+    API_KEY: str  # No default - must be set in env file
 
     # App
     DEBUG: bool = True
@@ -45,7 +49,9 @@ class Settings(BaseSettings):
     SLACK_SIGNING_SECRET: str = ""
 
     class Config:
-        env_file = ".env"
+        # Load from .env.dev for development, or .env.test for testing
+        # Can be overridden with environment variables
+        env_file = ".env.dev"
         extra = "ignore"
 
 

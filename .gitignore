@@ -34,9 +34,16 @@ ENV/
 *.code-workspace
 
 # Environment variables
-.env
-.env.local
-.env.*.local
+.env                    # Local development config (DO NOT COMMIT)
+.env.local              # Local overrides (DO NOT COMMIT)
+.env.*.local            # Local overrides (DO NOT COMMIT)
+app/.env.dev            # App-level dev config (DO NOT COMMIT)
+
+# EXCEPT: Commit test config and template
+!.env.test              # Test environment config (SAFE TO COMMIT)
+!.env.example           # Template config (SAFE TO COMMIT)
+!app/.env.test          # App test config (SAFE TO COMMIT)
+!app/.env.example       # App template (SAFE TO COMMIT - already tracked)
 
 # Database
 *.db
@@ -118,3 +125,13 @@ eval/*.csv
 alembic/versions/*.pyc
 !outputs/api-examples/*.json
 dbeaver-connection.txt
+
+# Shell scripts - ignore only personal/local scripts
+*.local.sh
+*-personal.sh
+my-*.sh
+
+# Playwright
+playwright-report/
+test-results/
+app/.env.dev

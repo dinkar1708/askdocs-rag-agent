@@ -129,19 +129,28 @@ This document lists official documentation and best practices we follow for buil
     - https://fastapi.tiangolo.com/tutorial/testing/
     - **Why:** API endpoint testing patterns
 
+22. **Playwright Documentation**
+    - https://playwright.dev/
+    - https://playwright.dev/docs/intro
+    - **Why:** E2E testing framework for web UI, simulates real user interactions
+
+23. **Playwright Best Practices**
+    - https://playwright.dev/docs/best-practices
+    - **Why:** Writing reliable, maintainable E2E tests
+
 ---
 
 ## Security Best Practices
 
-22. **OWASP Top 10**
+24. **OWASP Top 10**
     - https://owasp.org/www-project-top-ten/
     - **Why:** Security vulnerabilities we protect against
 
-23. **FastAPI Security**
+25. **FastAPI Security**
     - https://fastapi.tiangolo.com/tutorial/security/
     - **Why:** Authentication & authorization patterns
 
-24. **Secrets Management**
+26. **Secrets Management**
     - https://cloud.google.com/secret-manager/docs
     - https://azure.microsoft.com/en-us/products/key-vault
     - **Why:** Production secrets handling
@@ -150,12 +159,12 @@ This document lists official documentation and best practices we follow for buil
 
 ## Evaluation & Monitoring
 
-25. **RAGAS - RAG Evaluation**
+27. **RAGAS - RAG Evaluation**
     - https://docs.ragas.io/en/stable/
     - https://github.com/explodinggradients/ragas
     - **Why:** RAG system evaluation metrics
 
-26. **LangSmith**
+28. **LangSmith**
     - https://docs.smith.langchain.com/
     - **Why:** LLM application observability (optional)
 
@@ -163,16 +172,16 @@ This document lists official documentation and best practices we follow for buil
 
 ## Deployment Best Practices
 
-27. **Docker Best Practices**
+29. **Docker Best Practices**
     - https://docs.docker.com/develop/dev-best-practices/
     - https://docs.docker.com/build/building/best-practices/
     - **Why:** Container deployment standards
 
-28. **Google Cloud Run**
+30. **Google Cloud Run**
     - https://cloud.google.com/run/docs
     - **Why:** Serverless deployment option
 
-29. **Azure Container Apps**
+31. **Azure Container Apps**
     - https://learn.microsoft.com/en-us/azure/container-apps/
     - **Why:** Alternative deployment platform
 
@@ -180,12 +189,12 @@ This document lists official documentation and best practices we follow for buil
 
 ## API Design
 
-30. **REST API Best Practices**
+32. **REST API Best Practices**
     - https://restfulapi.net/
     - https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design
     - **Why:** RESTful API design standards we follow
 
-31. **OpenAPI Specification**
+33. **OpenAPI Specification**
     - https://swagger.io/specification/
     - https://spec.openapis.org/oas/latest.html
     - **Why:** API documentation standard (FastAPI uses this)
@@ -196,12 +205,12 @@ This document lists official documentation and best practices we follow for buil
 
 ### Slack Bot
 
-32. **Slack Bolt for Python**
+34. **Slack Bolt for Python**
     - https://slack.dev/bolt-python/
     - https://github.com/slackapi/bolt-python
     - **Why:** Official framework for Slack bots, handles events, commands, and request verification
 
-33. **Slack API Documentation**
+35. **Slack API Documentation**
     - https://api.slack.com/docs
     - https://api.slack.com/start
     - **Why:** Slack platform fundamentals (scopes, events, slash commands)
@@ -212,16 +221,16 @@ This document lists official documentation and best practices we follow for buil
 
 ### RAG-Specific Patterns
 
-34. **Advanced RAG Techniques**
+36. **Advanced RAG Techniques**
     - https://www.anthropic.com/research/contextual-retrieval
     - "Contextual Retrieval" - Anthropic research
     - **Why:** Improving retrieval accuracy
 
-35. **Chunking Strategies**
+37. **Chunking Strategies**
     - https://www.pinecone.io/learn/chunking-strategies/
     - **Why:** Text chunking best practices
 
-36. **Hybrid Search**
+38. **Hybrid Search**
     - https://www.elastic.co/guide/en/elasticsearch/reference/current/knn-search.html
     - **Why:** Combining keyword + semantic search (future feature)
 
@@ -231,22 +240,31 @@ This document lists official documentation and best practices we follow for buil
 
 ### Code Quality
 
-37. **Ruff Linter**
+39. **Ruff Linter**
     - https://docs.astral.sh/ruff/
     - **Why:** Fast Python linter (replaces flake8, isort, etc.)
 
-38. **MyPy Type Checker**
+40. **MyPy Type Checker**
     - https://mypy-lang.org/
     - https://mypy.readthedocs.io/
     - **Why:** Static type checking
 
+41. **Google Shell Style Guide**
+    - https://google.github.io/styleguide/shellguide.html
+    - **Why:** Shell script (.sh) coding standards we follow
+
+42. **Bash Best Practices**
+    - https://bertvv.github.io/cheat-sheets/Bash.html
+    - https://sharats.me/posts/shell-script-best-practices/
+    - **Why:** Writing reliable, maintainable shell scripts
+
 ### Database
 
-39. **PostgreSQL Documentation**
+43. **PostgreSQL Documentation**
     - https://www.postgresql.org/docs/
     - **Why:** Primary database
 
-40. **pgAdmin**
+44. **pgAdmin**
     - https://www.pgadmin.org/docs/
     - **Why:** Database management tool
 
@@ -256,17 +274,23 @@ This document lists official documentation and best practices we follow for buil
 
 ### For New Developers
 
-41. **FastAPI Tutorial (Full Stack)**
+45. **FastAPI Tutorial (Full Stack)**
     - https://fastapi.tiangolo.com/tutorial/
     - **Start here:** Complete FastAPI fundamentals
 
-42. **RAG from Scratch**
+46. **RAG from Scratch**
     - https://github.com/langchain-ai/rag-from-scratch
     - **Why:** Understand RAG components step-by-step
 
-43. **LangChain Academy**
+47. **LangChain Academy**
     - https://academy.langchain.com/
     - **Why:** Free courses on LLM applications
+
+48. **Real-World Shell Script Examples**
+    - https://github.com/facebook/react/tree/main/scripts (React)
+    - https://github.com/nodejs/node/tree/main/tools (Node.js)
+    - https://github.com/kubernetes/kubernetes/tree/master/hack (Kubernetes)
+    - **Why:** Examples of production shell scripts from major projects
 
 ---
 

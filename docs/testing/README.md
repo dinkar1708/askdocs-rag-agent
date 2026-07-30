@@ -6,9 +6,25 @@ Quick guide for running tests on the RAG askdocs API.
 
 ## Prerequisites
 
-- PostgreSQL 14+ with pgvector extension
+- Docker (for PostgreSQL)
 - Python 3.11 with venv
 - Ollama (optional, for real LLM tests)
+
+---
+
+## Test Isolation 🎯
+
+**API tests use ISOLATED test database - separate from development!**
+
+| Environment | Database | PostgreSQL Port |
+|-------------|----------|-----------------|
+| **Development** | `askdocs` | 5432 |
+| **Testing** | `askdocs_test` | 5433 |
+
+**Benefits:**
+- ✅ Tests use separate database
+- ✅ No data pollution
+- ✅ Can run dev and tests simultaneously
 
 ---
 
@@ -18,23 +34,22 @@ Quick guide for running tests on the RAG askdocs API.
 # 1. Install dependencies
 python3.11 -m venv venv
 source venv/bin/activate
-pip install -r app/requirements.txt
+pip install -r requirements.txt
 
-# 2. Compile and install pgvector for PostgreSQL 14
-cd /tmp && git clone https://github.com/pgvector/pgvector.git
-cd pgvector && PG_CONFIG="/opt/homebrew/opt/postgresql@14/bin/pg_config" make
-cp vector.so /opt/homebrew/lib/postgresql@14/
-rm /opt/homebrew/share/postgresql@14/extension/vector* 2>/dev/null
-cp sql/vector--0.8.5.sql /opt/homebrew/share/postgresql@14/extension/
-cp vector.control /opt/homebrew/share/postgresql@14/extension/
+# 2. Start TEST PostgreSQL (separate from dev)
+docker run --name askdocs-postgres-test \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=askdocs_test \
+  -p 5433:5432 \
+  -d postgres:14
 
-# 3. Create test database with pgvector
-createdb -U dinakarmaurya askdocs_test
-psql -U dinakarmaurya -d askdocs_test -c "CREATE EXTENSION vector;"
+# Wait for it to start
+sleep 3
 
-# 4. Run migrations
-export DATABASE_URL="postgresql://dinakarmaurya@localhost:5432/askdocs_test"
-alembic -c app/alembic.ini upgrade head
+# 3. Run migrations on TEST database
+PYTHONPATH=$PWD \
+  DATABASE_URL="postgresql://postgres:postgres@localhost:5433/askdocs_test" \
+  alembic upgrade head
 ```
 
 ---
@@ -58,6 +73,8 @@ This method uses fake LLM responses for fast testing.
 **Command:**
 ```bash
 . venv/bin/activate
+
+# Tests automatically use DATABASE_URL from conftest.py (port 5433)
 export LLM_PROVIDER="mock"
 export PYTHONPATH=$PWD
 pytest app/tests/test_retriever.py app/tests/test_table_processor.py app/tests/test_semantic_chunker.py -v
@@ -282,8 +299,9 @@ app/tests/
 
 ## Notes
 
-- **Test DB:** `askdocs_test` (separate from production `askdocs`)
+- **Test DB:** `askdocs_test` on port 5433 (separate from dev `askdocs` on port 5432)
 - **LLM Providers:** Mock (fast, fake responses) or Ollama (slow, real LLM)
-- **pgvector:** Required for vector similarity search
+- **Test isolation:** Configured in `app/tests/conftest.py` (uses port 5433)
+- **Environment:** Use `.env.test` for test configuration
 - **Async Tests:** Use `@pytest.mark.asyncio` decorator
 - **Fixtures:** `db_session`, `client`, `mock_llm`, `sample_document_with_chunks`

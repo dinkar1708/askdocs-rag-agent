@@ -11,10 +11,13 @@ from app.db.database import Base, get_db
 from app.llm.mock_provider import MockLLMProvider
 
 
-# Test database - use PostgreSQL from environment or default
+# Test database - ISOLATED test environment (separate port + database)
+# This matches the E2E test configuration in web-ui/run-e2e-tests.sh
+# Development: postgresql://localhost:5432/askdocs
+# Testing:     postgresql://localhost:5433/askdocs_test
 SQLALCHEMY_TEST_DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://postgres:postgres@localhost:5432/askdocs_test"
+    "postgresql://postgres:postgres@localhost:5433/askdocs_test"
 )
 
 engine = create_engine(SQLALCHEMY_TEST_DATABASE_URL)

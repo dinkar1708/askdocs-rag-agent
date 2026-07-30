@@ -7,7 +7,13 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8000'
+      // REQUIRED: Must be set via NUXT_PUBLIC_API_BASE environment variable
+      // Development: http://localhost:8000
+      // Testing: http://localhost:8001
+      // Production: Set in deployment environment
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || (() => {
+        throw new Error('NUXT_PUBLIC_API_BASE environment variable is required. Set it in your environment or .env file.')
+      })()
     }
   },
 
