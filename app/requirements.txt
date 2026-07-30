@@ -34,3 +34,8 @@ pytest-asyncio==0.23.3
 pytest-cov==4.1.0
 httpx==0.26.0
 reportlab==4.0.7
+
+# Documentation & Schema Generation
+eralchemy2==1.4.1  # Database schema diagram generation
+pydot==4.0.1  # Required for eralchemy2
+pygraphviz==2.0.1  # Required for eralchemy2
