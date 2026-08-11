@@ -9,8 +9,8 @@
     "question": "What is the policy?",
     "answer": "not_found - This question cannot be answered from the uploaded documents.",
     "sources": [],
-    "timestamp": "2026-07-29T13:38:22.389737",
-    "model_used": "ollama",
+    "timestamp": "2026-08-11T04:38:50.789149",
+    "model_used": "mock",
     "session_id": null,
     "metadata": {
       "intent": "refuse",

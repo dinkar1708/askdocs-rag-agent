@@ -8,6 +8,7 @@ from app.api.questions import router as questions_router
 from app.api.sessions import router as sessions_router
 from app.api.extraction import router as extraction_router
 from app.api.slack import router as slack_router
+from app.core.config import settings
 
 app = FastAPI(
     title="AskDocs RAG Agent",
@@ -15,13 +16,15 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# CORS middleware
+# CORS middleware - configured from environment
+# Parse comma-separated origins from config
+allowed_origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",")]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure properly in production
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=allowed_origins,
+    allow_credentials=False,  # Set to False when using allow_origins (browsers reject credentials with *)
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allow_headers=["Content-Type", "X-API-Key"],
 )
 
 # Include routers

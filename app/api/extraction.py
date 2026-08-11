@@ -18,8 +18,13 @@ from app.schemas.extraction import (
     BatchExtractionResponse,
     BatchExtractionResult
 )
+from app.core.auth import verify_api_key
 
-router = APIRouter(prefix="/extract", tags=["extraction"])
+router = APIRouter(
+    prefix="/extract",
+    tags=["extraction"],
+    dependencies=[Depends(verify_api_key)]
+)
 
 # In-memory storage for batch results (in production, use Redis or database)
 _batch_results: Dict[str, Dict] = {}

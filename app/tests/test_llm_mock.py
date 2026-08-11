@@ -17,7 +17,8 @@ async def test_mock_generate(mock_llm):
     """Test simple text generation"""
     response = await mock_llm.generate("What is the capital of France?")
     assert isinstance(response, str)
-    assert "Mock LLM response" in response
+    assert len(response) > 0  # Got a non-empty response
+    assert "company policies" in response.lower()  # Default response mentions policies
     assert mock_llm.call_count == 1
 
 

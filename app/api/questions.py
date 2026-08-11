@@ -6,11 +6,17 @@ from app.db.database import get_db
 from app.db.models import Session as SessionModel, Message
 from app.schemas.query import QuestionRequest, AnswerResponse, SourceCitation
 from app.services.retriever import retrieve_relevant_chunks, retrieve_with_reranking, format_context_for_llm
+from app.services.hybrid_search import hybrid_search, hybrid_search_with_reranking
 from app.llm.factory import get_llm_provider
 from app.core.config import settings
 from app.graph.router import get_query_router, QueryIntent
+from app.core.auth import verify_api_key
 
-router = APIRouter(prefix="/ask", tags=["questions"])
+router = APIRouter(
+    prefix="/ask",
+    tags=["questions"],
+    dependencies=[Depends(verify_api_key)]
+)
 
 
 @router.post("/", response_model=AnswerResponse)
@@ -22,27 +28,54 @@ async def ask_question(
     Ask a question about uploaded documents with intelligent routing
 
     Process:
-    1. Retrieve relevant document chunks using vector similarity (with optional reranking)
+    1. Retrieve relevant document chunks using:
+       - Hybrid search (BM25 + Vector + RRF) if HYBRID_SEARCH_ENABLED
+       - Vector similarity only if hybrid search disabled
+       - Optional cross-encoder reranking if RERANKING_ENABLED
     2. Route query (answer/clarify/refuse) based on confidence
     3. Generate appropriate response based on intent
     4. Return answer with source citations or clarification/refusal message
     """
-    # Step 1: Retrieve relevant chunks (with reranking if enabled)
-    if settings.RERANKING_ENABLED:
-        chunks = retrieve_with_reranking(
-            query=request.question,
-            db=db,
-            initial_k=settings.RETRIEVAL_INITIAL_K,
-            final_k=request.top_k,
-            metadata_filters=request.metadata_filters
-        )
+    # Step 1: Retrieve relevant chunks
+    if settings.HYBRID_SEARCH_ENABLED:
+        # Use hybrid search (BM25 + Vector + RRF)
+        if settings.RERANKING_ENABLED:
+            # Hybrid + Reranking (3-stage)
+            chunks = hybrid_search_with_reranking(
+                query=request.question,
+                db=db,
+                top_k=request.top_k,
+                initial_k=settings.RETRIEVAL_INITIAL_K,
+                metadata_filters=request.metadata_filters
+            )
+        else:
+            # Hybrid only (2-stage)
+            chunks = hybrid_search(
+                query=request.question,
+                db=db,
+                top_k=request.top_k,
+                initial_k=settings.RETRIEVAL_INITIAL_K,
+                metadata_filters=request.metadata_filters
+            )
     else:
-        chunks = retrieve_relevant_chunks(
-            query=request.question,
-            db=db,
-            top_k=request.top_k,
-            metadata_filters=request.metadata_filters
-        )
+        # Traditional vector-only search
+        if settings.RERANKING_ENABLED:
+            # Vector + Reranking (2-stage)
+            chunks = retrieve_with_reranking(
+                query=request.question,
+                db=db,
+                initial_k=settings.RETRIEVAL_INITIAL_K,
+                final_k=request.top_k,
+                metadata_filters=request.metadata_filters
+            )
+        else:
+            # Vector only (1-stage)
+            chunks = retrieve_relevant_chunks(
+                query=request.question,
+                db=db,
+                top_k=request.top_k,
+                metadata_filters=request.metadata_filters
+            )
 
     # Step 1.5: Verify session exists (if provided)
     session_id = request.session_id

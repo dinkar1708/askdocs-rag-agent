@@ -31,6 +31,11 @@ Test and evaluate the quality of the RAG system's retrieval, answer generation, 
 
    Check that `metadata.intent` matches expected behavior
 
+   **Important**: Verify router uses correct score:
+   - When reranking is enabled, router should use `reranking_score`
+   - When reranking is disabled, router should use `similarity_score`
+   - Check `metadata.confidence` value is from the correct score type
+
 4. **Test grounding (no hallucination)**:
    - Ask questions NOT answerable from documents
    - Verify system returns "not_found" instead of making up answers
@@ -73,6 +78,8 @@ Test and evaluate the quality of the RAG system's retrieval, answer generation, 
 - ✅ ANSWER: High confidence factual questions
 - ✅ CLARIFY: Ambiguous or vague questions
 - ✅ REFUSE: Off-topic or low confidence
+- ✅ **Score selection**: Uses reranking_score when available, similarity_score otherwise
+- ✅ **Threshold calibration**: Appropriate thresholds for the score type in use
 - ❌ False positives (refusing good questions)
 - ❌ False negatives (answering bad questions)
 

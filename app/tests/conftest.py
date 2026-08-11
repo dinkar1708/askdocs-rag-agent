@@ -9,6 +9,11 @@ from sqlalchemy.orm import sessionmaker
 from app.main import app
 from app.db.database import Base, get_db
 from app.llm.mock_provider import MockLLMProvider
+from app.core.config import settings
+
+# Disable hybrid search for existing tests
+# (Hybrid search has dedicated tests that enable it explicitly)
+settings.HYBRID_SEARCH_ENABLED = False
 
 
 # Test database - ISOLATED test environment (separate port + database)
@@ -52,14 +57,21 @@ def db_session():
 
 @pytest.fixture(scope="function")
 def client(db_session):
-    """Create test client"""
+    """Create test client with auth bypass"""
+    from app.core.auth import verify_api_key
+
     def override_get_db():
         try:
             yield db_session
         finally:
             pass
 
+    def override_verify_api_key():
+        """Bypass API key verification in tests"""
+        return "test-api-key"
+
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[verify_api_key] = override_verify_api_key
 
     with TestClient(app) as test_client:
         yield test_client
@@ -131,6 +143,7 @@ def sample_document_with_chunks(db_session):
             document_id=doc.id,
             text=text,
             page_number=(i // 2) + 1,  # Distribute across pages
+            chunk_index=i,  # Add chunk_index for ordering
             embedding=embedding
         )
         db_session.add(chunk)

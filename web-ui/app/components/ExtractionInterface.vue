@@ -187,7 +187,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 // State
 const schema = ref([
@@ -200,8 +200,10 @@ const extracting = ref(false)
 const loadingDocuments = ref(false)
 const error = ref('')
 
-// API base URL
-const API_URL = 'http://localhost:8000'
+// API base URL and config
+const config = useRuntimeConfig()
+const API_URL = config.public.apiBase
+const API_KEY = config.public.apiKey
 
 // Computed
 const canExtract = computed(() => {
@@ -262,7 +264,11 @@ const loadDocuments = async () => {
   loadingDocuments.value = true
   error.value = ''
   try {
-    const response = await fetch(`${API_URL}/documents`)
+    const response = await fetch(`${API_URL}/documents/`, {
+      headers: {
+        'X-API-Key': API_KEY
+      }
+    })
     if (!response.ok) throw new Error('Failed to load documents')
     const data = await response.json()
     documents.value = data.documents || []
@@ -291,7 +297,10 @@ const extractData = async () => {
     const extractionPromises = selectedDocuments.value.map(async (docId) => {
       const response = await fetch(`${API_URL}/extract/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': API_KEY
+        },
         body: JSON.stringify({
           document_id: docId,
           schema: schemaObj
@@ -362,5 +371,7 @@ const exportResults = async (format) => {
 }
 
 // Load documents on mount
-loadDocuments()
+onMounted(() => {
+  loadDocuments()
+})
 </script>

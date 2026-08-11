@@ -10,22 +10,22 @@
     "answer": "not_found - This question cannot be answered from the uploaded documents.",
     "sources": [
       {
-        "chunk_id": 1059,
+        "chunk_id": 2139,
         "filename": "company_policy.pdf",
         "page_number": 2,
-        "similarity_score": 0.21630388899995223,
+        "similarity_score": 0.21630386120607992,
         "text_excerpt": "Standard Hours: Our standard work week is Monday through Friday, 9:00 AM to 5:00 PM, with a one-hour lunch break.",
         "reranking_score": 1.6248272004304454e-05,
-        "original_similarity": 0.21630388899995223
+        "original_similarity": 0.21630386120607992
       }
     ],
-    "timestamp": "2026-07-28T14:06:34.486149",
+    "timestamp": "2026-08-11T04:38:50.567678",
     "model_used": "mock",
     "session_id": null,
     "metadata": {
       "intent": "refuse",
-      "confidence": 0.21630388899995223,
-      "reason": "Question is not related to uploaded documents"
+      "confidence": 1.6248272004304454e-05,
+      "reason": "Confidence too low, no good match found"
     }
   }
 }

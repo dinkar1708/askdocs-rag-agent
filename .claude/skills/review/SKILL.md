@@ -17,7 +17,17 @@ Perform a thorough code review of uncommitted changes for the RAG system.
 
 2. **Security review** (CRITICAL for RAG systems):
    - ❌ **Prompt injection**: Check user input sanitization in `app/api/questions.py`
-   - ❌ **SQL injection**: Verify all queries use SQLAlchemy ORM, no raw SQL
+   - ❌ **SQL injection**:
+     - Verify all queries use SQLAlchemy ORM, no raw SQL
+     - Check metadata filter keys are validated (must match `^[a-zA-Z0-9_]+$`)
+     - Ensure no f-string interpolation of user input into SQL
+   - ❌ **Authentication**:
+     - Verify all routers have `dependencies=[Depends(verify_api_key)]`
+     - Check API key is enforced on protected endpoints
+   - ❌ **CORS**:
+     - Ensure `allow_origins` is not `["*"]` in production
+     - Verify `allow_credentials=False` when using specific origins
+     - Check CORS_ORIGINS is properly configured in settings
    - ❌ **Path traversal**: Check file upload paths in `app/ingest/`
    - ❌ **API key exposure**: Ensure no keys in code, only in `.env`
    - ❌ **XSS**: Validate any web UI rendering of user content
@@ -27,7 +37,10 @@ Perform a thorough code review of uncommitted changes for the RAG system.
 3. **RAG-specific checks**:
    - **Grounding**: Answers only from retrieved chunks, no hallucination
    - **Citations**: All answers include proper source tracking
-   - **Router logic**: Intent classification works correctly (answer/clarify/refuse)
+   - **Router logic**:
+     - Intent classification works correctly (answer/clarify/refuse)
+     - Router uses `reranking_score` when available, falls back to `similarity_score`
+     - Confidence thresholds are appropriate for the score type being used
    - **Chunking**: Verify chunk size and overlap are appropriate
    - **Embeddings**: Check embedding model is consistent
    - **Vector search**: Verify similarity thresholds are reasonable
@@ -52,6 +65,9 @@ Perform a thorough code review of uncommitted changes for the RAG system.
 
 7. **Performance**:
    - No N+1 queries in database operations
+   - **Atomic operations**: Database transactions use single commit
+     - Document uploads use `db.flush()` then one `db.commit()`
+     - No orphan records if operation fails partway through
    - Appropriate use of async/await
    - Vector search limits set (top_k)
    - No blocking operations in async functions

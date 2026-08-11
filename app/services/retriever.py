@@ -3,10 +3,14 @@ from typing import List, Dict, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 import logging
+import re
 from app.db.models import Chunk, Document
 from app.services.embeddings import generate_embedding
 
 logger = logging.getLogger(__name__)
+
+# Regex pattern for validating metadata keys to prevent SQL injection
+SAFE_METADATA_KEY_PATTERN = re.compile(r'^[a-zA-Z0-9_]+$')
 
 
 def retrieve_relevant_chunks(
@@ -44,6 +48,14 @@ def retrieve_relevant_chunks(
 
     if metadata_filters:
         for key, value in metadata_filters.items():
+            # SECURITY: Validate metadata key to prevent SQL injection
+            # Only allow alphanumeric and underscore characters
+            if not SAFE_METADATA_KEY_PATTERN.match(key):
+                logger.warning(f"Invalid metadata key rejected: {key}")
+                raise ValueError(
+                    f"Invalid metadata key '{key}'. Only alphanumeric characters and underscores allowed."
+                )
+
             # Use JSON operator to check if metadata contains the key-value pair
             if isinstance(value, list):
                 # For array values, check if any element matches

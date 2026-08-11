@@ -33,8 +33,7 @@ async def test_extraction_service_mock():
     mock_document = Document(
         id=1,
         filename="test.pdf",
-        page_count=1,
-        chunk_count=1
+        page_count=1
     )
 
     mock_chunk = Chunk(

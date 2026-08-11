@@ -7,52 +7,52 @@
   },
   "response": {
     "question": "What is the company policy?",
-    "answer": "According to the employee handbook [company_policy.pdf - Page 1], full-time employees accrue 15 days of paid vacation per year, starting from their first day of employment.",
+    "answer": "not_found - This question cannot be answered from the uploaded documents.",
     "sources": [
       {
-        "chunk_id": 1073,
+        "chunk_id": 2153,
         "filename": "company_policy.pdf",
         "page_number": 3,
-        "similarity_score": 0.3113636076450348,
+        "similarity_score": 0.31136361692439385,
         "text_excerpt": "Health Insurance: The company provides comprehensive health insurance coverage including medical, dental, and vision.",
         "reranking_score": 0.051964692771434784,
-        "original_similarity": 0.3113636076450348
+        "original_similarity": 0.31136361692439385
       },
       {
-        "chunk_id": 1072,
+        "chunk_id": 2152,
         "filename": "company_policy.pdf",
         "page_number": 2,
-        "similarity_score": 0.36502909660339355,
+        "similarity_score": 0.3650291074821088,
         "text_excerpt": "Remote Work Policy: Employees may work remotely up to 2 days per week with manager approval.",
         "reranking_score": 0.011094152927398682,
-        "original_similarity": 0.36502909660339355
+        "original_similarity": 0.3650291074821088
       },
       {
-        "chunk_id": 1074,
+        "chunk_id": 2154,
         "filename": "company_policy.pdf",
         "page_number": 3,
-        "similarity_score": 0.28956615924835205,
+        "similarity_score": 0.2895661976804198,
         "text_excerpt": "401(k) Retirement Plan: Employees are eligible to participate after 90 days of employment. Company matches 50% up to 6%.",
         "reranking_score": 0.0056378706358373165,
-        "original_similarity": 0.28956615924835205
+        "original_similarity": 0.2895661976804198
       },
       {
-        "chunk_id": 1069,
+        "chunk_id": 2149,
         "filename": "company_policy.pdf",
         "page_number": 1,
-        "similarity_score": 0.30330497930362776,
+        "similarity_score": 0.30330502718433994,
         "text_excerpt": "Paid Time Off (PTO): Full-time employees accrue 15 days of paid vacation per year, starting from their first day of employment.",
         "reranking_score": 0.001325840363278985,
-        "original_similarity": 0.30330497930362776
+        "original_similarity": 0.30330502718433994
       }
     ],
-    "timestamp": "2026-07-28T14:06:34.669778",
+    "timestamp": "2026-08-11T04:38:50.772722",
     "model_used": "mock",
     "session_id": null,
     "metadata": {
-      "intent": "answer",
-      "confidence": 0.36502909660339355,
-      "reason": "Medium confidence match, proceeding with answer"
+      "intent": "refuse",
+      "confidence": 0.051964692771434784,
+      "reason": "Confidence too low, no good match found"
     }
   }
 }

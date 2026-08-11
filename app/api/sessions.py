@@ -10,8 +10,13 @@ from app.schemas.session import (
     SessionWithMessages,
     SessionListResponse
 )
+from app.core.auth import verify_api_key
 
-router = APIRouter(prefix="/sessions", tags=["sessions"])
+router = APIRouter(
+    prefix="/sessions",
+    tags=["sessions"],
+    dependencies=[Depends(verify_api_key)]
+)
 
 
 @router.post("/", response_model=SessionResponse, status_code=201)

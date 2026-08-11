@@ -13,7 +13,11 @@ export default defineNuxtConfig({
       // Production: Set in deployment environment
       apiBase: process.env.NUXT_PUBLIC_API_BASE || (() => {
         throw new Error('NUXT_PUBLIC_API_BASE environment variable is required. Set it in your environment or .env file.')
-      })()
+      })(),
+      // API Key for backend authentication
+      // Development/Testing: test-api-key-not-for-production
+      // Production: Set via NUXT_PUBLIC_API_KEY environment variable
+      apiKey: process.env.NUXT_PUBLIC_API_KEY || 'test-api-key-not-for-production'
     }
   },
 

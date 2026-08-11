@@ -3,9 +3,24 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Float, JSON
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import TSVECTOR
+from sqlalchemy.types import TypeDecorator
 from pgvector.sqlalchemy import Vector
 
 from app.db.database import Base
+
+
+class TSVector(TypeDecorator):
+    """Custom TSVECTOR type that falls back to Text for non-PostgreSQL databases"""
+    impl = Text
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'postgresql':
+            return dialect.type_descriptor(TSVECTOR())
+        else:
+            # Use Text for SQLite and other databases
+            return dialect.type_descriptor(Text())
 
 
 class Document(Base):
@@ -19,6 +34,7 @@ class Document(Base):
     page_count = Column(Integer, nullable=False)
     uploaded_at = Column(DateTime, default=datetime.utcnow)
     doc_metadata = Column(JSON, default={}, nullable=False)  # Custom metadata (department, grade, type, tags, etc.)
+    content_hash = Column(String(64), unique=True, nullable=True)  # SHA-256 hash for duplicate detection
 
     # Relationship to chunks
     chunks = relationship("Chunk", back_populates="document", cascade="all, delete-orphan")
@@ -31,12 +47,14 @@ class Chunk(Base):
     __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
-    document_id = Column(Integer, ForeignKey("documents.id"), nullable=False)
+    document_id = Column(Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False)
     text = Column(Text, nullable=False)
     page_number = Column(Integer, nullable=False)
+    chunk_index = Column(Integer, nullable=False, default=0)  # Position within document for ordering
     embedding = Column(Vector(384))  # sentence-transformers/all-MiniLM-L6-v2
     chunk_type = Column(String(50), default='text')  # 'text' or 'table'
     chunk_metadata = Column(JSON, nullable=True)  # Additional metadata (headers, bbox, etc.)
+    text_search = Column(TSVector, nullable=True)  # Full-text search vector for hybrid search (BM25, PostgreSQL only)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationship to document

@@ -69,8 +69,12 @@ class QueryRouter:
                 "confidence": 0.0
             }
 
-        # Get best similarity score
-        best_score = max(chunk.get("similarity_score", 0.0) for chunk in chunks)
+        # Get best relevance score
+        # Use reranking_score if available (more accurate), otherwise fall back to similarity_score
+        best_score = max(
+            chunk.get("reranking_score", chunk.get("similarity_score", 0.0))
+            for chunk in chunks
+        )
 
         # Check for off-topic questions (obvious non-document queries)
         if self._is_off_topic(question):
@@ -114,23 +118,19 @@ class QueryRouter:
 
     def _is_off_topic(self, question: str) -> bool:
         """
-        Detect obviously off-topic questions
+        Detect obviously off-topic questions (DISABLED by default)
 
-        Examples:
-        - "What's the weather?"
-        - "Tell me a joke"
-        - "Who won the game?"
+        This method is intentionally disabled because generic keywords
+        like "score", "game", "news" are common in business contexts:
+        - "What's the score on the compliance audit?" (legitimate)
+        - "What's the news about the product launch?" (legitimate)
+        - "What time does the office open?" (legitimate)
+
+        Rely on confidence thresholds instead of keyword matching.
         """
-        question_lower = question.lower()
-
-        # Common off-topic patterns
-        off_topic_keywords = [
-            "weather", "joke", "game", "score", "news",
-            "movie", "recipe", "song", "video", "meme",
-            "current events", "today's date", "time now", "time is it"
-        ]
-
-        return any(keyword in question_lower for keyword in off_topic_keywords)
+        # Disabled: keyword-based filtering causes false refusals
+        # Trust the confidence score from retrieval instead
+        return False
 
     def _is_ambiguous(self, question: str) -> bool:
         """

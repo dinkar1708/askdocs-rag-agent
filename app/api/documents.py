@@ -5,13 +5,22 @@ from sqlalchemy.orm import Session
 from typing import List, Dict, Any, Optional
 import os
 import json
+import hashlib
 
 from app.db.database import get_db
 from app.db.models import Document, Chunk
 from app.services.pdf_processor import process_pdf
 from app.schemas.document import DocumentResponse, DocumentListResponse, DocumentMetadataUpdate
+from app.core.auth import verify_api_key
 
-router = APIRouter(prefix="/documents", tags=["documents"])
+# File size limit: 50MB
+MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024
+
+router = APIRouter(
+    prefix="/documents",
+    tags=["documents"],
+    dependencies=[Depends(verify_api_key)]
+)
 
 
 @router.post("/", response_model=DocumentResponse, status_code=201)
@@ -52,6 +61,25 @@ async def upload_document(
     # Read file content
     content = await file.read()
 
+    # Validate file size
+    file_size = len(content)
+    if file_size > MAX_FILE_SIZE_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"File too large. Maximum size is {MAX_FILE_SIZE_BYTES / 1024 / 1024:.0f}MB, got {file_size / 1024 / 1024:.1f}MB"
+        )
+
+    # Calculate content hash for duplicate detection
+    content_hash = hashlib.sha256(content).hexdigest()
+
+    # Check for duplicate
+    existing_doc = db.query(Document).filter(Document.content_hash == content_hash).first()
+    if existing_doc:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Document already exists with ID {existing_doc.id}. Upload date: {existing_doc.uploaded_at}"
+        )
+
     # Process PDF (extract text, chunk, embed)
     try:
         doc_data = await process_pdf(content, file.filename)
@@ -65,24 +93,29 @@ async def upload_document(
     document = Document(
         filename=file.filename,
         page_count=doc_data["page_count"],
-        doc_metadata=doc_metadata
+        doc_metadata=doc_metadata,
+        content_hash=content_hash
     )
     db.add(document)
-    db.commit()
+    # Use flush() to get the document ID without committing
+    # This ensures atomic operation - if chunks fail, document won't be committed
+    db.flush()
     db.refresh(document)
 
-    # Create chunk records with embeddings
-    for chunk_data in doc_data["chunks"]:
+    # Create chunk records with embeddings and chunk_index for ordering
+    for chunk_index, chunk_data in enumerate(doc_data["chunks"]):
         chunk = Chunk(
             document_id=document.id,
             text=chunk_data["text"],
             page_number=chunk_data["page_number"],
+            chunk_index=chunk_index,  # Position within document
             embedding=chunk_data["embedding"],
             chunk_type=chunk_data.get("chunk_type", "text"),
             chunk_metadata=chunk_data.get("metadata", {})
         )
         db.add(chunk)
 
+    # Single commit at the end - ensures document and chunks are saved atomically
     db.commit()
 
     return DocumentResponse(

@@ -10,39 +10,39 @@
     "answer": "According to the employee handbook [company_policy.pdf - Page 1], full-time employees accrue 15 days of paid vacation per year, starting from their first day of employment.",
     "sources": [
       {
-        "chunk_id": 822,
+        "chunk_id": 1887,
         "filename": "company_policy.pdf",
         "page_number": 1,
-        "similarity_score": 0.623486179813331,
+        "similarity_score": 0.6234862355573458,
         "text_excerpt": "Paid Time Off (PTO): Full-time employees accrue 15 days of paid vacation per year, starting from their first day of employment.",
         "reranking_score": 0.9877026677131653,
-        "original_similarity": 0.623486179813331
+        "original_similarity": 0.6234862355573458
       },
       {
-        "chunk_id": 823,
+        "chunk_id": 1888,
         "filename": "company_policy.pdf",
         "page_number": 1,
-        "similarity_score": 0.5595372915267944,
+        "similarity_score": 0.5595373248778189,
         "text_excerpt": "Sick Leave: Employees receive 10 days of sick leave annually. Sick leave does not roll over to the next year.",
         "reranking_score": 0.5263077616691589,
-        "original_similarity": 0.5595372915267944
+        "original_similarity": 0.5595373248778189
       },
       {
-        "chunk_id": 827,
+        "chunk_id": 1892,
         "filename": "company_policy.pdf",
         "page_number": 3,
-        "similarity_score": 0.389352947473526,
+        "similarity_score": 0.38935294087844796,
         "text_excerpt": "401(k) Retirement Plan: Employees are eligible to participate after 90 days of employment. Company matches 50% up to 6%.",
         "reranking_score": 0.09460236132144928,
-        "original_similarity": 0.389352947473526
+        "original_similarity": 0.38935294087844796
       }
     ],
-    "timestamp": "2026-07-28T14:06:26.289039",
+    "timestamp": "2026-08-11T04:38:45.175284",
     "model_used": "mock",
     "session_id": null,
     "metadata": {
       "intent": "answer",
-      "confidence": 0.623486179813331,
+      "confidence": 0.9877026677131653,
       "reason": "High confidence match found"
     }
   }

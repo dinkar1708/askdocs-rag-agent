@@ -41,6 +41,12 @@ export interface AskResponse {
 export const useApi = () => {
   const config = useRuntimeConfig()
   const apiBase = config.public.apiBase
+  const apiKey = config.public.apiKey
+
+  // Default headers with API authentication
+  const getHeaders = () => ({
+    'X-API-Key': apiKey
+  })
 
   /**
    * Upload a PDF document
@@ -57,6 +63,7 @@ export const useApi = () => {
       baseURL: apiBase,
       method: 'POST',
       body: formData,
+      headers: getHeaders()
     })
 
     return response
@@ -69,6 +76,7 @@ export const useApi = () => {
     const response = await $fetch<{documents: Document[], total: number}>('/documents', {
       baseURL: apiBase,
       method: 'GET',
+      headers: getHeaders()
     })
 
     return response.documents
@@ -81,6 +89,7 @@ export const useApi = () => {
     await $fetch(`/documents/${documentId}`, {
       baseURL: apiBase,
       method: 'DELETE',
+      headers: getHeaders()
     })
   }
 
@@ -92,6 +101,7 @@ export const useApi = () => {
       baseURL: apiBase,
       method: 'POST',
       body: {},
+      headers: getHeaders()
     })
 
     return response
@@ -104,6 +114,7 @@ export const useApi = () => {
     const response = await $fetch(`/sessions/${sessionId}`, {
       baseURL: apiBase,
       method: 'GET',
+      headers: getHeaders()
     })
 
     return response
@@ -116,6 +127,7 @@ export const useApi = () => {
     const response = await $fetch<Message[]>(`/sessions/${sessionId}/history`, {
       baseURL: apiBase,
       method: 'GET',
+      headers: getHeaders()
     })
 
     return response
@@ -128,6 +140,7 @@ export const useApi = () => {
     await $fetch(`/sessions/${sessionId}`, {
       baseURL: apiBase,
       method: 'DELETE',
+      headers: getHeaders()
     })
   }
 
@@ -147,6 +160,7 @@ export const useApi = () => {
         session_id: sessionId,
         metadata_filters: metadataFilters,
       },
+      headers: getHeaders()
     })
 
     return response
@@ -159,6 +173,7 @@ export const useApi = () => {
     const response = await $fetch('/health', {
       baseURL: apiBase,
       method: 'GET',
+      headers: getHeaders()
     })
 
     return response

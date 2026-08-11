@@ -81,8 +81,11 @@ def test_ask_question_no_documents(client):
         json={"question": "Any question?"}
     )
 
-    assert response.status_code == 404
-    assert "No relevant information found" in response.json()["detail"]
+    # Router returns 200 with refuse intent (not 404) - better API design
+    assert response.status_code == 200
+    data = response.json()
+    assert data["metadata"]["intent"] == "refuse"
+    assert "cannot be answered" in data["answer"].lower()
 
 
 def test_ask_question_invalid_top_k(client, sample_document_with_chunks):

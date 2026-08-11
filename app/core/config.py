@@ -37,6 +37,9 @@ class Settings(BaseSettings):
     RETRIEVAL_INITIAL_K: int = 30  # Candidates to retrieve in stage 1
     RETRIEVAL_FINAL_K: int = 5     # Final results after reranking
 
+    # Hybrid Search Configuration
+    HYBRID_SEARCH_ENABLED: bool = True  # Enable BM25 + Vector + RRF hybrid search
+
     # Semantic Chunking Configuration
     SEMANTIC_CHUNKING_ENABLED: bool = False  # Default to False for backward compatibility
     SEMANTIC_SIMILARITY_THRESHOLD: float = 0.5
@@ -47,6 +50,11 @@ class Settings(BaseSettings):
     SLACK_ENABLED: bool = False
     SLACK_BOT_TOKEN: str = ""
     SLACK_SIGNING_SECRET: str = ""
+
+    # CORS Configuration
+    # Comma-separated list of allowed origins
+    # Defaults to localhost for development - override in production with env var
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:8080"
 
     class Config:
         # Load from .env.dev for development, or .env.test for testing

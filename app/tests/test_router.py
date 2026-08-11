@@ -82,21 +82,24 @@ def test_router_no_chunks_refuse():
 
 
 def test_router_off_topic_question():
-    """Test router detects off-topic questions"""
+    """Test router handles questions based on confidence, not keywords"""
     router = QueryRouter()
 
     chunks = [
         {"chunk_id": 1, "similarity_score": 0.6, "text": "company policy"}
     ]
 
-    # Test weather question
+    # Even "weather" question gets ANSWER if confidence is high
+    # (off-topic keyword filtering is disabled)
     result = router.route(
         question="What's the weather today?",
         chunks=chunks
     )
 
-    assert result["intent"] == QueryIntent.REFUSE
-    assert "not related" in result["reason"].lower()
+    # High confidence score (0.6 >= 0.5) → ANSWER
+    # We rely on retrieval confidence, not keyword matching
+    assert result["intent"] == QueryIntent.ANSWER
+    assert result["confidence"] == 0.6
 
 
 def test_router_ambiguous_question_clarify():
@@ -141,16 +144,18 @@ def test_router_short_question_clarify():
 
 
 def test_router_is_off_topic():
-    """Test off-topic detection method"""
+    """Test off-topic detection method (DISABLED - relies on confidence scores only)"""
     router = QueryRouter()
 
-    # Test various off-topic patterns
-    assert router._is_off_topic("What's the weather like?") is True
-    assert router._is_off_topic("Tell me a joke") is True
-    assert router._is_off_topic("Who won the game?") is True
-    assert router._is_off_topic("What's on the news?") is True
+    # Off-topic detection is intentionally disabled to prevent false refusals
+    # Keywords like "score", "game", "news" are common in business contexts
+    # We rely on confidence thresholds instead
+    assert router._is_off_topic("What's the weather like?") is False
+    assert router._is_off_topic("Tell me a joke") is False
+    assert router._is_off_topic("Who won the game?") is False
+    assert router._is_off_topic("What's on the news?") is False
 
-    # Test on-topic questions
+    # All questions pass off-topic check (rely on retrieval confidence instead)
     assert router._is_off_topic("What is the vacation policy?") is False
     assert router._is_off_topic("How do I submit expenses?") is False
 
@@ -231,10 +236,11 @@ def test_router_format_response_refuse():
 
 
 def test_router_multiple_off_topic_keywords():
-    """Test off-topic detection with multiple keywords"""
+    """Test off-topic detection is disabled (relies on confidence only)"""
     router = QueryRouter()
 
-    # Test multiple off-topic patterns
+    # Off-topic keyword detection is disabled
+    # All questions pass (rely on retrieval confidence instead)
     off_topic_questions = [
         "What's the weather forecast?",
         "Can you tell me a funny joke?",
@@ -245,7 +251,8 @@ def test_router_multiple_off_topic_keywords():
     ]
 
     for question in off_topic_questions:
-        assert router._is_off_topic(question) is True
+        # All return False (keyword filtering disabled)
+        assert router._is_off_topic(question) is False
 
 
 def test_router_edge_case_empty_question():
