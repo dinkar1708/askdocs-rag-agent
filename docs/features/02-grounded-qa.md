@@ -24,6 +24,7 @@ Instead of guessing or searching manually.
 ```bash
 curl -X POST http://localhost:8000/ask \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -d '{"question": "What is the vacation policy?"}'
 ```
 
@@ -126,7 +127,8 @@ Your Question: "What is the vacation policy?"
 1. **Context-only prompts:** LLM only sees retrieved chunks, not general knowledge
 2. **Confidence threshold:** If retrieval score <0.7, refuse to answer
 3. **Citation tracking:** Every answer must cite source chunks
-4. **Evaluation harness:** Automated tests check groundedness
+
+> **Note:** Automated evaluation harness for groundedness testing will be implemented later. See [Evaluation](07-evaluation.md) for planned metrics.
 
 **Example of what we DON'T do:**
 ```
@@ -153,15 +155,8 @@ CONFIDENCE_THRESHOLD=0.7
 - **Lower (0.5):** More answers, but risk of lower-quality responses
 
 **Finding the right value:**
-```bash
-# Run evaluation at different thresholds
-python -m eval.tune_threshold
 
-# Output:
-# Threshold 0.5: 92% answer rate, 78% groundedness
-# Threshold 0.7: 85% answer rate, 95% groundedness ← Sweet spot
-# Threshold 0.9: 60% answer rate, 99% groundedness
-```
+Test different thresholds manually by changing the `.env` value and observing answer quality. Automated threshold tuning will be implemented later as part of the evaluation harness.
 
 ---
 
@@ -254,21 +249,22 @@ Confidence: 0.94
 
 ## Testing Groundedness
 
-**Run evaluation:**
-```bash
-docker compose exec api python -m eval.run
-```
+> **Note:** Automated evaluation harness will be implemented later. See [Feature 07: Evaluation](07-evaluation.md) for planned implementation.
 
-**Output:**
-```
-Retrieval Hit-Rate: 85% (17/20 questions found correct chunk in top-5)
-Answer Groundedness: 95% (19/20 answers only used retrieved chunks)
-Correct Refusals: 100% (5/5 off-topic questions refused)
-```
+**Manual testing:**
+1. Ask test questions from your documents
+2. Verify answers cite correct sources
+3. Try off-topic questions - should return "not_found"
+4. Check that citations match actual document content
+
+**Metrics to track** (when evaluation harness is implemented):
+- Retrieval Hit-Rate: % of questions where correct chunk in top-k
+- Answer Groundedness: % of answers using only retrieved chunks
+- Correct Refusals: % of off-topic questions correctly refused
 
 **What to optimize:**
-- Hit-rate <80% → Tune chunking or embeddings
-- Groundedness <90% → Raise confidence threshold
+- Low accuracy → Tune chunking or embeddings
+- Hallucinations → Raise confidence threshold
 - Too many refusals → Lower threshold or improve docs
 
 ---
