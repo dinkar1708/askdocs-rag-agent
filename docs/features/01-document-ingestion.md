@@ -23,6 +23,7 @@ So that customers can ask questions and get accurate answers without me manually
 **Via API:**
 ```bash
 curl -X POST http://localhost:8000/documents \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -F "file=@employee-handbook.pdf"
 ```
 
@@ -89,7 +90,7 @@ Chunk 1 (page 7):
 "Employees receive 15 days of paid vacation per year. Unused vacation
 days can be carried over up to a maximum of 5 days..."
 
-Chunk 2 (page 7-8):  ← 50 character overlap with Chunk 1
+Chunk 2 (page 7-8):  ← 128 token overlap with Chunk 1
 "...days can be carried over up to a maximum of 5 days. Sick leave is
 separate and employees receive 10 days of paid sick leave annually..."
 
@@ -130,9 +131,9 @@ submit a request via the HR portal at least 2 weeks in advance..."
 
 **Chunk size (in code, not configurable via .env yet):**
 ```python
-# app/services/embeddings.py
-chunk_size = 500        # Characters per chunk (not tokens)
-overlap = 50            # Character overlap between chunks
+# app/ingest/chunker.py
+CHUNK_SIZE = 512      # Tokens per chunk
+CHUNK_OVERLAP = 128   # Token overlap between chunks
 ```
 
 **Note:** Chunking parameters are currently hardcoded. Configuration via environment variables is planned for a future release.
@@ -147,13 +148,15 @@ overlap = 50            # Character overlap between chunks
 
 **Check document was indexed:**
 ```bash
-curl http://localhost:8000/documents
+curl -H "X-API-Key: test-api-key-not-for-production" \
+  http://localhost:8000/documents
 ```
 
 **Search for a chunk:**
 ```bash
 curl -X POST http://localhost:8000/search \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -d '{"query": "vacation policy", "top_k": 3}'
 ```
 
@@ -189,7 +192,7 @@ curl -X POST http://localhost:8000/search \
 **Architecture:**
 - Synchronous upload (blocks until complete)
 - No multi-file upload
-- Simple character-based chunking (doesn't respect semantic boundaries)
+- Simple token-based chunking (doesn't respect semantic boundaries)
 
 **Document Types:**
 - PDFs only (DOCX, Excel, TXT not supported)
@@ -197,7 +200,7 @@ curl -X POST http://localhost:8000/search \
 - No OCR for scanned PDFs
 
 **Chunking Strategy:**
-- Fixed 500-character chunks (not semantically aware)
+- Fixed 512-token chunks (not semantically aware)
 - No hierarchical relationships (sections, subsections)
 - Tables split arbitrarily across chunks
 
@@ -205,7 +208,7 @@ curl -X POST http://localhost:8000/search \
 
 **Phase 1: Better Document Processing** (High Priority)
 - [ ] **Table extraction** - Preserve table structure using pdfplumber
-- [ ] **Semantic chunking** - Chunk by topic/section instead of character count
+- [ ] **Semantic chunking** - Chunk by topic/section instead of fixed token count
 - [ ] **Document structure preservation** - Track headers, lists, hierarchies
 - [ ] **Excel/CSV ingestion** - Support structured data files
 - [ ] Sample test files for tables, images, Excel
