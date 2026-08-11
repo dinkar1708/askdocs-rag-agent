@@ -4,12 +4,25 @@
     <div class="p-4 border-b border-gray-200">
       <div class="flex justify-between items-center mb-3">
         <h2 class="text-xl font-bold text-gray-900">Ask Your Documents</h2>
-        <button
-          @click="newChat"
-          class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
-        >
-          New Chat
-        </button>
+        <div class="flex gap-2">
+          <button
+            v-if="sessionId && messages.length > 0"
+            @click="deleteChat"
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2"
+            title="Delete this chat"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Delete
+          </button>
+          <button
+            @click="newChat"
+            class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+          >
+            New Chat
+          </button>
+        </div>
       </div>
 
       <!-- Filter Controls -->
@@ -71,41 +84,68 @@
         v-for="message in messages"
         :key="message.id"
         :class="[
-          'flex',
+          'flex group',
           message.role === 'user' ? 'justify-end' : 'justify-start'
         ]"
       >
-        <div
-          :class="[
-            'max-w-[70%] rounded-lg px-4 py-3',
-            message.role === 'user'
-              ? 'bg-purple-600 text-white'
-              : 'bg-gray-100 text-gray-900'
-          ]"
-        >
-          <div class="whitespace-pre-wrap break-words">{{ message.content }}</div>
+        <div class="flex items-start gap-2 max-w-[75%]">
+          <!-- Delete button (shown on hover, positioned before user messages) -->
+          <button
+            v-if="message.role === 'user'"
+            @click="deleteMessage(message.id)"
+            class="opacity-0 group-hover:opacity-100 transition-opacity mt-1 p-1.5 hover:bg-red-100 rounded-lg"
+            title="Delete this message"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
 
-          <!-- Sources -->
-          <div v-if="message.sources && message.sources.length > 0" class="mt-3 pt-3 border-t border-purple-500/20">
-            <div class="text-sm font-semibold mb-2">Sources:</div>
-            <ul class="text-sm space-y-1">
-              <li v-for="(source, idx) in getUniqueSources(message.sources)" :key="idx" class="flex items-start gap-2">
-                <span class="text-purple-200">📄</span>
-                <span>
-                  {{ source.filename }}, page {{ source.page_number }}
-                  <span v-if="source.chunk_count > 1" class="text-purple-300 ml-1">
-                    ({{ source.chunk_count }} chunks)
+          <!-- Message bubble -->
+          <div
+            :class="[
+              'rounded-lg px-4 py-3 flex-1',
+              message.role === 'user'
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-100 text-gray-900'
+            ]"
+          >
+            <div class="whitespace-pre-wrap break-words">{{ message.content }}</div>
+
+            <!-- Sources -->
+            <div v-if="message.sources && message.sources.length > 0" class="mt-3 pt-3 border-t border-purple-500/20">
+              <div class="text-sm font-semibold mb-2">Sources:</div>
+              <ul class="text-sm space-y-1">
+                <li v-for="(source, idx) in getUniqueSources(message.sources)" :key="idx" class="flex items-start gap-2">
+                  <span class="text-purple-200">📄</span>
+                  <span>
+                    {{ source.filename }}, page {{ source.page_number }}
+                    <span v-if="source.chunk_count > 1" class="text-purple-300 ml-1">
+                      ({{ source.chunk_count }} chunks)
+                    </span>
+                    <span v-if="source.reranking_score" class="text-purple-200 ml-1">
+                      - {{ (source.reranking_score * 100).toFixed(1) }}% relevance
+                    </span>
+                    <span v-else-if="source.similarity_score" class="text-purple-300 ml-1">
+                      - {{ (source.similarity_score * 100).toFixed(1) }}% match
+                    </span>
                   </span>
-                  <span v-if="source.reranking_score" class="text-purple-200 ml-1">
-                    - {{ (source.reranking_score * 100).toFixed(1) }}% relevance
-                  </span>
-                  <span v-else-if="source.similarity_score" class="text-purple-300 ml-1">
-                    - {{ (source.similarity_score * 100).toFixed(1) }}% match
-                  </span>
-                </span>
-              </li>
-            </ul>
+                </li>
+              </ul>
+            </div>
           </div>
+
+          <!-- Delete button (shown on hover, positioned after assistant messages) -->
+          <button
+            v-if="message.role === 'assistant'"
+            @click="deleteMessage(message.id)"
+            class="opacity-0 group-hover:opacity-100 transition-opacity mt-1 p-1.5 hover:bg-red-100 rounded-lg"
+            title="Delete this message"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -291,6 +331,66 @@ const newChat = async () => {
     inputMessage.value = ''
   } catch (error) {
     console.error('Failed to create new session:', error)
+  }
+}
+
+const deleteMessage = (messageId: string) => {
+  // Find the message index
+  const messageIndex = messages.value.findIndex(m => m.id === messageId)
+  if (messageIndex === -1) return
+
+  const message = messages.value[messageIndex]
+
+  // If it's a user message, also delete the following assistant response (if exists)
+  if (message.role === 'user' && messageIndex + 1 < messages.value.length) {
+    const nextMessage = messages.value[messageIndex + 1]
+    if (nextMessage.role === 'assistant') {
+      // Delete both user question and assistant answer
+      messages.value.splice(messageIndex, 2)
+    } else {
+      // Just delete the user message
+      messages.value.splice(messageIndex, 1)
+    }
+  } else if (message.role === 'assistant' && messageIndex > 0) {
+    // If it's an assistant message, also delete the preceding user question
+    const prevMessage = messages.value[messageIndex - 1]
+    if (prevMessage.role === 'user') {
+      // Delete both user question and assistant answer
+      messages.value.splice(messageIndex - 1, 2)
+    } else {
+      // Just delete the assistant message
+      messages.value.splice(messageIndex, 1)
+    }
+  } else {
+    // Delete single message
+    messages.value.splice(messageIndex, 1)
+  }
+}
+
+const deleteChat = async () => {
+  if (!sessionId.value) return
+
+  // Confirm deletion
+  if (!confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
+    return
+  }
+
+  try {
+    // Delete the session from backend
+    await api.deleteSession(sessionId.value)
+
+    // Clear local storage
+    localStorage.removeItem('askdocs_session_id')
+
+    // Clear messages
+    messages.value = []
+    inputMessage.value = ''
+
+    // Create a new session
+    await createNewSession()
+  } catch (error) {
+    console.error('Failed to delete session:', error)
+    alert('Failed to delete chat. Please try again.')
   }
 }
 
