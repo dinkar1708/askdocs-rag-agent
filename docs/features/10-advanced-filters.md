@@ -23,6 +23,7 @@ So I only get answers about relevant roles without mixing junior and senior requ
 **Request:**
 ```bash
 curl -X POST http://localhost:8000/documents \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -F "file=@job_description.pdf" \
   -F 'metadata={
     "department": "Engineering",
@@ -61,6 +62,7 @@ curl -X POST http://localhost:8000/documents \
 ```bash
 curl -X POST http://localhost:8000/ask \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -d '{
     "question": "What are the experience requirements?",
     "filters": {
@@ -102,6 +104,7 @@ curl -X POST http://localhost:8000/ask \
 ```bash
 curl -X POST http://localhost:8000/ask \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -d '{
     "question": "What is the vacation policy?",
     "filters": {
@@ -123,6 +126,7 @@ curl -X POST http://localhost:8000/ask \
 ```bash
 curl -X POST http://localhost:8000/ask \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -d '{
     "question": "What remote work options are available?",
     "filters": {
@@ -429,7 +433,8 @@ POST /documents -F "file=@handbook.pdf"
 
 **Request:**
 ```bash
-curl "http://localhost:8000/documents?department=Engineering&grade=GG11"
+curl -H "X-API-Key: test-api-key-not-for-production" \
+  "http://localhost:8000/documents?department=Engineering&grade=GG11"
 ```
 
 **Response:**
@@ -455,6 +460,7 @@ curl "http://localhost:8000/documents?department=Engineering&grade=GG11"
 ```bash
 curl -X PATCH http://localhost:8000/documents/doc_123 \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -d '{
     "metadata": {
       "status": "archived",
@@ -472,7 +478,8 @@ curl -X PATCH http://localhost:8000/documents/doc_123 \
 ### Documents by Type
 
 ```bash
-curl http://localhost:8000/analytics/documents/by-metadata?field=type
+curl -H "X-API-Key: test-api-key-not-for-production" \
+  http://localhost:8000/analytics/documents/by-metadata?field=type
 ```
 
 **Response:**
@@ -490,7 +497,8 @@ curl http://localhost:8000/analytics/documents/by-metadata?field=type
 ### Documents by Department
 
 ```bash
-curl http://localhost:8000/analytics/documents/by-metadata?field=department
+curl -H "X-API-Key: test-api-key-not-for-production" \
+  http://localhost:8000/analytics/documents/by-metadata?field=department
 ```
 
 **Response:**
@@ -578,6 +586,7 @@ POST /ask
 **Request:**
 ```bash
 curl -X POST http://localhost:8000/documents \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -F "file=@doc.pdf" \
   -F 'metadata={"key": "value"}'
 ```
@@ -604,7 +613,8 @@ curl -X POST http://localhost:8000/documents \
 
 **Request:**
 ```bash
-curl "http://localhost:8000/documents?field=value&field2=value2"
+curl -H "X-API-Key: test-api-key-not-for-production" \
+  "http://localhost:8000/documents?field=value&field2=value2"
 ```
 
 ---

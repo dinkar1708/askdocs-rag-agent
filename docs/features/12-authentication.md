@@ -247,13 +247,20 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
 ## API Changes
 
-### Before (No Auth)
+### Before (No Auth - Planned)
 ```bash
 curl -X POST http://localhost:8000/documents \
   -F "file=@document.pdf"
 ```
 
-### After (With Auth)
+### Current (With API Key)
+```bash
+curl -X POST http://localhost:8000/documents \
+  -H "X-API-Key: test-api-key-not-for-production" \
+  -F "file=@document.pdf"
+```
+
+### Future (With JWT Bearer Token)
 ```bash
 curl -X POST http://localhost:8000/documents \
   -H "Authorization: Bearer eyJhbGc..." \

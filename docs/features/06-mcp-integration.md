@@ -155,6 +155,7 @@ Quit and reopen Claude Desktop completely.
 **Via REST API (askdocs doesn't expose upload via MCP yet):**
 ```bash
 curl -X POST http://localhost:8000/documents \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -F "file=@employee-handbook.pdf"
 ```
 

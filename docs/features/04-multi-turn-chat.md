@@ -24,6 +24,7 @@ So I can have a natural conversation instead of rephrasing every question.
 ```bash
 curl -X POST http://localhost:8000/chat \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -d '{"message": "What is your return policy?"}'
 ```
 
@@ -51,6 +52,7 @@ curl -X POST http://localhost:8000/chat \
 ```bash
 curl -X POST http://localhost:8000/chat \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -d '{
     "message": "What about damaged items?",
     "session_id": "sess_abc123"
@@ -82,6 +84,7 @@ curl -X POST http://localhost:8000/chat \
 ```bash
 curl -X POST http://localhost:8000/chat \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -d '{
     "message": "Do I need to pay for return shipping?",
     "session_id": "sess_abc123"

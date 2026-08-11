@@ -20,7 +20,8 @@ So that users only get answers from current policies.
 
 **Request:**
 ```bash
-curl http://localhost:8000/documents
+curl -H "X-API-Key: test-api-key-not-for-production" \
+  http://localhost:8000/documents
 ```
 
 **Response:**
@@ -48,7 +49,8 @@ curl http://localhost:8000/documents
 
 **Pagination:**
 ```bash
-curl "http://localhost:8000/documents?limit=10&offset=0"
+curl -H "X-API-Key: test-api-key-not-for-production" \
+  "http://localhost:8000/documents?limit=10&offset=0"
 ```
 
 ---
@@ -57,7 +59,8 @@ curl "http://localhost:8000/documents?limit=10&offset=0"
 
 **Request:**
 ```bash
-curl http://localhost:8000/documents/doc_123
+curl -H "X-API-Key: test-api-key-not-for-production" \
+  http://localhost:8000/documents/doc_123
 ```
 
 **Response:**
@@ -88,7 +91,9 @@ curl http://localhost:8000/documents/doc_123
 
 **Request:**
 ```bash
-curl -X DELETE http://localhost:8000/documents/doc_123
+curl -X DELETE \
+  -H "X-API-Key: test-api-key-not-for-production" \
+  http://localhost:8000/documents/doc_123
 ```
 
 **Response:**
@@ -118,13 +123,15 @@ curl -X DELETE http://localhost:8000/documents/doc_123
 
 ### 1. Check Current Version
 ```bash
-curl http://localhost:8000/documents
+curl -H "X-API-Key: test-api-key-not-for-production" \
+  http://localhost:8000/documents
 # Shows: "employee-handbook-2025.pdf" uploaded on 2025-01-15
 ```
 
 ### 2. Upload New Version
 ```bash
 curl -X POST http://localhost:8000/documents \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -F "file=@employee-handbook-2026.pdf"
 # Response: doc_id = "doc_789"
 ```
@@ -133,6 +140,7 @@ curl -X POST http://localhost:8000/documents \
 ```bash
 curl -X POST http://localhost:8000/ask \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -d '{"question": "What is the vacation policy?"}'
 ```
 
@@ -140,7 +148,9 @@ curl -X POST http://localhost:8000/ask \
 
 ### 4. Delete Old Version
 ```bash
-curl -X DELETE http://localhost:8000/documents/doc_123
+curl -X DELETE \
+  -H "X-API-Key: test-api-key-not-for-production" \
+  http://localhost:8000/documents/doc_123
 # Removes 2025 handbook
 ```
 
@@ -148,17 +158,20 @@ curl -X DELETE http://localhost:8000/documents/doc_123
 ```bash
 curl -X POST http://localhost:8000/ask \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -d '{"question": "What is the vacation policy?"}'
 # Now only cites 2026 handbook
 ```
 
 ---
 
-## Document Metadata (Future)
+## Document Metadata
 
-**Current:** Metadata field exists but unused.
+**Status:** ✅ Implemented
 
-**Future use cases:**
+**Current use:** You can add metadata when uploading documents (department, grade, type, tags).
+
+**Available metadata fields:**
 ```json
 {
   "metadata": {
