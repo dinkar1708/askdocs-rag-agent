@@ -1,24 +1,26 @@
 # askdocs-rag-agent
 
-[![Tests](https://img.shields.io/badge/tests-190%20passing-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-216/218%20passing-brightgreen)](#testing)
 [![Advanced RAG](https://img.shields.io/badge/advanced%20RAG-3%20phases-blue)](#advanced-rag-features)
 
-> Ask questions to your documents and get grounded, cited answers — a production-style Document Q&A service built with FastAPI, RAG, and LangGraph.
+> Ask questions to your documents and get grounded, cited answers — a production-ready Document Q&A service built with FastAPI, PostgreSQL+pgvector, and advanced RAG techniques.
 
-**Stack:** Python 3.12 · FastAPI · LangGraph · PostgreSQL + pgvector · Nuxt 4 · Tailwind CSS · Docker · Slack Bot
+**Stack:** Python 3.12 · FastAPI · PostgreSQL + pgvector · Nuxt 4 · Tailwind CSS · Docker · Ollama (offline LLM)
 
-**Latest Update (2026-07-29):** ✨ Added Slack Bot Integration - Ask questions directly from Slack with mentions, DMs, and slash commands
+**Latest Update:** Production-ready with 216/218 tests passing, HNSW indexing, duplicate detection, and API key authentication
 
 ## Description
 
-A production-style RAG (Retrieval-Augmented Generation) system that enables natural language Q&A over document collections with guaranteed citation accuracy. Built with enterprise-grade architecture featuring LangGraph-powered query routing, vector similarity search using pgvector, and multi-LLM support (Gemini, Ollama, Azure OpenAI).
+A production-ready RAG (Retrieval-Augmented Generation) system that enables natural language Q&A over document collections with guaranteed citation accuracy. Built with enterprise-grade architecture featuring custom query routing, HNSW-indexed vector similarity search using pgvector, and multi-LLM support (Gemini, Ollama, Azure OpenAI).
 
 **Key Differentiators:**
 - **Grounded-or-refuse architecture** - Never hallucinates; returns "not_found" when answers aren't in documents
 - **Citation tracking** - Every answer includes exact document and page references
-- **Multi-interface support** - REST API, Web UI, Slack bot, and MCP integration for Claude Desktop
-- **Production-style** - Security hardened, cloud-native deployment (GCP/Azure), comprehensive testing
-- **Flexible LLM backend** - Swappable providers via adapter pattern (cloud or local)
+- **Duplicate detection** - SHA-256 content hashing prevents duplicate uploads
+- **HNSW indexing** - 10-100x faster vector search with PostgreSQL+pgvector
+- **API key authentication** - All endpoints secured with X-API-Key header validation
+- **Production-ready** - 216/218 tests passing (99.1%), cloud deployment docs (GCP/Azure)
+- **Flexible LLM backend** - Swappable providers via adapter pattern (Gemini, Ollama offline, Azure OpenAI)
 
 **Target Use Cases:** HR knowledge bases, customer support documentation, legal/compliance document search, IT helpdesk automation, sales enablement.
 
@@ -98,15 +100,23 @@ See [Why Not Just Use ChatGPT?](docs/getting-started/WHY.md) for detailed compar
 
 ## Key Features
 
+**Currently Working:**
 - **Grounded Q&A** - Answers only from retrieved chunks, with `[doc, page]` citations
 - **Honest refusal** - Returns "not_found" if confidence is too low (no guessing)
-- **LangGraph router** - Classifies queries: answer / clarify / refuse
-- **Slack Bot** - Ask questions via @mentions, DMs, or `/askdocs` slash commands
-- **Structured Data Extraction** - Extract custom fields (text, numbers, arrays) from documents with schema templates
-- **Multi-turn chat** - Conversation history for follow-up questions
-- **MCP integration** - Tools for AI assistants (Claude Desktop, etc.)
-- **Swappable LLM** - Gemini, Ollama, Azure OpenAI via adapter pattern
+- **Query routing** - Classifies queries: answer / clarify / refuse based on confidence
+- **Duplicate detection** - SHA-256 hashing prevents uploading same document twice
+- **Two-stage retrieval** - Vector search (30 candidates) → Cross-encoder reranking (top 5)
+- **HNSW indexing** - Fast vector similarity search (10-100x speedup)
+- **API key authentication** - Secure endpoints with X-API-Key header
+- **Swappable LLM** - Gemini, Ollama (offline), Azure OpenAI via adapter pattern
 - **pgvector** - Vector embeddings in PostgreSQL (no separate vector DB)
+- **Web UI** - Nuxt 4 interface for chat, document management, data extraction
+
+**Will be implemented later:**
+- Slack Bot integration
+- Structured data extraction backend endpoint (UI exists)
+- Multi-turn chat sessions API (database models exist)
+- MCP integration for Claude Desktop
 
 ---
 
@@ -144,51 +154,44 @@ npm run dev
 # Web UI available at http://localhost:3000
 ```
 
-**Enable Slack Bot (optional):**
-```bash
-# Add to your .env file:
-SLACK_ENABLED=True
-SLACK_BOT_TOKEN=xoxb-your-bot-token
-SLACK_SIGNING_SECRET=your-signing-secret
-
-# Restart the application
-docker compose restart api
-```
-📋 **Slack Setup:** See [Slack Integration Guide](docs/features/13-slack-integration.md) for complete Slack app configuration.
+**Note:** Slack bot integration is documented but not yet implemented. See [Slack Integration Guide](docs/features/13-slack-integration.md) for the planned implementation.
 
 **Test the service:**
 1. **Upload a document** - `POST /documents` with a PDF file
 2. **Ask a question** - `POST /ask` with `{"question": "what is X?"}`
 3. **Verify grounding** - Check the `sources` array in the response
-4. **Try Slack (if enabled)** - `@askdocs What is the vacation policy?`
+4. **Try the Web UI** - Open http://localhost:3000
 
 **Try the demo with sample data:**
 ```bash
 # Upload sample company policy document
 curl -X POST http://localhost:8000/documents/ \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -F "file=@app/samples/company_policy.pdf"
 
 # Ask a test question
 curl -X POST http://localhost:8000/ask/ \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -d '{"question": "How many vacation days do employees get?"}'
 
 # Expected: "15 days of paid vacation per year" with citations
 ```
 
+**Note:** All API endpoints require `X-API-Key` header for authentication.
+
 📋 **Quick Demo:** See [Getting Started Guide](docs/demo/getting-started.md) for copy-paste questions with expected answers.
 
 **Verify it works:**
 ```bash
-# Run tests (auto-generates API examples in docs/testing/api-results/)
+# Run tests
 docker compose exec api pytest
 
-# Check API documentation examples
-cat docs/testing/api-results/health.json
-
-# Run evaluation (retrieval quality metrics)
-docker compose exec api python -m eval.run
+# Check test results
+# Expected: 216/218 tests passing (99.1%)
 ```
+
+**Note:** Evaluation harness (retrieval quality metrics) will be implemented later.
 
 See [Local Development Guide](docs/LOCAL_DEVELOPMENT.md) for detailed setup.
 
@@ -196,21 +199,22 @@ See [Local Development Guide](docs/LOCAL_DEVELOPMENT.md) for detailed setup.
 
 ## Testing
 
-**Total: 190 tests passing**
+**Total: 240 tests - 216/218 backend passing (99.1%), 24 E2E tests**
 
-- **166 Unit/Integration Tests** (Backend)
-  - API endpoints (health, documents, Q&A, extraction, Slack)
+- **216/218 Unit/Integration Tests** (Backend)
+  - API endpoints (health, documents, Q&A)
   - RAG retrieval & reranking
   - LLM adapters (Gemini, Ollama, Azure OpenAI, Mock)
   - Document ingestion & chunking
   - Database operations
+  - Query routing
 
 - **24 End-to-End Tests** (Frontend + Backend)
   - Document upload & management
   - Question answering with citations
-  - Multi-turn conversations
+  - Multi-turn conversations (frontend only, API pending)
   - Source citation verification
-  - Structured data extraction
+  - Data extraction UI (backend endpoint pending)
 
 **Run Tests:**
 ```bash

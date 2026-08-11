@@ -97,7 +97,7 @@ Your Question: "What is the vacation policy?"
     ↓
 2. Search database for similar chunks (top-5 by cosine similarity)
     ↓
-3. LangGraph router evaluates query:
+3. Query router evaluates query (simple threshold-based logic):
    ├─ Off-topic? → Refuse
    ├─ Ambiguous? → Clarify
    └─ Answerable? → Continue...
@@ -115,7 +115,7 @@ Your Question: "What is the vacation policy?"
 6. LLM generates answer → Extract citations → Return
 ```
 
-**Note:** Current implementation uses single-stage retrieval. Reranking is planned for Phase 2 (see roadmap below).
+**Note:** Current query routing uses simple threshold-based logic (custom Python class). LangGraph implementation for advanced multi-step routing is planned. Single-stage retrieval is used; reranking is planned for Phase 2 (see roadmap below).
 
 ---
 
@@ -312,6 +312,65 @@ Correct Refusals: 100% (5/5 off-topic questions refused)
 - [ ] Multi-language optimization
 
 See [ROADMAP.md](../ROADMAP.md) for technical implementation details.
+
+---
+
+## TODO: LangGraph-Based Citation Verification
+
+**Status:** Will be implemented later
+
+**What:** Multi-step verification workflow using LangGraph to validate that LLM-generated citations actually exist in retrieved chunks and semantically support the claims made in answers.
+
+**Current Problem:**
+- Citations returned are just the retrieved chunks, not verified against what LLM actually used
+- If model drifts or hallucinates, we don't catch citation mismatches
+- No semantic verification that cited chunk actually supports the claim
+- Risk of "citation hallucination" (citing documents that don't support the answer)
+
+**Why LangGraph:**
+- Multi-step workflow: Generate answer → Extract claimed citations → Verify existence → Semantic check → Flag/Accept
+- Conditional branching: Different paths for verified vs suspicious citations
+- State management: Track verification status across multiple LLM calls
+- Potential retry loops: Re-verify with different prompts if ambiguous
+
+**Implementation Plan:**
+
+1. **StateGraph Architecture:**
+   ```
+   Generate Answer (with context)
+     ↓
+   Extract Claimed Citations (parse [doc.pdf, p.5] patterns)
+     ↓
+   Verify Against Context (check if cited chunks were in retrieval results)
+     ├─ Found? → Semantic Verify (does chunk support claim?)
+     │           ├─ Match? → ✅ Accept citation
+     │           └─ No match? → ⚠️ Flag as suspicious
+     └─ Not Found? → 🚨 Flag as hallucination
+   ```
+
+2. **State Definition:**
+   ```python
+   class CitationVerificationState(TypedDict):
+       question: str
+       context_chunks: List[Dict]
+       generated_answer: str
+       claimed_citations: List[Dict]
+       verified_citations: List[Dict]
+       flagged_citations: List[Dict]
+   ```
+
+3. **API Integration:**
+   - Enable with `CITATION_VERIFICATION_ENABLED=true`
+   - Response includes new fields:
+     - `verified_citations` - Citations that passed verification
+     - `flagged_citations` - Citations flagged as suspicious or hallucinated
+     - `verification_status` - Overall verification result
+
+4. **Benefits:**
+   - Catches hallucinated citations before returning to user
+   - Flags citation drift (when answer doesn't match sources)
+   - Improves trust in RAG system
+   - Perfect for high-stakes use cases (legal, medical, compliance)
 
 ---
 

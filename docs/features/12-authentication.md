@@ -1,6 +1,6 @@
 # Authentication & Authorization
 
-**Status:** 🔴 Not Implemented (Planned)
+**Status:** 🟡 Partially Implemented (API Key Auth Working)
 
 User authentication and authorization system for secure access control.
 
@@ -11,9 +11,12 @@ User authentication and authorization system for secure access control.
 **Purpose:** Secure the AskDocs system with user authentication and role-based access control.
 
 **Current State:**
-- APIs are currently open (no authentication required)
-- All users can access all documents
-- No user management or session tracking
+- ✅ API key authentication implemented (X-API-Key header)
+- ✅ All endpoints protected with API key validation
+- ✅ Returns 401 Unauthorized without key, 403 Forbidden with wrong key
+- ❌ No user accounts or session management
+- ❌ No role-based access control
+- ❌ Single shared API key (not per-user)
 
 **Target State:**
 - User login with email/password
@@ -63,12 +66,30 @@ POST /auth/login
 → Returns JWT token
 ```
 
-**2. API Keys (For Integrations)**
+**2. API Keys (For Integrations)** ✅ **Currently Implemented**
+```bash
+# All endpoints require X-API-Key header
+curl -H "X-API-Key: test-api-key-not-for-production" \
+  http://localhost:8000/documents/
+
+# Without key: 401 Unauthorized
+# Wrong key: 403 Forbidden
+# Correct key: 200 OK with data
 ```
-GET /documents
-Headers:
-  X-API-Key: sk_live_abc123...
+
+**Configuration:**
+```bash
+# .env
+API_KEY=test-api-key-not-for-production
+
+# Frontend (.env)
+NUXT_PUBLIC_API_KEY=test-api-key-not-for-production
 ```
+
+**Implementation:**
+- File: `app/core/auth.py` - API key verification dependency
+- All routers use: `dependencies=[Depends(verify_api_key)]`
+- Frontend automatically sends X-API-Key header on all requests
 
 **3. OAuth (Future)**
 - Google Sign-In

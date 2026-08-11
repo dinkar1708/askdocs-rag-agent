@@ -40,7 +40,17 @@ curl -X POST http://localhost:8000/documents \
   "filename": "employee-handbook.pdf",
   "page_count": 42,
   "chunk_count": 156,
-  "uploaded_at": "2026-07-20T10:30:00Z"
+  "uploaded_at": "2026-07-20T10:30:00Z",
+  "content_hash": "sha256:abc123..."
+}
+```
+
+**Duplicate Upload Prevention:**
+If you try to upload the same file again:
+```json
+{
+  "detail": "Document already exists with ID 42. Upload date: 2026-07-20T10:30:00Z",
+  "status_code": 409
 }
 ```
 
@@ -49,22 +59,28 @@ curl -X POST http://localhost:8000/documents \
 ```
 Your PDF
     ↓
-1. Extract text from each page using PyPDF2 (preserves page numbers)
+1. Calculate SHA-256 hash (duplicate detection)
     ↓
-2. Split text into chunks (500 characters each, 50 character overlap)
+2. Check if document already exists
     ↓
-3. Convert each chunk to a 384-dim vector embedding (all-MiniLM-L6-v2)
+3. Extract text from each page using PyPDF2 (preserves page numbers)
     ↓
-4. Store in PostgreSQL with pgvector
+4. Split text into chunks (512 tokens each, 128 token overlap)
+    ↓
+5. Convert each chunk to a 384-dim vector embedding (all-MiniLM-L6-v2)
+    ↓
+6. Store in PostgreSQL with pgvector (atomic transaction)
     ↓
 Ready for questions!
 ```
 
 **Technical Details:**
+- **Duplicate Detection:** SHA-256 content hashing (prevents duplicate uploads)
 - **Text Extraction:** PyPDF2's `extract_text()` - works well for text-based PDFs
-- **Chunking:** Fixed-size character chunking with sentence boundary detection
+- **Chunking:** Fixed-size token chunking (512 tokens, 128 overlap)
 - **Embedding Model:** sentence-transformers/all-MiniLM-L6-v2 (384 dimensions)
-- **Vector Index:** pgvector with cosine similarity
+- **Vector Index:** pgvector with HNSW (Hierarchical Navigable Small World) for fast similarity search
+- **Atomic Uploads:** Document and chunks saved in single transaction (no orphan documents)
 
 **Example chunks from a handbook:**
 
@@ -105,7 +121,7 @@ submit a request via the HR portal at least 2 weeks in advance..."
 - Password-protected PDFs
 - Excel/CSV files with structured data
 - DOCX, TXT, Markdown files
-- Files over 10MB (configurable)
+- Files over 50MB (current limit)
 - PDFs with forms or interactive elements
 
 ---
@@ -207,6 +223,55 @@ curl -X POST http://localhost:8000/search \
 - [ ] Configurable chunking via environment variables
 
 See [ROADMAP.md](../ROADMAP.md) for detailed technical plans.
+
+---
+
+## TODO: LangGraph-Based Background Async Ingestion
+
+**Status:** Will be implemented later
+
+**What:** Background job processing for document uploads using LangGraph state machine to handle extraction → chunking → embedding → indexing pipeline asynchronously.
+
+**Current Problem:**
+- Document upload blocks HTTP request for entire pipeline
+- Large PDFs (100+ pages) tie up API workers
+- No progress tracking or retry logic
+- User must wait for completion (10-30 seconds for large docs)
+
+**Why LangGraph:**
+- Job state machine with clear stages: queued → extracting → chunking → embedding → indexing → complete
+- Automatic error handling with exponential backoff retries
+- Progress tracking at each stage
+- Conditional paths for different file types (PDF vs DOCX vs TXT)
+
+**Implementation Plan:**
+
+1. **StateGraph Architecture:**
+   ```
+   Accept Job (return job_id immediately)
+     ↓
+   Extract Text (PDF → text, page by page)
+     ↓
+   Chunk Text (semantic chunking)
+     ↓
+   Batch Embed (all chunks at once)
+     ↓
+   Store in DB (atomic transaction)
+     ↓
+   Mark Complete (or retry on error)
+   ```
+
+2. **API Changes:**
+   - `POST /documents` - Returns `job_id` immediately, processes in background
+   - `GET /documents/jobs/{job_id}` - Poll for progress and status
+   - Frontend shows progress bar: "Extracting text... 40%"
+
+3. **Benefits:**
+   - Non-blocking uploads (API responds instantly)
+   - Better resource utilization (batch processing)
+   - Progress tracking for UX
+   - Automatic retries on transient failures
+   - Scales to very large documents
 
 ---
 

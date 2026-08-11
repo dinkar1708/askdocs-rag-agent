@@ -409,6 +409,59 @@ Real question from support ticket:
 
 ---
 
+## TODO: LangGraph-Based Automated Evaluation
+
+**Status:** Will be implemented later
+
+**What:** Automated evaluation pipeline using LangGraph to calculate retrieval quality metrics (Recall@k, MRR, Precision, NDCG) with parallel processing and state aggregation.
+
+**Why LangGraph:**
+- Parallel processing for evaluating many test queries simultaneously
+- State aggregation to collect metrics across all queries
+- Complex pipeline: Load test dataset → Parallel retrieval → Calculate metrics → Generate report
+- Conditional paths based on results
+
+**Implementation Plan:**
+
+1. **StateGraph Architecture:**
+   - Load labeled test dataset (queries with expected document IDs)
+   - Parallel retrieval for all test queries
+   - Calculate multiple metrics in parallel (Recall@k, MRR, Precision@k, NDCG)
+   - Aggregate results and generate evaluation report
+
+2. **Metrics to Track:**
+   - Recall@5, Recall@10 - Did we retrieve the relevant documents?
+   - MRR (Mean Reciprocal Rank) - How highly ranked was the first relevant result?
+   - Precision@5, Precision@10 - What percentage of retrieved docs were relevant?
+   - NDCG (Normalized Discounted Cumulative Gain) - Quality-weighted ranking
+
+3. **Test Dataset Format:**
+   ```json
+   {
+     "test_queries": [
+       {
+         "id": "q1",
+         "query": "What is the vacation policy?",
+         "expected_doc_ids": [5, 12],
+         "expected_chunk_ids": [45, 46, 120]
+       }
+     ]
+   }
+   ```
+
+4. **API Integration:**
+   - New endpoint: `POST /evaluate`
+   - Returns metrics and saves detailed report to file
+   - Can be run in CI/CD to catch retrieval regressions
+
+**Benefits:**
+- Exactly what's mentioned in job descriptions for RAG systems
+- Track retrieval quality over time
+- A/B test different chunking strategies
+- Compare vector-only vs hybrid search
+
+---
+
 ## Next Steps
 
 → [Configuration](../docs/CONFIGURATION.md) - Tune parameters based on eval results
