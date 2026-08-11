@@ -30,35 +30,57 @@ A production-ready RAG (Retrieval-Augmented Generation) system that enables natu
 
 ## 📸 Demo Screenshots
 
-### ✨ Live Test with Ollama Local LLM
+### Chat Interface - Welcome Screen
 
-<div align="center">
+![Chat Welcome](docs/screenshots/01-chat-welcome.png)
 
-![Ollama Local LLM Test](docs/screenshots/ollama-local-test.png)
+Chat interface with filters (department, grade, type) and "New Chat" button. Clean welcome message guiding users to ask questions.
 
-*Testing with Ollama (llama3.2) - 100% offline, zero API costs. Notice the clean source display showing "5 chunks" instead of 5 duplicate entries!*
+---
 
-</div>
+### Document Upload with Metadata
 
-### 📱 More Screenshots
+![Documents Upload](docs/screenshots/02-documents-upload.png)
 
-<div align="center">
+Upload PDF documents with optional metadata (department, grade level, document type, tags). Shows uploaded documents list with chunk counts.
 
-| ![Demo 1](docs/screenshots/demo-question-1.png) | ![Demo 2](docs/screenshots/demo-question-2.png) | ![Demo 3](docs/screenshots/demo-question-3.png) |
-|:-------------------------:|:------------------------:|:----------------------:|
-| *Chat Page* | *Chat QA* | *Upload Document* |
+---
 
-| ![Extraction 1](docs/screenshots/extraction-schema.png) | ![Extraction 2](docs/screenshots/extraction-results.png) |
-|:-------------------------:|:------------------------:|
-| *Data Extraction - Schema Builder* | *Data Extraction - Results with Confidence* |
+### Chat Q&A with Citations
 
-</div>
+![Chat Q&A](docs/screenshots/05-chat-qa-response.png)
 
-**See it in action:** Each question returns a unique answer with exact citations (document + page).
+Ask questions and get answers with exact source citations (document name, page number, similarity scores). Delete button to remove individual messages or entire chat.
+
+---
+
+### Document Management
+
+![Documents List](docs/screenshots/04-documents-list.png)
+
+View all uploaded documents with chunk counts and upload dates. Delete documents as needed.
+
+---
+
+### Data Extraction - Schema Builder
+
+![Extraction Schema](docs/screenshots/03-extraction-schema.png)
+
+Define custom extraction schemas with field names and types (Text, Number, List). Quick templates for common use cases (Job Posting, Invoice, Resume).
+
+---
+
+### Data Extraction - Results
+
+![Extraction Results](docs/screenshots/07-extraction-results.png)
+
+Extracted structured data from documents with confidence scores. Export results as JSON or CSV.
+
+---
 
 📋 **Quick Demo:** [Getting Started](docs/demo/getting-started.md) | [Sample Questions](docs/demo/sample-questions.md) | [Ollama Local LLM](docs/demo/ollama-local-llm-demo.md)
 
-> **Screenshots above:** Live test with Ollama local LLM (100% offline). For production, use [Ollama (free, 100% offline)](docs/demo/ollama-local-llm-demo.md) or [Gemini (cloud, best quality)](docs/core/configuration/CONFIGURATION.md).
+> **Testing:** Works with [Ollama (free, 100% offline)](docs/demo/ollama-local-llm-demo.md) or [Gemini (cloud, best quality)](docs/core/configuration/CONFIGURATION.md).
 
 ---
 
