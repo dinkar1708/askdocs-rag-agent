@@ -229,52 +229,212 @@ See [ROADMAP.md](../ROADMAP.md) for detailed technical plans.
 
 ---
 
-## TODO: LangGraph-Based Background Async Ingestion
+## LangGraph-Based Background Async Ingestion
 
-**Status:** Will be implemented later
+**Status:** Implemented
 
 **What:** Background job processing for document uploads using LangGraph state machine to handle extraction → chunking → embedding → indexing pipeline asynchronously.
 
-**Current Problem:**
-- Document upload blocks HTTP request for entire pipeline
-- Large PDFs (100+ pages) tie up API workers
-- No progress tracking or retry logic
-- User must wait for completion (10-30 seconds for large docs)
-
 **Why LangGraph:**
-- Job state machine with clear stages: queued → extracting → chunking → embedding → indexing → complete
-- Automatic error handling with exponential backoff retries
-- Progress tracking at each stage
-- Conditional paths for different file types (PDF vs DOCX vs TXT)
+- Job state machine with clear stages: queued → extracting → chunking → embedding → storing → complete
+- Automatic error handling with detailed error messages
+- Real-time progress tracking (0-100%) at each stage
+- Clean separation of concerns between API and processing logic
 
-**Implementation Plan:**
+---
 
-1. **StateGraph Architecture:**
-   ```
-   Accept Job (return job_id immediately)
-     ↓
-   Extract Text (PDF → text, page by page)
-     ↓
-   Chunk Text (semantic chunking)
-     ↓
-   Batch Embed (all chunks at once)
-     ↓
-   Store in DB (atomic transaction)
-     ↓
-   Mark Complete (or retry on error)
-   ```
+### How It Works
 
-2. **API Changes:**
-   - `POST /documents` - Returns `job_id` immediately, processes in background
-   - `GET /documents/jobs/{job_id}` - Poll for progress and status
-   - Frontend shows progress bar: "Extracting text... 40%"
+**Upload Document:**
 
-3. **Benefits:**
-   - Non-blocking uploads (API responds instantly)
-   - Better resource utilization (batch processing)
-   - Progress tracking for UX
-   - Automatic retries on transient failures
-   - Scales to very large documents
+All document uploads are processed asynchronously in the background with real-time progress tracking.
+
+```bash
+# Upload returns job_id immediately (< 100ms)
+curl -X POST http://localhost:8000/documents \
+  -H "X-API-Key: test-api-key-not-for-production" \
+  -F "file=@document.pdf"
+
+# Response (instant):
+{
+  "job_id": "abc-123-def-456",
+  "filename": "document.pdf",
+  "status": "queued",
+  "message": "Document upload initiated. Use GET /documents/jobs/abc-123-def-456 to track progress."
+}
+```
+
+**With Metadata:**
+
+```bash
+curl -X POST http://localhost:8000/documents \
+  -H "X-API-Key: test-api-key-not-for-production" \
+  -F "file=@job-description.pdf" \
+  -F 'metadata={"department":"Engineering","grade":"GG11","type":"job_description"}'
+
+# Response:
+{
+  "job_id": "def-456-ghi-789",
+  "filename": "job-description.pdf",
+  "status": "queued",
+  "message": "Document upload initiated. Use GET /documents/jobs/def-456-ghi-789 to track progress."
+}
+```
+
+---
+
+### Track Processing Progress
+
+Poll the job status endpoint to get real-time progress:
+
+```bash
+curl -H "X-API-Key: test-api-key-not-for-production" \
+  http://localhost:8000/documents/jobs/abc-123-def-456
+```
+
+**Response (while processing):**
+```json
+{
+  "job_id": "abc-123-def-456",
+  "filename": "large-document.pdf",
+  "status": "embedding",
+  "progress": 65,
+  "current_stage": "Generating embeddings: 78/120 chunks",
+  "created_at": "2026-08-11T10:30:00Z",
+  "updated_at": "2026-08-11T10:30:45Z"
+}
+```
+
+**Response (completed):**
+```json
+{
+  "job_id": "abc-123-def-456",
+  "filename": "large-document.pdf",
+  "status": "complete",
+  "progress": 100,
+  "current_stage": "Processing complete",
+  "result_document_id": 42,
+  "created_at": "2026-08-11T10:30:00Z",
+  "updated_at": "2026-08-11T10:31:30Z",
+  "completed_at": "2026-08-11T10:31:30Z"
+}
+```
+
+**Response (failed):**
+```json
+{
+  "job_id": "abc-123-def-456",
+  "status": "failed",
+  "progress": 35,
+  "error_message": "Embedding generation failed: Connection timeout",
+  "completed_at": "2026-08-11T10:30:50Z"
+}
+```
+
+---
+
+### LangGraph State Machine
+
+The processing pipeline uses a LangGraph state machine with 6 stages:
+
+```
+Accept Job (0-10% progress)
+    ↓
+Extract Text (10-30% progress)
+  - Extract text from PDF page by page
+  - Extract tables as markdown
+    ↓
+Chunk Text (30-50% progress)
+  - Semantic or character-based chunking
+  - Maintain page references
+    ↓
+Generate Embeddings (50-80% progress)
+  - Batch embed all chunks (384-dim vectors)
+  - Progress updates every 10 chunks
+    ↓
+Store in Database (80-100% progress)
+  - Atomic transaction (document + chunks)
+  - Check for duplicates
+    ↓
+Mark Complete (100% progress)
+  - Set result_document_id
+  - Record completion timestamp
+    ↓
+END
+```
+
+**Error Handling:**
+
+At any stage, if an error occurs:
+```
+Error Detected
+    ↓
+Mark Failed
+  - Save error message
+  - Set status = "failed"
+  - Record failure timestamp
+```
+
+---
+
+### List All Jobs
+
+```bash
+# List all jobs (most recent first)
+curl -H "X-API-Key: test-api-key-not-for-production" \
+  "http://localhost:8000/documents/jobs/"
+
+# Filter by status
+curl -H "X-API-Key: test-api-key-not-for-production" \
+  "http://localhost:8000/documents/jobs/?status=complete"
+
+# Pagination
+curl -H "X-API-Key: test-api-key-not-for-production" \
+  "http://localhost:8000/documents/jobs/?skip=10&limit=20"
+```
+
+**Response:**
+```json
+{
+  "jobs": [
+    {
+      "job_id": "abc-123",
+      "filename": "doc1.pdf",
+      "status": "complete",
+      "progress": 100,
+      "result_document_id": 42
+    },
+    {
+      "job_id": "def-456",
+      "filename": "doc2.pdf",
+      "status": "embedding",
+      "progress": 65
+    }
+  ],
+  "total": 25
+}
+```
+
+---
+
+### Benefits
+
+✅ **Non-blocking uploads** - API responds instantly (< 100ms)
+✅ **Real-time progress tracking** - 0-100% with stage descriptions
+✅ **Better resource utilization** - Processes in background without blocking workers
+✅ **Error handling** - Detailed error messages for debugging
+✅ **Scalable** - Can process 100+ page PDFs without timeout
+✅ **UI integration** - Frontend automatically polls and shows progress bar
+
+---
+
+### Implementation Files
+
+- `app/services/document_processor_graph.py` - LangGraph state machine (419 lines)
+- `app/api/documents.py` - Async upload endpoints + job tracking
+- `app/db/models.py` - DocumentProcessingJob model
+- `app/schemas/job.py` - Job response schemas
+- `app/alembic/versions/jkl901234567_*.py` - Database migration
 
 ---
 

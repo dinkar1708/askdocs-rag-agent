@@ -1,16 +1,20 @@
 """Document upload and management endpoints"""
 
-from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Form
+from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Form, Query, BackgroundTasks
 from sqlalchemy.orm import Session
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Union
 import os
 import json
 import hashlib
+import uuid
+import tempfile
 
 from app.db.database import get_db
-from app.db.models import Document, Chunk
+from app.db.models import Document, Chunk, DocumentProcessingJob
 from app.services.pdf_processor import process_pdf
+from app.services.document_processor_graph import create_document_processing_graph, DocumentProcessingState
 from app.schemas.document import DocumentResponse, DocumentListResponse, DocumentMetadataUpdate
+from app.schemas.job import JobCreateResponse, JobResponse, JobListResponse
 from app.core.auth import verify_api_key
 
 # File size limit: 50MB
@@ -23,22 +27,98 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=DocumentResponse, status_code=201)
+def process_document_async(
+    job_id: str,
+    content: bytes,
+    filename: str,
+    content_hash: str,
+    doc_metadata: dict,
+    db_session_factory
+):
+    """
+    Background task to process document asynchronously using LangGraph
+
+    Args:
+        job_id: UUID of the processing job
+        content: PDF file content
+        filename: Original filename
+        content_hash: SHA-256 hash of content
+        doc_metadata: Custom metadata
+        db_session_factory: Factory function to create DB session
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+
+    db = db_session_factory()
+    try:
+        # Create initial state
+        initial_state: DocumentProcessingState = {
+            "job_id": job_id,
+            "filename": filename,
+            "content": content,
+            "content_hash": content_hash,
+            "doc_metadata": doc_metadata,
+            "file_size": len(content),
+            "extracted_data": None,
+            "chunks": None,
+            "document_id": None,
+            "error": None,
+            "retry_count": 0
+        }
+
+        # Create and run the graph
+        graph = create_document_processing_graph(db)
+
+        # Execute the graph
+        final_state = graph.invoke(initial_state)
+
+        if final_state.get("error"):
+            logger.error(f"Job {job_id} failed: {final_state['error']}")
+        else:
+            logger.info(f"Job {job_id} completed: Document {final_state['document_id']}")
+
+    except Exception as e:
+        logger.error(f"Background job {job_id} failed: {str(e)}", exc_info=True)
+
+        # Mark job as failed
+        job = db.query(DocumentProcessingJob).filter(
+            DocumentProcessingJob.job_id == job_id
+        ).first()
+        if job:
+            job.status = "failed"
+            job.error_message = f"Background processing error: {str(e)}"
+            db.commit()
+
+    finally:
+        db.close()
+
+
+@router.post("/", response_model=JobCreateResponse, status_code=201)
 async def upload_document(
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     metadata: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
-    """Upload a PDF document
+    """Upload a PDF document (async processing with LangGraph)
 
-    The document will be:
-    1. Validated (must be PDF)
-    2. Text extracted page by page
-    3. Split into chunks
-    4. Embeddings generated for each chunk
-    5. Stored in database with vector search enabled
+    Returns a job_id immediately. Processing happens in background using LangGraph state machine.
+    Use GET /documents/jobs/{job_id} to poll for progress (0-100%).
 
-    Returns document metadata including ID and page count.
+    Processing stages:
+    1. Accept Job (0-10%) - Validate and queue
+    2. Extract Text (10-30%) - Extract text and tables from PDF
+    3. Chunk Text (30-50%) - Split into semantic chunks
+    4. Generate Embeddings (50-80%) - Create 384-dim vectors
+    5. Store in Database (80-100%) - Atomic save to PostgreSQL
+    6. Complete - Document ready for search
+
+    Args:
+        file: PDF file to upload
+        metadata: Optional JSON string with custom metadata (department, grade, type, etc.)
+
+    Returns:
+        JobCreateResponse with job_id for tracking progress
     """
     # Validate file type
     if not file.filename.endswith('.pdf'):
@@ -80,51 +160,38 @@ async def upload_document(
             detail=f"Document already exists with ID {existing_doc.id}. Upload date: {existing_doc.uploaded_at}"
         )
 
-    # Process PDF (extract text, chunk, embed)
-    try:
-        doc_data = await process_pdf(content, file.filename)
-    except Exception as e:
-        raise HTTPException(
-            status_code=422,
-            detail=f"Failed to process PDF: {str(e)}"
-        )
-
-    # Create document record
-    document = Document(
+    # Create job record
+    job_id = str(uuid.uuid4())
+    job = DocumentProcessingJob(
+        job_id=job_id,
         filename=file.filename,
-        page_count=doc_data["page_count"],
-        doc_metadata=doc_metadata,
-        content_hash=content_hash
+        file_size=file_size,
+        content_hash=content_hash,
+        status="queued",
+        progress=0,
+        current_stage="Queued for processing",
+        doc_metadata=doc_metadata
     )
-    db.add(document)
-    # Use flush() to get the document ID without committing
-    # This ensures atomic operation - if chunks fail, document won't be committed
-    db.flush()
-    db.refresh(document)
-
-    # Create chunk records with embeddings and chunk_index for ordering
-    for chunk_index, chunk_data in enumerate(doc_data["chunks"]):
-        chunk = Chunk(
-            document_id=document.id,
-            text=chunk_data["text"],
-            page_number=chunk_data["page_number"],
-            chunk_index=chunk_index,  # Position within document
-            embedding=chunk_data["embedding"],
-            chunk_type=chunk_data.get("chunk_type", "text"),
-            chunk_metadata=chunk_data.get("metadata", {})
-        )
-        db.add(chunk)
-
-    # Single commit at the end - ensures document and chunks are saved atomically
+    db.add(job)
     db.commit()
 
-    return DocumentResponse(
-        id=document.id,
-        filename=document.filename,
-        page_count=document.page_count,
-        uploaded_at=document.uploaded_at,
-        chunk_count=len(doc_data["chunks"]),
-        doc_metadata=document.doc_metadata
+    # Schedule background processing with LangGraph
+    from app.db.database import SessionLocal
+    background_tasks.add_task(
+        process_document_async,
+        job_id=job_id,
+        content=content,
+        filename=file.filename,
+        content_hash=content_hash,
+        doc_metadata=doc_metadata,
+        db_session_factory=SessionLocal
+    )
+
+    return JobCreateResponse(
+        job_id=job_id,
+        filename=file.filename,
+        status="queued",
+        message=f"Document upload initiated. Use GET /documents/jobs/{job_id} to track progress."
     )
 
 
@@ -268,3 +335,98 @@ def delete_document(
     db.commit()
 
     return None
+
+
+# ============================================================================
+# Job Tracking Endpoints (for async document processing)
+# ============================================================================
+
+@router.get("/jobs/{job_id}", response_model=JobResponse)
+def get_job_status(
+    job_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Get the status of a document processing job
+
+    Poll this endpoint to track progress of async document uploads.
+
+    Returns:
+        - job_id: Unique job identifier
+        - status: queued, extracting, chunking, embedding, storing, complete, failed
+        - progress: 0-100%
+        - current_stage: Human-readable description of current stage
+        - result_document_id: Document ID (only when status=complete)
+        - error_message: Error details (only when status=failed)
+    """
+    job = db.query(DocumentProcessingJob).filter(
+        DocumentProcessingJob.job_id == job_id
+    ).first()
+
+    if not job:
+        raise HTTPException(status_code=404, detail=f"Job {job_id} not found")
+
+    return JobResponse(
+        job_id=job.job_id,
+        filename=job.filename,
+        status=job.status,
+        progress=job.progress,
+        current_stage=job.current_stage,
+        error_message=job.error_message,
+        result_document_id=job.result_document_id,
+        created_at=job.created_at,
+        updated_at=job.updated_at,
+        completed_at=job.completed_at
+    )
+
+
+@router.get("/jobs/", response_model=JobListResponse)
+def list_jobs(
+    status: Optional[str] = Query(None, description="Filter by status (queued, extracting, complete, failed, etc.)"),
+    skip: int = 0,
+    limit: int = 10,
+    db: Session = Depends(get_db)
+):
+    """
+    List all document processing jobs
+
+    Supports pagination and filtering by status.
+
+    Args:
+        status: Filter by job status
+        skip: Number of jobs to skip (for pagination)
+        limit: Maximum number of jobs to return
+    """
+    # Build query
+    query = db.query(DocumentProcessingJob)
+
+    # Apply status filter if provided
+    if status:
+        query = query.filter(DocumentProcessingJob.status == status)
+
+    # Get total count
+    total = query.count()
+
+    # Apply pagination and order by most recent first
+    jobs = query.order_by(
+        DocumentProcessingJob.created_at.desc()
+    ).offset(skip).limit(limit).all()
+
+    return JobListResponse(
+        jobs=[
+            JobResponse(
+                job_id=job.job_id,
+                filename=job.filename,
+                status=job.status,
+                progress=job.progress,
+                current_stage=job.current_stage,
+                error_message=job.error_message,
+                result_document_id=job.result_document_id,
+                created_at=job.created_at,
+                updated_at=job.updated_at,
+                completed_at=job.completed_at
+            )
+            for job in jobs
+        ],
+        total=total
+    )

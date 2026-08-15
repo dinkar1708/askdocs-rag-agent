@@ -90,3 +90,29 @@ class Message(Base):
 
     # Relationship to session
     session = relationship("Session", back_populates="messages")
+
+
+class DocumentProcessingJob(Base):
+    """Background job for async document processing using LangGraph"""
+
+    __tablename__ = "document_processing_jobs"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    job_id = Column(String(36), unique=True, nullable=False, index=True)  # UUID
+    filename = Column(String(255), nullable=False)
+    file_size = Column(Integer, nullable=False)  # Size in bytes
+    content_hash = Column(String(64), nullable=True)  # SHA-256 hash
+    status = Column(String(50), nullable=False, default='queued')  # queued, extracting, chunking, embedding, storing, complete, failed
+    progress = Column(Integer, default=0)  # 0-100%
+    current_stage = Column(String(100), nullable=True)  # Human-readable current stage
+    error_message = Column(Text, nullable=True)  # Error details if failed
+    retry_count = Column(Integer, default=0)  # Number of retries
+    doc_metadata = Column(JSON, default={}, nullable=False)  # Custom metadata from upload
+    result_document_id = Column(Integer, ForeignKey("documents.id", ondelete="SET NULL"), nullable=True)  # Final document ID
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    completed_at = Column(DateTime, nullable=True)
+
+    # Relationship to final document
+    result_document = relationship("Document", foreign_keys=[result_document_id])

@@ -52,6 +52,7 @@ So I can populate our job database without manual data entry.
 ```bash
 curl -X POST http://localhost:8000/extract \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -d '{
     "document_id": 1,
     "schema": {
@@ -98,6 +99,7 @@ curl -X POST http://localhost:8000/extract \
 ```bash
 curl -X POST http://localhost:8000/extract/batch \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -d '{
     "document_ids": [1, 2, 3],
     "schema": {
@@ -180,11 +182,15 @@ Return structured JSON
 ```bash
 # Upload all PDFs
 for file in job_descriptions/*.pdf; do
-  curl -X POST http://localhost:8000/documents -F "file=@$file"
+  curl -X POST http://localhost:8000/documents \
+    -H "X-API-Key: test-api-key-not-for-production" \
+    -F "file=@$file"
 done
 
 # Batch extract
 curl -X POST http://localhost:8000/extract/batch \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: test-api-key-not-for-production" \
   -d '{
     "document_ids": [1,2,3,...,50],
     "schema": {
@@ -199,7 +205,8 @@ curl -X POST http://localhost:8000/extract/batch \
   }'
 
 # Export to CSV for database import
-curl http://localhost:8000/extract/batch/export/batch_abc123.csv > jobs.csv
+curl -H "X-API-Key: test-api-key-not-for-production" \
+  http://localhost:8000/extract/batch/export/batch_abc123.csv > jobs.csv
 ```
 
 **Result:** 50 job descriptions processed in 2 minutes vs 4 hours manual entry.
@@ -371,7 +378,8 @@ EXTRACTION_LLM_PROVIDER=gemini  # or ollama, azure_openai
 ### CSV Export
 
 ```bash
-curl http://localhost:8000/extract/batch/export/batch_abc123.csv
+curl -H "X-API-Key: test-api-key-not-for-production" \
+  http://localhost:8000/extract/batch/export/batch_abc123.csv
 ```
 
 **Output:**
@@ -389,7 +397,8 @@ document_id,filename,title,experience_years,required_skills
 ### JSON Export
 
 ```bash
-curl http://localhost:8000/extract/batch/export/batch_abc123.json
+curl -H "X-API-Key: test-api-key-not-for-production" \
+  http://localhost:8000/extract/batch/export/batch_abc123.json
 ```
 
 ---

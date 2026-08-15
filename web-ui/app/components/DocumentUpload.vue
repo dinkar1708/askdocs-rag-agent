@@ -238,7 +238,7 @@ const handleDrop = (event: DragEvent) => {
 
 const uploadFile = async (file: File) => {
   isUploading.value = true
-  uploadProgress.value = `Uploading ${file.name}...`
+  uploadProgress.value = `Uploading ${file.name}... 0%`
 
   try {
     // Prepare metadata object (only include non-empty values)
@@ -248,10 +248,22 @@ const uploadFile = async (file: File) => {
     if (metadata.value.type) metadataObj.type = metadata.value.type
     if (metadata.value.tags) metadataObj.tags = metadata.value.tags.split(',').map(t => t.trim()).filter(t => t)
 
-    await api.uploadDocument(file, Object.keys(metadataObj).length > 0 ? metadataObj : undefined)
-    uploadProgress.value = 'Processing document...'
+    // Upload and get job_id
+    const jobResponse = await api.uploadDocument(file, Object.keys(metadataObj).length > 0 ? metadataObj : undefined)
+    uploadProgress.value = `Processing ${file.name}... 0%`
+
+    // Poll for job progress
+    const finalStatus = await api.pollJobStatus(jobResponse.job_id, (status) => {
+      // Update progress during polling
+      uploadProgress.value = `${status.current_stage || status.status} - ${status.progress}%`
+    })
+
+    if (finalStatus.status === 'failed') {
+      throw new Error(finalStatus.error_message || 'Processing failed')
+    }
+
+    uploadProgress.value = 'Upload complete! 100%'
     await loadDocuments()
-    uploadProgress.value = 'Upload complete!'
 
     // Reset form and metadata after delay
     setTimeout(() => {

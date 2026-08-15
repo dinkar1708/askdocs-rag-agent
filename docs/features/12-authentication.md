@@ -2,6 +2,10 @@
 
 **Status:** 🟡 Partially Implemented (API Key Auth Working)
 
+**Priority:** 🔵 LOW - TO BE DONE LAST
+
+**TODO:** Full user authentication system (JWT, user accounts, RBAC) - Low priority, implement after core features are complete.
+
 User authentication and authorization system for secure access control.
 
 ---
@@ -477,6 +481,12 @@ ACCESS_TOKEN_EXPIRE_MINUTES=15
 ---
 
 **Status:** Planned for future release
-**Priority:** High (required for production deployments)
+
+**Priority:** 🔵 **LOW - TO BE DONE LAST**
+- Current API key auth is sufficient for most use cases
+- Implement after all core RAG features are complete
+- Required only for production multi-user deployments
+
 **Dependencies:** None
-**Blocks:** Multi-tenancy, team features, enterprise deployment
+
+**Blocks:** Multi-tenancy, team features, enterprise deployment (all low priority)

@@ -32,6 +32,26 @@ export interface Document {
   doc_metadata?: Record<string, any>
 }
 
+export interface JobResponse {
+  job_id: string
+  filename: string
+  status: string
+  message: string
+}
+
+export interface JobStatus {
+  job_id: string
+  filename: string
+  status: 'queued' | 'extracting' | 'chunking' | 'embedding' | 'storing' | 'complete' | 'failed'
+  progress: number
+  current_stage?: string
+  error_message?: string
+  result_document_id?: number
+  created_at: string
+  updated_at: string
+  completed_at?: string
+}
+
 export interface AskResponse {
   answer: string
   sources: Source[]
@@ -49,9 +69,9 @@ export const useApi = () => {
   })
 
   /**
-   * Upload a PDF document
+   * Upload a PDF document (returns job_id for async processing)
    */
-  const uploadDocument = async (file: File, metadata?: Record<string, any>): Promise<Document> => {
+  const uploadDocument = async (file: File, metadata?: Record<string, any>): Promise<JobResponse> => {
     const formData = new FormData()
     formData.append('file', file)
 
@@ -59,7 +79,7 @@ export const useApi = () => {
       formData.append('metadata', JSON.stringify(metadata))
     }
 
-    const response = await $fetch<Document>('/documents', {
+    const response = await $fetch<JobResponse>('/documents', {
       baseURL: apiBase,
       method: 'POST',
       body: formData,
@@ -67,6 +87,43 @@ export const useApi = () => {
     })
 
     return response
+  }
+
+  /**
+   * Get job status for document processing
+   */
+  const getJobStatus = async (jobId: string): Promise<JobStatus> => {
+    const response = await $fetch<JobStatus>(`/documents/jobs/${jobId}`, {
+      baseURL: apiBase,
+      method: 'GET',
+      headers: getHeaders()
+    })
+
+    return response
+  }
+
+  /**
+   * Poll job status until complete or failed
+   */
+  const pollJobStatus = async (
+    jobId: string,
+    onProgress?: (status: JobStatus) => void,
+    pollInterval: number = 1000
+  ): Promise<JobStatus> => {
+    while (true) {
+      const status = await getJobStatus(jobId)
+
+      if (onProgress) {
+        onProgress(status)
+      }
+
+      if (status.status === 'complete' || status.status === 'failed') {
+        return status
+      }
+
+      // Wait before polling again
+      await new Promise(resolve => setTimeout(resolve, pollInterval))
+    }
   }
 
   /**
@@ -181,6 +238,8 @@ export const useApi = () => {
 
   return {
     uploadDocument,
+    getJobStatus,
+    pollJobStatus,
     listDocuments,
     deleteDocument,
     createSession,
