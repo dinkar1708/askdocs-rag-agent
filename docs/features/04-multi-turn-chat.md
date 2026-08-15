@@ -271,7 +271,104 @@ Bot: "Support is available Monday-Friday, 9am-5pm EST."
 - [ ] Redis-based session storage (distributed)
 - [ ] Session export/import (resume anywhere)
 - [ ] Conversation branching (explore alternate paths)
-- [ ] Context summarization (keep more history in compressed form)
+- [x] ✅ Context summarization (keep more history in compressed form) - **IMPLEMENTED**
+
+---
+
+## ✅ Context Summarization
+
+**Status:** ✅ IMPLEMENTED
+
+**Implementation:** `app/services/context_summarizer.py`
+
+**What:** Automatically compress long conversation histories while preserving important context.
+
+Instead of dropping old messages when hitting context limits, we summarize them intelligently.
+
+### How It Works
+
+**Problem:** Long conversations exceed LLM context windows
+- Typical limit: 10-20 message pairs
+- Old messages get dropped completely
+- Loses important context from earlier in conversation
+
+**Solution:** Summarize old messages
+```
+Messages 1-10: "User asked about vacation policy, learned about 15 days PTO"
+Messages 11-20: [Keep unsummarized - most recent context]
+```
+
+### Two Strategies
+
+#### 1. Simple Summarization
+- Keep last N turns unchanged
+- Summarize everything older into a concise summary
+- Fast and predictable
+
+#### 2. Adaptive Summarization (Recommended)
+- Identifies important messages (questions, key facts, citations)
+- Preserves important messages even if old
+- Summarizes only less important exchanges
+- Smarter context preservation
+
+### Configuration
+
+```bash
+# .env
+CONTEXT_SUMMARIZATION_ENABLED=true
+CONTEXT_SUMMARIZATION_STRATEGY=adaptive  # or "simple"
+MAX_HISTORY_TURNS=10  # Keep last 10 turns unsummarized
+IMPORTANCE_THRESHOLD=0.7  # For adaptive: preserve messages scoring > 0.7
+```
+
+### Usage
+
+```python
+from app.services.context_summarizer import create_summarizer
+
+# Create summarizer
+summarizer = create_summarizer(
+    llm_provider,
+    strategy="adaptive",
+    max_history_turns=10
+)
+
+# Summarize history
+compressed = summarizer.summarize_history(messages)
+
+# Before: 50 messages
+# After: 1 summary + 10 recent messages = 11 total
+```
+
+### Benefits
+
+✅ **Longer conversations** - Maintain context for 100+ turn conversations
+✅ **Better context** - Preserve important info instead of just recent
+✅ **Token efficiency** - Reduce LLM costs by compressing history
+✅ **Automatic** - Works transparently in multi-turn chat
+
+### Example
+
+**Without summarization (10 turn limit):**
+```
+Turn 1-10: [Kept]
+Turn 11+: [Dropped - context lost!]
+```
+
+**With adaptive summarization:**
+```
+Summary: "User asked about vacation (15 days), sick leave (10 days), remote work policy"
+Turn 5: [Kept - important question with citation]
+Turn 11-20: [Kept - recent context]
+```
+
+### Tests
+
+`app/tests/test_context_summarizer.py` (12 test cases)
+- Simple summarization
+- Adaptive importance scoring
+- Message deduplication
+- Order preservation
 
 ---
 

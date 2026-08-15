@@ -311,62 +311,58 @@ See [ROADMAP.md](../ROADMAP.md) for technical implementation details.
 
 ---
 
-## TODO: LangGraph-Based Citation Verification
+## ✅ LangGraph-Based Citation Verification
 
-**Status:** Will be implemented later
+**Status:** ✅ IMPLEMENTED
 
 **What:** Multi-step verification workflow using LangGraph to validate that LLM-generated citations actually exist in retrieved chunks and semantically support the claims made in answers.
 
-**Current Problem:**
-- Citations returned are just the retrieved chunks, not verified against what LLM actually used
-- If model drifts or hallucinates, we don't catch citation mismatches
-- No semantic verification that cited chunk actually supports the claim
-- Risk of "citation hallucination" (citing documents that don't support the answer)
+**Implementation:** `app/services/citation_verifier.py`
+
+**How It Works:**
+- Extracts claimed citations from generated answers
+- Verifies citations exist in retrieved context
+- Semantically verifies citations support claims
+- Flags hallucinated or mismatched citations
+
+**Benefits:**
+- ✅ Prevents citation hallucination
+- ✅ Catches citation drift (when answer doesn't match sources)
+- ✅ Improves trust in RAG system
+- ✅ Perfect for high-stakes use cases (legal, medical, compliance)
 
 **Why LangGraph:**
 - Multi-step workflow: Generate answer → Extract claimed citations → Verify existence → Semantic check → Flag/Accept
 - Conditional branching: Different paths for verified vs suspicious citations
 - State management: Track verification status across multiple LLM calls
-- Potential retry loops: Re-verify with different prompts if ambiguous
 
-**Implementation Plan:**
+**Configuration:**
+```bash
+# .env
+CITATION_VERIFICATION_ENABLED=true  # Enable verification
+CITATION_SEMANTIC_VERIFICATION=true  # Enable semantic check
+```
 
-1. **StateGraph Architecture:**
-   ```
-   Generate Answer (with context)
-     ↓
-   Extract Claimed Citations (parse [doc.pdf, p.5] patterns)
-     ↓
-   Verify Against Context (check if cited chunks were in retrieval results)
-     ├─ Found? → Semantic Verify (does chunk support claim?)
-     │           ├─ Match? → ✅ Accept citation
-     │           └─ No match? → ⚠️ Flag as suspicious
-     └─ Not Found? → 🚨 Flag as hallucination
-   ```
+**Usage:**
+```python
+from app.services.citation_verifier import verify_citations
 
-2. **State Definition:**
-   ```python
-   class CitationVerificationState(TypedDict):
-       question: str
-       context_chunks: List[Dict]
-       generated_answer: str
-       claimed_citations: List[Dict]
-       verified_citations: List[Dict]
-       flagged_citations: List[Dict]
-   ```
+result = verify_citations(
+    question="What is the vacation policy?",
+    answer="Employees get 15 days [handbook.pdf, p.7]",
+    context_chunks=retrieved_chunks,
+    llm_provider=llm
+)
 
-3. **API Integration:**
-   - Enable with `CITATION_VERIFICATION_ENABLED=true`
-   - Response includes new fields:
-     - `verified_citations` - Citations that passed verification
-     - `flagged_citations` - Citations flagged as suspicious or hallucinated
-     - `verification_status` - Overall verification result
+# Returns:
+{
+    "verified_citations": [...],  # Passed verification
+    "flagged_citations": [...],   # Suspicious/hallucinated
+    "verification_status": "verified"  # or "partially_verified", "failed"
+}
+```
 
-4. **Benefits:**
-   - Catches hallucinated citations before returning to user
-   - Flags citation drift (when answer doesn't match sources)
-   - Improves trust in RAG system
-   - Perfect for high-stakes use cases (legal, medical, compliance)
+**Tests:** `app/tests/test_citation_verifier.py` (11 test cases)
 
 ---
 

@@ -46,6 +46,16 @@ class Settings(BaseSettings):
     MIN_CHUNK_SIZE: int = 200
     MAX_CHUNK_SIZE: int = 1000
 
+    # Citation Verification Configuration
+    CITATION_VERIFICATION_ENABLED: bool = False  # Enable LangGraph citation verification
+    CITATION_SEMANTIC_VERIFICATION: bool = True  # Verify citations semantically support claims
+
+    # Context Summarization Configuration
+    CONTEXT_SUMMARIZATION_ENABLED: bool = False  # Enable automatic history summarization
+    CONTEXT_SUMMARIZATION_STRATEGY: str = "adaptive"  # "simple" or "adaptive"
+    MAX_HISTORY_TURNS: int = 10  # Keep last N turns unsummarized
+    IMPORTANCE_THRESHOLD: float = 0.7  # For adaptive strategy
+
     # Slack Integration
     SLACK_ENABLED: bool = False
     SLACK_BOT_TOKEN: str = ""
