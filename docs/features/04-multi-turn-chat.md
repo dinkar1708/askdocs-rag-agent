@@ -1,5 +1,7 @@
 # Feature: Multi-turn Chat
 
+**Status:** 100% IMPLEMENTED
+
 **What:** Have conversations with follow-up questions while maintaining context.
 
 **Why it matters:** Users can ask "What about that?" and the system understands what "that" refers to.

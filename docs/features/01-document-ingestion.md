@@ -1,5 +1,7 @@
 # Feature: Document Ingestion
 
+**Status:** 100% IMPLEMENTED
+
 **What:** Upload PDF documents and automatically index them for question answering.
 
 **Who needs it:** Anyone with policy documents, manuals, handbooks, or technical docs that need to be searchable.

@@ -1,5 +1,7 @@
 # Feature: Document Summarization
 
+**Status:** TODO (Planned for Future Release)
+
 **What:** Auto-generate executive summaries of uploaded documents with key points and page references.
 
 **Why it matters:** Quickly understand document content without reading the entire document. Perfect for job descriptions, contracts, policies, and reports.

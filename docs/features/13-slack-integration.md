@@ -1,5 +1,7 @@
 # Slack Integration
 
+**Status:** 100% IMPLEMENTED
+
 Ask questions about your documents directly from Slack using the AskDocs bot.
 
 ## Overview

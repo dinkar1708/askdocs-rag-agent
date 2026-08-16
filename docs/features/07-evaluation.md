@@ -1,5 +1,7 @@
 # Feature: Evaluation Harness
 
+**Status:** TODO (Planned for Future Release)
+
 **What:** Automated testing framework that measures retrieval quality and answer groundedness.
 
 **Why it matters:** Objectively track how well the system performs, find regressions, and optimize configuration.

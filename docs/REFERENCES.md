@@ -1,383 +1,318 @@
 # Official References & Best Practices
 
-This document lists official documentation and best practices we follow for building this RAG system.
+This document lists official documentation, research papers, framework guides, and best practices followed in the **AskDocs RAG Agent** project.
+
+Project Repository: [github.com/dinkar1708/askdocs-rag-agent](https://github.com/dinkar1708/askdocs-rag-agent)  
+Author / Maintainer: [Dinakar Maurya](https://github.com/dinkar1708)
 
 ---
 
-## RAG (Retrieval-Augmented Generation)
+## 1. Project & Core Architecture Links
+
+1. **AskDocs Main Repository** `[Project Core]`
+   - https://github.com/dinkar1708/askdocs-rag-agent
+   - **Why:** Primary codebase, issue tracker, and project documentation
+
+2. **Nuxt 3 Framework** `[Implemented Frontend]`
+   - https://nuxt.com/docs
+   - https://nuxt.com/docs/guide/going-further/runtime-config
+   - **Why:** Modern Vue 3 SSR/SPA web application framework powering `web-ui/`
+
+3. **Tailwind CSS** `[Implemented Frontend]`
+   - https://tailwindcss.com/docs
+   - **Why:** Utility-first styling for the responsive document chat interface
+
+4. **pdfplumber (PDF Text & Table Extraction)** `[Implemented Ingestion]`
+   - https://github.com/jsvine/pdfplumber
+   - **Why:** Visual table bounding box detection and Markdown table conversion in `app/services/table_processor.py`
+
+5. **BGE Reranker v2 m3 (BAAI)** `[Implemented Reranking]`
+   - https://huggingface.co/BAAI/bge-reranker-v2-m3
+   - **Why:** State-of-the-art multilingual cross-encoder model used in `app/services/reranker.py`
+
+---
+
+## 2. RAG (Retrieval-Augmented Generation)
 
 ### Official Papers & Research
 
-1. **RAG Paper (Original)** - Lewis et al., 2020
+6. **RAG Paper (Original)** - Lewis et al., 2020 `[Research & Standards]`
    - https://arxiv.org/abs/2005.11401
    - "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks"
    - **Why:** Foundational paper introducing RAG architecture
 
-2. **LangChain RAG Documentation**
+7. **HNSW Vector Indexing Paper** - Malkov & Yashunin, 2018 `[Vector Search Foundations]`
+   - https://arxiv.org/abs/1603.09320
+   - "Efficient and robust approximate nearest neighbor search using Hierarchical Navigable Small World graphs"
+   - **Why:** Mathematical foundation for pgvector HNSW index operations
+
+8. **LangChain RAG Documentation** `[Architecture Reference]`
    - https://python.langchain.com/docs/use_cases/question_answering/
    - **Why:** Industry-standard RAG implementation patterns we follow
 
-3. **OpenAI Embeddings & Search**
+9. **OpenAI Embeddings & Search** `[Industry Reference]`
    - https://platform.openai.com/docs/guides/embeddings
    - **Why:** Production embedding and retrieval patterns from OpenAI
 
-4. **Anthropic Prompt Engineering**
-   - https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering
-   - **Why:** Best practices for Claude models (includes retrieval patterns)
+10. **Anthropic Prompt Engineering & Contextual Retrieval** `[Industry Reference]`
+    - https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering
+    - https://www.anthropic.com/research/contextual-retrieval
+    - **Why:** Best practices for grounded generation and contextual retrieval
 
 ---
 
-## LLM Integration
+## 3. LLM Integration
 
 ### Official LLM Provider Docs
 
-5. **Google Gemini API**
-   - https://ai.google.dev/gemini-api/docs
-   - https://ai.google.dev/gemini-api/docs/text-generation
-   - **Why:** Primary LLM provider for production
+11. **Google Gemini API** `[Implemented Provider]`
+    - https://ai.google.dev/gemini-api/docs
+    - https://ai.google.dev/gemini-api/docs/text-generation
+    - **Why:** Cloud LLM provider in `app/llm/gemini_provider.py`
 
-6. **Ollama Documentation**
-   - https://github.com/ollama/ollama/blob/main/docs/api.md
-   - https://ollama.com/library
-   - **Why:** Local/offline LLM support
+12. **Ollama Documentation** `[Implemented Provider]`
+    - https://github.com/ollama/ollama/blob/main/docs/api.md
+    - https://ollama.com/library
+    - **Why:** Local/offline LLM support in `app/llm/ollama_provider.py`
 
-7. **Azure OpenAI Service**
-   - https://learn.microsoft.com/en-us/azure/ai-services/openai/
-   - **Why:** Enterprise LLM deployment option
+13. **Azure OpenAI Service** `[Implemented Provider]`
+    - https://learn.microsoft.com/en-us/azure/ai-services/openai/
+    - **Why:** Enterprise LLM deployment option in `app/llm/azure_provider.py`
 
-8. **LangGraph Documentation**
-   - https://langchain-ai.github.io/langgraph/
-   - https://langchain-ai.github.io/langgraph/concepts/
-   - **Why:** Query routing and agent workflows
+14. **LangGraph Documentation** `[Implemented Orchestration]`
+    - https://langchain-ai.github.io/langgraph/
+    - https://langchain-ai.github.io/langgraph/concepts/
+    - **Why:** StateGraph query routing (`app/graph/query_routing_graph.py`) and async ingestion (`app/services/document_processor_graph.py`)
 
 ---
 
-## Vector Search & Embeddings
+## 4. Vector Search & Embeddings
 
-9. **pgvector Documentation**
-   - https://github.com/pgvector/pgvector
-   - https://github.com/pgvector/pgvector#querying
-   - **Why:** Vector similarity search in PostgreSQL
+15. **pgvector Documentation** `[Implemented Storage]`
+    - https://github.com/pgvector/pgvector
+    - https://github.com/pgvector/pgvector#querying
+    - **Why:** Vector similarity search in PostgreSQL (`app/db/models.py`)
 
-10. **Sentence Transformers**
+16. **Sentence Transformers** `[Implemented Embeddings]`
     - https://www.sbert.net/
     - https://www.sbert.net/docs/pretrained_models.html
-    - **Why:** Embedding model (all-MiniLM-L6-v2) we use
+    - **Why:** Embedding model (`all-MiniLM-L6-v2`) used in `app/services/embeddings.py`
 
-11. **Embedding Best Practices** - OpenAI
+17. **Embedding Best Practices** - OpenAI `[Industry Reference]`
     - https://platform.openai.com/docs/guides/embeddings/what-are-embeddings
-    - **Why:** Vector embedding fundamentals
+    - **Why:** Vector embedding fundamentals and dimensionality analysis
 
 ---
 
-## Python & FastAPI
+## 5. Python & FastAPI Backend
 
 ### Framework Documentation
 
-12. **FastAPI Official Docs**
+18. **FastAPI Official Docs** `[Implemented Backend]`
     - https://fastapi.tiangolo.com/
     - https://fastapi.tiangolo.com/tutorial/
-    - **Why:** Primary web framework
+    - **Why:** Primary REST API web framework in `app/main.py`
 
-13. **Pydantic V2**
+19. **Pydantic V2** `[Implemented Backend]`
     - https://docs.pydantic.dev/latest/
     - https://docs.pydantic.dev/latest/concepts/validators/
-    - **Why:** Request/response validation
+    - **Why:** Request/response validation schemas in `app/schemas/`
 
-14. **SQLAlchemy 2.0**
+20. **SQLAlchemy 2.0** `[Implemented Backend]`
     - https://docs.sqlalchemy.org/en/20/
     - https://docs.sqlalchemy.org/en/20/orm/
-    - **Why:** Database ORM
+    - **Why:** Database ORM in `app/db/database.py`
 
-15. **Alembic Migrations**
+21. **Alembic Migrations** `[Implemented Backend]`
     - https://alembic.sqlalchemy.org/en/latest/
-    - **Why:** Database schema migrations
+    - **Why:** Database schema migrations in `app/alembic/`
 
 ---
 
-## Python Best Practices
+## 6. Python Best Practices & Standards
 
 ### Official Style Guides
 
-16. **PEP 8 - Style Guide**
-    - https://pep8.org/
+22. **PEP 8 - Style Guide for Python Code** `[Coding Standards]`
     - https://peps.python.org/pep-0008/
-    - **Why:** Python code style standards
+    - **Why:** Python code style and formatting standards
 
-17. **PEP 257 - Docstring Conventions**
+23. **PEP 257 - Docstring Conventions** `[Coding Standards]`
     - https://peps.python.org/pep-0257/
-    - **Why:** Documentation standards we follow
+    - **Why:** Documentation standards for all functions and modules
 
-18. **PEP 484 - Type Hints**
+24. **PEP 484 - Type Hints** `[Coding Standards]`
     - https://peps.python.org/pep-0484/
-    - **Why:** Type annotation standards
+    - **Why:** Strict type annotation standards across the backend
 
-19. **Google Python Style Guide**
+25. **Google Python Style Guide** `[Coding Standards]`
     - https://google.github.io/styleguide/pyguide.html
-    - **Why:** Additional style conventions
+    - **Why:** Additional style conventions and engineering best practices
 
 ---
 
-## Testing Best Practices
+## 7. Testing Best Practices
 
-20. **Pytest Documentation**
+26. **Pytest Documentation** `[Implemented Testing]`
     - https://docs.pytest.org/en/stable/
     - https://docs.pytest.org/en/stable/how-to/fixtures.html
-    - **Why:** Testing framework we use
+    - **Why:** Backend testing framework and fixtures in `app/tests/conftest.py`
 
-21. **FastAPI Testing**
+27. **FastAPI Testing (TestClient)** `[Implemented Testing]`
     - https://fastapi.tiangolo.com/tutorial/testing/
-    - **Why:** API endpoint testing patterns
+    - **Why:** REST API endpoint testing patterns
 
-22. **Playwright Documentation**
+28. **Playwright Documentation** `[Implemented E2E Testing]`
     - https://playwright.dev/
     - https://playwright.dev/docs/intro
-    - **Why:** E2E testing framework for web UI, simulates real user interactions
+    - **Why:** E2E testing framework for Web UI in `web-ui/tests/`
 
-23. **Playwright Best Practices**
+29. **Playwright Best Practices** `[Implemented E2E Testing]`
     - https://playwright.dev/docs/best-practices
-    - **Why:** Writing reliable, maintainable E2E tests
+    - **Why:** Writing reliable, maintainable browser tests
 
 ---
 
-## Security Best Practices
+## 8. Security Best Practices
 
-24. **OWASP Top 10**
+30. **OWASP Top 10** `[Security Reference]`
     - https://owasp.org/www-project-top-ten/
-    - **Why:** Security vulnerabilities we protect against
+    - **Why:** Vulnerability mitigation (injection prevention, broken auth)
 
-25. **FastAPI Security**
+31. **FastAPI Security** `[Implemented Security]`
     - https://fastapi.tiangolo.com/tutorial/security/
-    - **Why:** Authentication & authorization patterns
+    - **Why:** API key header authentication in `app/core/auth.py`
 
-26. **Secrets Management**
+32. **GCP Secret Manager & Azure Key Vault** `[Deployment Security]`
     - https://cloud.google.com/secret-manager/docs
     - https://azure.microsoft.com/en-us/products/key-vault
-    - **Why:** Production secrets handling
+    - **Why:** Production secret injection without storing secrets in git
 
 ---
 
-## Evaluation & Monitoring
+## 9. Evaluation & Observability
 
-27. **RAGAS - RAG Evaluation**
+33. **RAGAS - RAG Evaluation** `[Planned Evaluation]`
     - https://docs.ragas.io/en/stable/
     - https://github.com/explodinggradients/ragas
-    - **Why:** RAG system evaluation metrics
+    - **Why:** Automated MRR, context recall, and citation precision evaluation
 
-28. **LangSmith**
+34. **LangSmith** `[Observability Reference]`
     - https://docs.smith.langchain.com/
-    - **Why:** LLM application observability (optional)
+    - **Why:** LLM workflow tracing and observability
 
 ---
 
-## Deployment Best Practices
+## 10. Deployment Best Practices
 
-29. **Docker Best Practices**
+35. **Docker Best Practices** `[Implemented DevOps]`
     - https://docs.docker.com/develop/dev-best-practices/
     - https://docs.docker.com/build/building/best-practices/
-    - **Why:** Container deployment standards
+    - **Why:** Container optimization and multi-stage builds
 
-30. **Google Cloud Run**
+36. **Google Cloud Run** `[Deployment Reference]`
     - https://cloud.google.com/run/docs
-    - **Why:** Serverless deployment option
+    - **Why:** Serverless container deployment for FastAPI backend
 
-31. **Azure Container Apps**
+37. **Azure Container Apps** `[Deployment Reference]`
     - https://learn.microsoft.com/en-us/azure/container-apps/
-    - **Why:** Alternative deployment platform
+    - **Why:** Alternative deployment platform on Microsoft Azure
 
 ---
 
-## API Design
+## 11. API Design
 
-32. **REST API Best Practices**
+38. **REST API Best Practices** `[Architecture Standards]`
     - https://restfulapi.net/
     - https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design
-    - **Why:** RESTful API design standards we follow
+    - **Why:** Resource-based endpoint structure (`/documents`, `/ask`, `/sessions`)
 
-33. **OpenAPI Specification**
+39. **OpenAPI Specification** `[Implemented API Specs]`
     - https://swagger.io/specification/
     - https://spec.openapis.org/oas/latest.html
-    - **Why:** API documentation standard (FastAPI uses this)
+    - **Why:** Auto-generated interactive documentation at `/docs`
 
 ---
 
-## Integrations
+## 12. Integrations
 
 ### Slack Bot
 
-34. **Slack Bolt for Python**
+40. **Slack Bolt for Python** `[Planned Integration]`
     - https://slack.dev/bolt-python/
     - https://github.com/slackapi/bolt-python
-    - **Why:** Official framework for Slack bots, handles events, commands, and request verification
+    - **Why:** Official Slack framework for events, commands, and request verification
 
-35. **Slack API Documentation**
+41. **Slack API Documentation** `[Planned Integration]`
     - https://api.slack.com/docs
     - https://api.slack.com/start
     - **Why:** Slack platform fundamentals (scopes, events, slash commands)
 
 ---
 
-## Additional Resources
+## 13. Additional Resources
 
-### RAG-Specific Patterns
+### Advanced RAG Techniques
 
-36. **Advanced RAG Techniques**
-    - https://www.anthropic.com/research/contextual-retrieval
-    - "Contextual Retrieval" - Anthropic research
-    - **Why:** Improving retrieval accuracy
-
-37. **Chunking Strategies**
+42. **Chunking Strategies** - Pinecone `[Technical Guide]`
     - https://www.pinecone.io/learn/chunking-strategies/
-    - **Why:** Text chunking best practices
+    - **Why:** Text chunking heuristics and overlap tuning
 
-38. **Hybrid Search**
+43. **HyDE (Hypothetical Document Embeddings)** - Gao et al., 2022 `[Planned Feature]`
+    - https://arxiv.org/abs/2212.10496
+    - **Why:** Zero-shot dense retrieval technique planned for complex questions
+
+44. **Hybrid Search (BM25 + Vector)** `[Implemented Feature]`
     - https://www.elastic.co/guide/en/elasticsearch/reference/current/knn-search.html
-    - **Why:** Combining keyword + semantic search (future feature)
+    - **Why:** Reciprocal Rank Fusion (RRF) combining keyword and semantic search
 
 ---
 
-## Tools We Use
+## 14. Tools & Linters
 
-### Code Quality
-
-39. **Ruff Linter**
+45. **Ruff Linter** `[Development Tool]`
     - https://docs.astral.sh/ruff/
-    - **Why:** Fast Python linter (replaces flake8, isort, etc.)
+    - **Why:** Fast Python linter and formatter
 
-40. **MyPy Type Checker**
+46. **MyPy Type Checker** `[Development Tool]`
     - https://mypy-lang.org/
-    - https://mypy.readthedocs.io/
-    - **Why:** Static type checking
+    - **Why:** Static type checker for Python codebase
 
-41. **Google Shell Style Guide**
+47. **Google Shell Style Guide** `[Development Tool]`
     - https://google.github.io/styleguide/shellguide.html
-    - **Why:** Shell script (.sh) coding standards we follow
+    - **Why:** Shell script standards for dev runner scripts
 
-42. **Bash Best Practices**
+48. **Bash Best Practices** `[Development Tool]`
     - https://bertvv.github.io/cheat-sheets/Bash.html
     - https://sharats.me/posts/shell-script-best-practices/
-    - **Why:** Writing reliable, maintainable shell scripts
+    - **Why:** Writing maintainable shell scripts in `scripts/`
 
-### Database
-
-43. **PostgreSQL Documentation**
+49. **PostgreSQL Official Documentation** `[Implemented Database]`
     - https://www.postgresql.org/docs/
-    - **Why:** Primary database
+    - **Why:** Primary relational and vector database
 
-44. **pgAdmin**
+50. **pgAdmin** `[Development Tool]`
     - https://www.pgadmin.org/docs/
-    - **Why:** Database management tool
+    - **Why:** Database GUI management tool
 
 ---
 
-## Learning Resources
+## 15. Learning Resources
 
-### For New Developers
-
-45. **FastAPI Tutorial (Full Stack)**
+51. **FastAPI Tutorial (Full Stack)** `[Learning Resource]`
     - https://fastapi.tiangolo.com/tutorial/
-    - **Start here:** Complete FastAPI fundamentals
+    - **Why:** Complete FastAPI fundamentals and dependency injection
 
-46. **RAG from Scratch**
+52. **RAG from Scratch** `[Learning Resource]`
     - https://github.com/langchain-ai/rag-from-scratch
-    - **Why:** Understand RAG components step-by-step
+    - **Why:** Step-by-step conceptual walkthrough of RAG building blocks
 
-47. **LangChain Academy**
+53. **LangChain Academy** `[Learning Resource]`
     - https://academy.langchain.com/
-    - **Why:** Free courses on LLM applications
+    - **Why:** In-depth courses on LLM orchestration and LangGraph state machines
 
-48. **Real-World Shell Script Examples**
+54. **Production Shell Script Examples** `[Learning Resource]`
     - https://github.com/facebook/react/tree/main/scripts (React)
     - https://github.com/nodejs/node/tree/main/tools (Node.js)
     - https://github.com/kubernetes/kubernetes/tree/master/hack (Kubernetes)
-    - **Why:** Examples of production shell scripts from major projects
-
----
-
-## How We Apply These References
-
-### Code Quality
-- Follow **PEP 8** for all Python code
-- Use **type hints (PEP 484)** on all functions
-- Write **docstrings (PEP 257)** for public APIs
-- Lint with **Ruff**, type-check with **MyPy**
-
-### API Design
-- Follow **REST best practices** (resource-based URLs)
-- Use **FastAPI** patterns (dependency injection, async/await)
-- Validate with **Pydantic** schemas
-- Document with **OpenAPI/Swagger** (auto-generated)
-
-### RAG Architecture
-- Based on **Lewis et al. 2020** RAG paper
-- Query routing with **LangGraph**
-- Vector search with **pgvector**
-- Embeddings with **Sentence Transformers**
-- LLM integration following **provider docs** (Gemini, Ollama)
-
-### Testing
-- **Pytest** for all tests
-- Test coverage target: **80%+**
-- Integration tests with **TestClient** (FastAPI)
-- Mock LLM calls for unit tests
-
-### Security
-- Follow **OWASP Top 10** guidelines
-- API authentication (planned)
-- Input validation (Pydantic)
-- Secrets in environment variables (never commit)
-
-### Deployment
-- **Docker** best practices (multi-stage builds)
-- Cloud-native (**Cloud Run** or **Container Apps**)
-- Environment-based configuration
-- Health checks and monitoring
-
----
-
-## Quick Reference Card
-
-**When adding a feature:**
-1. Check **FastAPI docs** for API patterns
-2. Check **Pydantic docs** for validation
-3. Check **SQLAlchemy docs** for database
-4. Check **LangChain/LangGraph** for RAG patterns
-5. Check **project DEVELOPMENT.md** for local patterns
-
-**When writing code:**
-1. Follow **PEP 8** style
-2. Add **type hints (PEP 484)**
-3. Write **docstrings (PEP 257)**
-4. Add **tests (pytest)**
-5. Run **ruff check** and **mypy**
-
-**When deploying:**
-1. Check **Docker best practices**
-2. Follow **cloud provider docs** (GCP/Azure)
-3. Use **environment variables** for config
-4. Enable **logging & monitoring**
-
----
-
-## Keeping This Updated
-
-This document should be updated when:
-- We adopt a new tool/framework
-- We change LLM providers
-- We discover important best practices
-- Official docs move to new URLs
-
-**Maintenance:** Update when adopting new tools or discovering new best practices
-
----
-
-## Getting Help
-
-If you need clarification on any standard:
-1. Check the official doc link above
-2. See `docs/development/DEVELOPMENT.md` for project-specific patterns
-3. Ask in GitHub issues or team chat
-
----
-
-**Note:** If a link is broken, please update this document.
+    - **Why:** Production-grade shell automation script reference

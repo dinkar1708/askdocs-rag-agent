@@ -1,5 +1,7 @@
 # Feature: Document Management
 
+**Status:** 100% IMPLEMENTED
+
 **What:** List, view, and delete uploaded documents via API.
 
 **Why it matters:** Keep your document library up to date as policies change.

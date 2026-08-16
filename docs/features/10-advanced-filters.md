@@ -1,5 +1,7 @@
 # Feature: Advanced Filters & Metadata
 
+**Status:** 100% IMPLEMENTED
+
 **What:** Add custom metadata to documents and filter queries by department, date, type, version, or any custom field.
 
 **Why it matters:** Search only relevant documents (e.g., only GG11 job descriptions, only 2026 policies) to improve answer quality and reduce noise.

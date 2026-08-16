@@ -1,5 +1,7 @@
 # Feature: MCP Integration
 
+**Status:** TODO (Planned for Future Release)
+
 **What:** Expose document search and Q&A as Model Context Protocol (MCP) tools for AI assistants.
 
 **Why it matters:** Use your document library directly in Claude Desktop, Gemini CLI, or any MCP-compatible tool.

@@ -1,5 +1,7 @@
 # Feature: Grounded Question Answering
 
+**Status:** 100% IMPLEMENTED
+
 **What:** Ask questions in natural language and get answers grounded in your uploaded documents with citations.
 
 **Why it matters:** No hallucinations. Answers come only from your documents, or you get an honest "not found."

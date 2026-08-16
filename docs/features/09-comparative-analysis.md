@@ -1,5 +1,7 @@
 # Feature: Comparative Analysis
 
+**Status:** TODO (Planned for Future Release)
+
 **What:** Compare multiple documents side-by-side to identify similarities and differences.
 
 **Why it matters:** Quickly understand how policies differ across versions, compare job requirements, or analyze contract variations without manual reading.
