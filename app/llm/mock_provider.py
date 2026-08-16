@@ -17,6 +17,7 @@ class MockLLMProvider(BaseLLMProvider):
     def __init__(self):
         """Initialize mock provider with sample responses"""
         self.call_count = 0
+        self.next_response = None  # For test overrides
 
         # Sample responses for different question types
         self.sample_responses = {
@@ -65,6 +66,12 @@ class MockLLMProvider(BaseLLMProvider):
             Mock generated text based on prompt content
         """
         self.call_count += 1
+
+        # If a test override is set, use it
+        if self.next_response is not None:
+            response = self.next_response
+            self.next_response = None  # Reset after use
+            return response
 
         # Combine prompts for pattern matching
         combined = f"{system_prompt} {user_prompt}".lower()
@@ -144,6 +151,14 @@ class MockLLMProvider(BaseLLMProvider):
     def reset_call_count(self):
         """Reset call counter for testing"""
         self.call_count = 0
+
+    def set_next_response(self, response: str):
+        """Set the next response to return (for testing)
+
+        Args:
+            response: The text to return on next generate() call
+        """
+        self.next_response = response
 
 
 # Singleton instance for easy testing

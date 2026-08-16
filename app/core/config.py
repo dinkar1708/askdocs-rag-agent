@@ -56,6 +56,12 @@ class Settings(BaseSettings):
     MAX_HISTORY_TURNS: int = 10  # Keep last N turns unsummarized
     IMPORTANCE_THRESHOLD: float = 0.7  # For adaptive strategy
 
+    # Query Routing Configuration (Feature 05)
+    QUERY_ROUTING_USE_LLM: bool = True  # Use LLM for query classification (more accurate than threshold-based)
+    QUERY_ROUTING_HIGH_CONFIDENCE: float = 0.5  # Min score for "answer" intent
+    QUERY_ROUTING_LOW_CONFIDENCE: float = 0.3  # Below this triggers "refuse"
+    QUERY_ROUTING_ENABLE_CLARIFY: bool = True  # Enable clarification path (vs always refusing)
+
     # Slack Integration
     SLACK_ENABLED: bool = False
     SLACK_BOT_TOKEN: str = ""

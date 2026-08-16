@@ -1,8 +1,12 @@
 # Feature: LangGraph Query Router
 
-**What:** Intelligent routing that classifies questions into: answer / clarify / refuse paths.
+**Status:** ✅ **IMPLEMENTED**
+
+**What:** Intelligent routing that classifies questions into: answer / clarify / refuse paths using LangGraph state machine.
 
 **Why it matters:** Prevents wasted LLM calls on unanswerable questions and guides users to better questions.
+
+**Implementation:** `app/graph/query_routing_graph.py`
 
 ---
 
@@ -288,18 +292,75 @@ def classify_hr_query(question):
 
 ---
 
+## ✅ Implementation Status
+
+**Status:** ✅ **COMPLETE - LangGraph Implementation**
+
+**What was implemented:**
+- ✅ Full LangGraph state machine for query routing
+- ✅ LLM-based classification (Ollama/Gemini/Azure)
+- ✅ Fallback to threshold-based routing (fast, deterministic)
+- ✅ Configuration via environment variables
+- ✅ Integration with `/ask` API endpoint
+- ✅ Comprehensive testing (18 test cases)
+
+**Files created/modified:**
+1. `app/graph/query_routing_graph.py` - LangGraph state machine (320 lines)
+2. `app/api/questions.py` - Updated to use LangGraph router
+3. `app/core/config.py` - Added routing configuration
+4. `app/.env.example` - Added routing settings
+5. `app/llm/mock_provider.py` - Added test support
+6. `app/tests/test_query_routing.py` - 18 comprehensive tests
+
+**Configuration:**
+```bash
+# Enable LLM-based classification (recommended)
+QUERY_ROUTING_USE_LLM=True
+
+# Confidence thresholds
+QUERY_ROUTING_HIGH_CONFIDENCE=0.5  # Min score for "answer"
+QUERY_ROUTING_LOW_CONFIDENCE=0.3   # Below this = "refuse"
+
+# Enable clarification path
+QUERY_ROUTING_ENABLE_CLARIFY=True
+```
+
+**Usage:**
+```python
+from app.graph.query_routing_graph import route_query
+from app.llm.factory import get_llm_provider
+
+# Route a query
+result = await route_query(
+    question="What is the vacation policy?",
+    chunks=retrieved_chunks,
+    llm_provider=get_llm_provider(),
+    use_llm_classification=True
+)
+
+# Returns:
+# {
+#     "intent": "answer",  # or "clarify" or "refuse"
+#     "confidence": 0.85,
+#     "reason": "High confidence match found",
+#     "classification_method": "llm",  # or "threshold"
+#     "llm_reasoning": "Clear policy question"
+# }
+```
+
 ## Limitations & Future Plans
 
-**Current limitations:**
-- Simple keyword-based classification (production should use LLM)
-- No multi-step reasoning (e.g., "Compare X and Y")
-- No question decomposition (e.g., "What are the pros and cons?")
+**Current capabilities:**
+- ✅ LLM-based classification (smarter routing)
+- ✅ Fallback threshold-based routing
+- ✅ Configurable confidence thresholds
+- ✅ Clarification path for ambiguous questions
 
 **Future enhancements:**
-- [ ] LLM-based classification (smarter routing)
 - [ ] Multi-step query handling (decompose complex questions)
 - [ ] Domain-specific classifiers (HR, legal, support, etc.)
 - [ ] Confidence explanation (why did we refuse?)
+- [ ] Query rewriting suggestions
 
 ---
 
