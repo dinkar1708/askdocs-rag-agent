@@ -91,6 +91,9 @@ def bm25_search(
     Returns:
         List of chunks ranked by text relevance
     """
+    if not query or not query.strip():
+        return []
+
     # Build metadata filter conditions (same as vector search)
     metadata_conditions = []
     params = {"limit": top_k}
@@ -113,14 +116,12 @@ def bm25_search(
                 metadata_conditions.append(f"d.doc_metadata->>'{key}' = :filter_{key}")
                 params[f"filter_{key}"] = str(value)
 
-    # Build WHERE clause
-    where_clause = "WHERE c.text_search @@ to_tsquery('english', :query)"
+    # Build WHERE clause using plainto_tsquery for safe handling of punctuation & spaces
+    where_clause = "WHERE c.text_search @@ plainto_tsquery('english', :query)"
     if metadata_conditions:
         where_clause += " AND " + " AND ".join(metadata_conditions)
 
-    # Prepare query for tsquery (replace spaces with &)
-    tsquery = query.replace(" ", " & ")
-    params["query"] = tsquery
+    params["query"] = query.strip()
 
     # Full-text search with ts_rank
     sql_query = f"""
@@ -130,7 +131,7 @@ def bm25_search(
             c.page_number,
             c.document_id,
             d.filename,
-            ts_rank(c.text_search, to_tsquery('english', :query)) as bm25_score
+            ts_rank(c.text_search, plainto_tsquery('english', :query)) as bm25_score
         FROM chunks c
         JOIN documents d ON c.document_id = d.id
         {where_clause}

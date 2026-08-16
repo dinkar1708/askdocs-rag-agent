@@ -13,7 +13,9 @@ pgvector==0.2.4
 google-generativeai==0.3.2
 sentence-transformers>=2.2.0  # Required for reranking (CrossEncoder)
 numpy>=1.24.0  # Required for semantic chunking calculations
-# langgraph==0.0.26  # TEMPORARILY DISABLED - causing dependency conflicts
+langgraph==1.2.10  # LangGraph for state machine workflows
+langchain-core>=0.3.0  # Required for langgraph
+langchain>=0.3.0  # LangChain core components
 
 # PDF Processing
 PyPDF2==3.0.1
@@ -22,8 +24,8 @@ tabulate>=0.9.0
 
 # Utilities
 python-dotenv==1.0.0
-pydantic==2.5.3
-pydantic-settings==2.1.0
+pydantic>=2.8.0  # Upgraded for langgraph 1.x compatibility
+pydantic-settings>=2.4.0  # Upgraded for pydantic 2.8+
 
 # Slack Integration
 slack-bolt==1.18.0

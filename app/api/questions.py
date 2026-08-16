@@ -9,8 +9,7 @@ from app.services.retriever import retrieve_relevant_chunks, retrieve_with_reran
 from app.services.hybrid_search import hybrid_search, hybrid_search_with_reranking
 from app.llm.factory import get_llm_provider
 from app.core.config import settings
-# from app.graph.router import get_query_router, QueryIntent
-# from app.graph.query_routing_graph import route_query  # TEMPORARILY DISABLED
+from app.graph.query_routing_graph import route_query
 from app.core.auth import verify_api_key
 
 router = APIRouter(
@@ -90,22 +89,16 @@ async def ask_question(
         db.commit()
 
     # Step 2: Route the query using LangGraph
-    # TEMPORARILY DISABLED - langgraph dependency issues
-    # llm_provider = get_llm_provider() if settings.QUERY_ROUTING_USE_LLM else None
-    # route_result = await route_query(
-    #     question=request.question,
-    #     chunks=chunks,
-    #     llm_provider=llm_provider,
-    #     use_llm_classification=settings.QUERY_ROUTING_USE_LLM
-    # )
-    # intent = route_result["intent"]
-    # confidence = route_result["confidence"]
-    # reason = route_result["reason"]
-
-    # TEMPORARY FIX: Always answer (skip routing)
-    intent = "answer"
-    confidence = 1.0 if chunks else 0.0
-    reason = "Query routing temporarily disabled"
+    llm_provider = get_llm_provider() if settings.QUERY_ROUTING_USE_LLM else None
+    route_result = await route_query(
+        question=request.question,
+        chunks=chunks,
+        llm_provider=llm_provider,
+        use_llm_classification=settings.QUERY_ROUTING_USE_LLM
+    )
+    intent = route_result["intent"]
+    confidence = route_result["confidence"]
+    reason = route_result["reason"]
 
     # Helper function to save messages
     def save_to_session(user_question: str, assistant_answer: str, sources_list: list):
