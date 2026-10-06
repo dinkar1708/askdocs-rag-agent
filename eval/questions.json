@@ -1,0 +1,130 @@
+[
+  {
+    "id": 1,
+    "question": "What is the vacation policy?",
+    "category": "answerable",
+    "expected_document": "company_policy.pdf",
+    "expected_page": 1,
+    "expected_answer_contains": ["15 days", "vacation"]
+  },
+  {
+    "id": 2,
+    "question": "How many days of paid vacation do employees accrue per year?",
+    "category": "answerable",
+    "expected_document": "company_policy.pdf",
+    "expected_page": 1,
+    "expected_answer_contains": ["15 days"]
+  },
+  {
+    "id": 3,
+    "question": "How many sick days do employees get?",
+    "category": "answerable",
+    "expected_document": "company_policy.pdf",
+    "expected_page": 1,
+    "expected_answer_contains": ["10 days", "sick leave"]
+  },
+  {
+    "id": 4,
+    "question": "What is the remote work policy?",
+    "category": "answerable",
+    "expected_document": "company_policy.pdf",
+    "expected_page": 2,
+    "expected_answer_contains": ["remote", "2 days"]
+  },
+  {
+    "id": 5,
+    "question": "What are the standard work hours?",
+    "category": "answerable",
+    "expected_document": "company_policy.pdf",
+    "expected_page": 2,
+    "expected_answer_contains": ["9:00 AM", "5:00 PM"]
+  },
+  {
+    "id": 6,
+    "question": "What health insurance plans are offered?",
+    "category": "answerable",
+    "expected_document": "company_policy.pdf",
+    "expected_page": 3,
+    "expected_answer_contains": ["PPO", "HMO", "HDHP"]
+  },
+  {
+    "id": 7,
+    "question": "Are dental and vision insurance covered?",
+    "category": "answerable",
+    "expected_document": "company_policy.pdf",
+    "expected_page": 3,
+    "expected_answer_contains": ["dental", "vision"]
+  },
+  {
+    "id": 8,
+    "question": "How does 401(k) matching work?",
+    "category": "answerable",
+    "expected_document": "company_policy.pdf",
+    "expected_page": 3,
+    "expected_answer_contains": ["401k", "match"]
+  },
+  {
+    "id": 9,
+    "question": "When are performance reviews conducted?",
+    "category": "answerable",
+    "expected_document": "company_policy.pdf",
+    "expected_page": 2,
+    "expected_answer_contains": ["annually", "December"]
+  },
+  {
+    "id": 10,
+    "question": "Can unused vacation days be carried over?",
+    "category": "answerable",
+    "expected_document": "company_policy.pdf",
+    "expected_page": 1,
+    "expected_answer_contains": ["carry over", "5"]
+  },
+  {
+    "id": 11,
+    "question": "What's the weather today?",
+    "category": "off_topic",
+    "expected_answer": "not_found"
+  },
+  {
+    "id": 12,
+    "question": "Who won the presidential election?",
+    "category": "off_topic",
+    "expected_answer": "not_found"
+  },
+  {
+    "id": 13,
+    "question": "What is the stock price of Apple?",
+    "category": "off_topic",
+    "expected_answer": "not_found"
+  },
+  {
+    "id": 14,
+    "question": "Write me a Python function to sort a list",
+    "category": "off_topic",
+    "expected_answer": "not_found"
+  },
+  {
+    "id": 15,
+    "question": "What is 2 + 2?",
+    "category": "off_topic",
+    "expected_answer": "not_found"
+  },
+  {
+    "id": 16,
+    "question": "Policy",
+    "category": "ambiguous",
+    "expected_answer": "clarify"
+  },
+  {
+    "id": 17,
+    "question": "Leave",
+    "category": "ambiguous",
+    "expected_answer": "clarify"
+  },
+  {
+    "id": 18,
+    "question": "What about that?",
+    "category": "ambiguous",
+    "expected_answer": "clarify"
+  }
+]

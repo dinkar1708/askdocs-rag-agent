@@ -8,6 +8,7 @@ from app.api.questions import router as questions_router
 from app.api.sessions import router as sessions_router
 from app.api.extraction import router as extraction_router
 from app.api.comparison import router as comparison_router
+from app.api.evaluation import router as evaluation_router
 from app.api.slack import router as slack_router
 from app.core.config import settings
 
@@ -34,6 +35,7 @@ app.include_router(questions_router)
 app.include_router(sessions_router)
 app.include_router(extraction_router)
 app.include_router(comparison_router)
+app.include_router(evaluation_router)
 app.include_router(slack_router)
 
 

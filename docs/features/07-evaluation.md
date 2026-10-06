@@ -1,6 +1,6 @@
 # Feature: Evaluation Harness
 
-**Status:** TODO (Planned for Future Release)
+**Status:** 100% IMPLEMENTED
 
 **What:** Automated testing framework that measures retrieval quality and answer groundedness.
 
@@ -411,9 +411,9 @@ Real question from support ticket:
 
 ---
 
-## TODO: LangGraph-Based Automated Evaluation
-
-**Status:** Will be implemented later
+## Automated Evaluation & Metrics
+ 
+**Status:** ✅ 100% IMPLEMENTED
 
 **What:** Automated evaluation pipeline using LangGraph to calculate retrieval quality metrics (Recall@k, MRR, Precision, NDCG) with parallel processing and state aggregation.
 
