@@ -7,10 +7,10 @@
   },
   "response": {
     "question": "How many vacation days do employees get?",
-    "answer": "According to the employee handbook [company_policy.pdf - Page 1], full-time employees accrue 15 days of paid vacation per year, starting from their first day of employment.",
+    "answer": "According to the company policy document, full-time employees accrue 15 days of paid vacation per year, starting from their first day of employment. [company_policy.pdf - Page 1]",
     "sources": [
       {
-        "chunk_id": 2131,
+        "chunk_id": 2580,
         "filename": "company_policy.pdf",
         "page_number": 1,
         "similarity_score": 0.6234862355573458,
@@ -19,7 +19,7 @@
         "original_similarity": 0.6234862355573458
       },
       {
-        "chunk_id": 2132,
+        "chunk_id": 2581,
         "filename": "company_policy.pdf",
         "page_number": 1,
         "similarity_score": 0.5595373248778189,
@@ -28,7 +28,7 @@
         "original_similarity": 0.5595373248778189
       },
       {
-        "chunk_id": 2136,
+        "chunk_id": 2585,
         "filename": "company_policy.pdf",
         "page_number": 3,
         "similarity_score": 0.38935294087844796,
@@ -37,13 +37,13 @@
         "original_similarity": 0.38935294087844796
       }
     ],
-    "timestamp": "2026-08-11T04:38:50.451210",
-    "model_used": "mock",
+    "timestamp": "2026-08-16T04:36:23.920275",
+    "model_used": "ollama",
     "session_id": null,
     "metadata": {
       "intent": "answer",
       "confidence": 0.9877026677131653,
-      "reason": "High confidence match found"
+      "reason": "High confidence match (score: 0.988)"
     }
   }
 }

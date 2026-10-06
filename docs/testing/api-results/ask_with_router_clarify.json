@@ -9,8 +9,8 @@
     "question": "How?",
     "answer": "not_found - This question cannot be answered from the uploaded documents.",
     "sources": [],
-    "timestamp": "2026-08-11T04:40:33.537145",
-    "model_used": "mock",
+    "timestamp": "2026-08-16T04:36:24.118464",
+    "model_used": "ollama",
     "session_id": null,
     "metadata": {
       "intent": "refuse",

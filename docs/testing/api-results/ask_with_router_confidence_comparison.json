@@ -12,7 +12,7 @@
       "answer": "not_found - This question cannot be answered from the uploaded documents.",
       "sources": [
         {
-          "chunk_id": 2155,
+          "chunk_id": 2604,
           "filename": "company_policy.pdf",
           "page_number": 1,
           "similarity_score": 0.47722504693642986,
@@ -21,7 +21,7 @@
           "original_similarity": 0.47722504693642986
         },
         {
-          "chunk_id": 2156,
+          "chunk_id": 2605,
           "filename": "company_policy.pdf",
           "page_number": 1,
           "similarity_score": 0.3670271963203442,
@@ -30,7 +30,7 @@
           "original_similarity": 0.3670271963203442
         },
         {
-          "chunk_id": 2160,
+          "chunk_id": 2609,
           "filename": "company_policy.pdf",
           "page_number": 3,
           "similarity_score": 0.21206428516485942,
@@ -39,21 +39,21 @@
           "original_similarity": 0.21206428516485942
         }
       ],
-      "timestamp": "2026-08-11T04:38:50.940054",
-      "model_used": "mock",
+      "timestamp": "2026-08-16T04:36:24.456924",
+      "model_used": "ollama",
       "session_id": null,
       "metadata": {
         "intent": "refuse",
         "confidence": 0.2732069790363312,
-        "reason": "Confidence too low, no good match found"
+        "reason": "Confidence too low (score: 0.273, threshold: 0.3)"
       }
     },
     "lower_confidence_example": {
       "question": "Tell me about the organization structure",
       "answer": "not_found - This question cannot be answered from the uploaded documents.",
       "sources": [],
-      "timestamp": "2026-08-11T04:38:50.951210",
-      "model_used": "mock",
+      "timestamp": "2026-08-16T04:36:24.475868",
+      "model_used": "ollama",
       "session_id": null,
       "metadata": {
         "intent": "refuse",

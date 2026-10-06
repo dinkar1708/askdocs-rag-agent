@@ -34,10 +34,12 @@ ENV/
 *.code-workspace
 
 # Environment variables
-.env                    # Local development config (DO NOT COMMIT)
-.env.local              # Local overrides (DO NOT COMMIT)
-.env.*.local            # Local overrides (DO NOT COMMIT)
-app/.env.dev            # App-level dev config (DO NOT COMMIT)
+.env
+.env.dev
+.env.local
+.env.*.local
+app/.env
+app/.env.dev
 
 # EXCEPT: Commit test config and template
 !.env.test              # Test environment config (SAFE TO COMMIT)

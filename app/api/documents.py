@@ -15,6 +15,15 @@ from app.services.pdf_processor import process_pdf
 from app.services.document_processor_graph import create_document_processing_graph, DocumentProcessingState
 from app.schemas.document import DocumentResponse, DocumentListResponse, DocumentMetadataUpdate
 from app.schemas.job import JobCreateResponse, JobResponse, JobListResponse
+from app.schemas.summary import (
+    SummaryRequest,
+    SummaryResponse,
+    BatchSummaryRequest,
+    BatchSummaryResponse,
+    KeyPoint,
+    SectionSummary
+)
+from app.services.document_summarizer import get_document_summarizer
 from app.core.auth import verify_api_key
 
 # File size limit: 50MB
@@ -430,3 +439,78 @@ def list_jobs(
         ],
         total=total
     )
+
+
+@router.post("/{document_id}/summarize", response_model=SummaryResponse)
+async def summarize_document(
+    document_id: int,
+    request: Optional[SummaryRequest] = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Generate an executive summary, detailed breakdown, or key points for a document.
+
+    Summaries are automatically cached in document metadata to prevent redundant LLM inferences.
+    Set force_regenerate=True to bypass cache.
+    """
+    summarizer = get_document_summarizer()
+    effective_request = request or SummaryRequest()
+    try:
+        return await summarizer.summarize_document(db=db, document_id=document_id, request=effective_request)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate summary: {str(e)}")
+
+
+@router.get("/{document_id}/summary", response_model=SummaryResponse)
+def get_cached_summary(
+    document_id: int,
+    summary_type: str = Query("executive", description="Type of summary to retrieve"),
+    db: Session = Depends(get_db)
+):
+    """
+    Retrieve an existing cached summary for a document without invoking LLM generation.
+    Returns 404 if no summary of the requested type has been generated yet.
+    """
+    document = db.query(Document).filter(Document.id == document_id).first()
+    if not document:
+        raise HTTPException(status_code=404, detail=f"Document with ID {document_id} not found")
+
+    doc_metadata = document.doc_metadata or {}
+    cached_summaries = doc_metadata.get("summaries", {})
+
+    # Match summary by prefix (e.g. "executive")
+    matching_key = next((k for k in cached_summaries if k.startswith(summary_type)), None)
+    if not matching_key:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No cached {summary_type} summary found for document {document_id}. Please call POST /documents/{document_id}/summarize first."
+        )
+
+    cached_data = cached_summaries[matching_key]
+    return SummaryResponse(
+        document_id=document.id,
+        filename=document.filename,
+        summary=cached_data.get("summary", ""),
+        summary_type=summary_type,
+        word_count=cached_data.get("word_count", 0),
+        key_points=[KeyPoint(**kp) for kp in cached_data.get("key_points", [])],
+        sections=[SectionSummary(**sec) for sec in cached_data.get("sections", [])] if cached_data.get("sections") else None,
+        cached=True,
+        generated_at=cached_data.get("generated_at", document.uploaded_at)
+    )
+
+
+@router.post("/summarize/batch", response_model=BatchSummaryResponse)
+async def summarize_batch(
+    request: BatchSummaryRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Batch summarize multiple documents.
+    """
+    summarizer = get_document_summarizer()
+    return await summarizer.summarize_batch(db=db, request=request)
+
+

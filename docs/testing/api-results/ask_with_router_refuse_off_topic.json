@@ -10,7 +10,7 @@
     "answer": "not_found - This question cannot be answered from the uploaded documents.",
     "sources": [
       {
-        "chunk_id": 2139,
+        "chunk_id": 2588,
         "filename": "company_policy.pdf",
         "page_number": 2,
         "similarity_score": 0.21630386120607992,
@@ -19,13 +19,13 @@
         "original_similarity": 0.21630386120607992
       }
     ],
-    "timestamp": "2026-08-11T04:38:50.567678",
-    "model_used": "mock",
+    "timestamp": "2026-08-16T04:36:24.046242",
+    "model_used": "ollama",
     "session_id": null,
     "metadata": {
       "intent": "refuse",
       "confidence": 1.6248272004304454e-05,
-      "reason": "Confidence too low, no good match found"
+      "reason": "Confidence too low (score: 0.000, threshold: 0.3)"
     }
   }
 }

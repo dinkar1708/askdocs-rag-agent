@@ -2,9 +2,9 @@
   "api": "POST /sessions/",
   "request": {},
   "response": {
-    "id": 240,
-    "created_at": "2026-08-11T04:40:01.276266",
-    "last_accessed": "2026-08-11T04:40:01.276277",
+    "id": 269,
+    "created_at": "2026-08-16T04:37:36.252961",
+    "last_accessed": "2026-08-16T04:37:36.252972",
     "message_count": 0
   }
 }

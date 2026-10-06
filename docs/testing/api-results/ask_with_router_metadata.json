@@ -10,7 +10,7 @@
     "answer": "not_found - This question cannot be answered from the uploaded documents.",
     "sources": [
       {
-        "chunk_id": 2153,
+        "chunk_id": 2602,
         "filename": "company_policy.pdf",
         "page_number": 3,
         "similarity_score": 0.31136361692439385,
@@ -19,7 +19,7 @@
         "original_similarity": 0.31136361692439385
       },
       {
-        "chunk_id": 2152,
+        "chunk_id": 2601,
         "filename": "company_policy.pdf",
         "page_number": 2,
         "similarity_score": 0.3650291074821088,
@@ -28,7 +28,7 @@
         "original_similarity": 0.3650291074821088
       },
       {
-        "chunk_id": 2154,
+        "chunk_id": 2603,
         "filename": "company_policy.pdf",
         "page_number": 3,
         "similarity_score": 0.2895661976804198,
@@ -37,7 +37,7 @@
         "original_similarity": 0.2895661976804198
       },
       {
-        "chunk_id": 2149,
+        "chunk_id": 2598,
         "filename": "company_policy.pdf",
         "page_number": 1,
         "similarity_score": 0.30330502718433994,
@@ -46,13 +46,13 @@
         "original_similarity": 0.30330502718433994
       }
     ],
-    "timestamp": "2026-08-11T04:38:50.772722",
-    "model_used": "mock",
+    "timestamp": "2026-08-16T04:36:24.266608",
+    "model_used": "ollama",
     "session_id": null,
     "metadata": {
       "intent": "refuse",
       "confidence": 0.051964692771434784,
-      "reason": "Confidence too low, no good match found"
+      "reason": "Confidence too low (score: 0.052, threshold: 0.3)"
     }
   }
 }
