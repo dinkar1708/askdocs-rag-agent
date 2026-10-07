@@ -1,12 +1,17 @@
 """API endpoints for asking questions about documents"""
+import json
+from typing import List, Dict
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from datetime import datetime
+
 from app.db.database import get_db
 from app.db.models import Session as SessionModel, Message
 from app.schemas.query import QuestionRequest, AnswerResponse, SourceCitation
 from app.services.retriever import retrieve_relevant_chunks, retrieve_with_reranking, format_context_for_llm
 from app.services.hybrid_search import hybrid_search, hybrid_search_with_reranking
+from app.services.hyde import retrieve_with_hyde
 from app.llm.factory import get_llm_provider
 from app.core.config import settings
 from app.graph.query_routing_graph import route_query
@@ -19,6 +24,50 @@ router = APIRouter(
 )
 
 
+async def retrieve_chunks_for_request(request: QuestionRequest, db: Session) -> List[Dict]:
+    """Retrieve candidate document chunks using HyDE, Hybrid Search, or Vector similarity"""
+    if request.use_hyde:
+        return await retrieve_with_hyde(
+            query=request.question,
+            db=db,
+            top_k=request.top_k,
+            metadata_filters=request.metadata_filters
+        )
+    elif settings.HYBRID_SEARCH_ENABLED:
+        if settings.RERANKING_ENABLED:
+            return hybrid_search_with_reranking(
+                query=request.question,
+                db=db,
+                top_k=request.top_k,
+                initial_k=settings.RETRIEVAL_INITIAL_K,
+                metadata_filters=request.metadata_filters
+            )
+        else:
+            return hybrid_search(
+                query=request.question,
+                db=db,
+                top_k=request.top_k,
+                initial_k=settings.RETRIEVAL_INITIAL_K,
+                metadata_filters=request.metadata_filters
+            )
+    else:
+        if settings.RERANKING_ENABLED:
+            return retrieve_with_reranking(
+                query=request.question,
+                db=db,
+                initial_k=settings.RETRIEVAL_INITIAL_K,
+                final_k=request.top_k,
+                metadata_filters=request.metadata_filters
+            )
+        else:
+            return retrieve_relevant_chunks(
+                query=request.question,
+                db=db,
+                top_k=request.top_k,
+                metadata_filters=request.metadata_filters
+            )
+
+
 @router.post("/", response_model=AnswerResponse)
 async def ask_question(
     request: QuestionRequest,
@@ -28,54 +77,13 @@ async def ask_question(
     Ask a question about uploaded documents with intelligent routing
 
     Process:
-    1. Retrieve relevant document chunks using:
-       - Hybrid search (BM25 + Vector + RRF) if HYBRID_SEARCH_ENABLED
-       - Vector similarity only if hybrid search disabled
-       - Optional cross-encoder reranking if RERANKING_ENABLED
+    1. Retrieve relevant document chunks (HyDE, Hybrid, or Vector search)
     2. Route query (answer/clarify/refuse) based on confidence
     3. Generate appropriate response based on intent
     4. Return answer with source citations or clarification/refusal message
     """
     # Step 1: Retrieve relevant chunks
-    if settings.HYBRID_SEARCH_ENABLED:
-        # Use hybrid search (BM25 + Vector + RRF)
-        if settings.RERANKING_ENABLED:
-            # Hybrid + Reranking (3-stage)
-            chunks = hybrid_search_with_reranking(
-                query=request.question,
-                db=db,
-                top_k=request.top_k,
-                initial_k=settings.RETRIEVAL_INITIAL_K,
-                metadata_filters=request.metadata_filters
-            )
-        else:
-            # Hybrid only (2-stage)
-            chunks = hybrid_search(
-                query=request.question,
-                db=db,
-                top_k=request.top_k,
-                initial_k=settings.RETRIEVAL_INITIAL_K,
-                metadata_filters=request.metadata_filters
-            )
-    else:
-        # Traditional vector-only search
-        if settings.RERANKING_ENABLED:
-            # Vector + Reranking (2-stage)
-            chunks = retrieve_with_reranking(
-                query=request.question,
-                db=db,
-                initial_k=settings.RETRIEVAL_INITIAL_K,
-                final_k=request.top_k,
-                metadata_filters=request.metadata_filters
-            )
-        else:
-            # Vector only (1-stage)
-            chunks = retrieve_relevant_chunks(
-                query=request.question,
-                db=db,
-                top_k=request.top_k,
-                metadata_filters=request.metadata_filters
-            )
+    chunks = await retrieve_chunks_for_request(request, db)
 
     # Step 1.5: Verify session exists (if provided)
     session_id = request.session_id
@@ -220,6 +228,122 @@ Answer the question using ONLY the information provided above. Include citations
                 "reason": reason
             }
         )
+
+
+@router.post("/stream")
+async def stream_question(
+    request: QuestionRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Stream answer tokens and citation events in real-time via Server-Sent Events (SSE).
+
+    SSE Events:
+    - `route`: Query routing decision (intent, confidence, reason)
+    - `sources`: List of cited document excerpts
+    - `token`: Individual tokens or words of the generated answer
+    - `done`: Final event signaling completion and session ID
+    """
+    chunks = await retrieve_chunks_for_request(request, db)
+
+    session_id = request.session_id
+    if session_id:
+        session = db.query(SessionModel).filter(SessionModel.id == session_id).first()
+        if not session:
+            raise HTTPException(status_code=404, detail=f"Session {session_id} not found")
+        session.last_accessed = datetime.utcnow()
+        db.commit()
+
+    llm_provider = get_llm_provider() if settings.QUERY_ROUTING_USE_LLM else None
+    route_result = await route_query(
+        question=request.question,
+        chunks=chunks,
+        llm_provider=llm_provider,
+        use_llm_classification=settings.QUERY_ROUTING_USE_LLM
+    )
+    intent = route_result["intent"]
+    confidence = route_result["confidence"]
+    reason = route_result["reason"]
+
+    sources = []
+    if request.include_sources and chunks:
+        for chunk in chunks:
+            sources.append({
+                "chunk_id": chunk["chunk_id"],
+                "filename": chunk["filename"],
+                "page_number": chunk["page_number"],
+                "similarity_score": chunk["similarity_score"],
+                "text_excerpt": chunk["text"][:200] + "..." if len(chunk["text"]) > 200 else chunk["text"],
+                "reranking_score": chunk.get("reranking_score"),
+                "original_similarity": chunk.get("original_similarity")
+            })
+
+    async def sse_event_generator():
+        # Emit routing decision event
+        yield f"event: route\ndata: {json.dumps({'intent': intent, 'confidence': confidence, 'reason': reason})}\n\n"
+
+        if intent == "refuse":
+            refusal_text = "not_found - This question cannot be answered from the uploaded documents."
+            yield f"event: token\ndata: {json.dumps({'token': refusal_text})}\n\n"
+            if session_id:
+                db.add(Message(session_id=session_id, role="user", content=request.question))
+                db.add(Message(session_id=session_id, role="assistant", content=refusal_text, sources=sources))
+                db.commit()
+            yield f"event: done\ndata: {json.dumps({'session_id': session_id})}\n\n"
+            return
+
+        elif intent == "clarify":
+            clarify_text = "Could you please provide more context or be more specific? Your question seems ambiguous."
+            yield f"event: token\ndata: {json.dumps({'token': clarify_text})}\n\n"
+            if session_id:
+                db.add(Message(session_id=session_id, role="user", content=request.question))
+                db.add(Message(session_id=session_id, role="assistant", content=clarify_text, sources=sources))
+                db.commit()
+            yield f"event: done\ndata: {json.dumps({'session_id': session_id})}\n\n"
+            return
+
+        # Emit sources citation event
+        yield f"event: sources\ndata: {json.dumps(sources)}\n\n"
+
+        context = format_context_for_llm(chunks)
+        active_llm = get_llm_provider()
+
+        system_prompt = """You are a helpful assistant that answers questions based on provided documents.
+IMPORTANT RULES:
+1. ONLY answer using information from the provided context
+2. If the answer is not in the context, say "I don't have enough information to answer that"
+3. Always cite which document and page number you're using
+4. Be concise and direct"""
+
+        user_prompt = f"""Context from documents:
+{context}
+
+Question: {request.question}
+
+Answer the question using ONLY the information provided above. Include citations like [filename - Page X]."""
+
+        full_answer = []
+        async for token in active_llm.generate_stream(system_prompt=system_prompt, user_prompt=user_prompt):
+            full_answer.append(token)
+            yield f"event: token\ndata: {json.dumps({'token': token})}\n\n"
+
+        complete_text = "".join(full_answer)
+        if session_id:
+            db.add(Message(session_id=session_id, role="user", content=request.question))
+            db.add(Message(session_id=session_id, role="assistant", content=complete_text, sources=sources))
+            db.commit()
+
+        yield f"event: done\ndata: {json.dumps({'session_id': session_id})}\n\n"
+
+    return StreamingResponse(
+        sse_event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
 
 
 @router.get("/health")

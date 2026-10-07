@@ -45,26 +45,14 @@ Author / Maintainer: [Dinakar Maurya](https://github.com/dinkar1708) ([dinkar170
 - Cross-Encoder Reranking: BAAI/bge-reranker-v2-m3 integration ([`app/services/reranker.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/app/services/reranker.py)).
 - Advanced RAG (Tables and Semantic Chunking): PDF table extraction to Markdown and semantic boundary detection ([`app/services/table_processor.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/app/services/table_processor.py)).
 - Multi-turn Chat: Session and message storage with exact citation JSON ([`app/api/sessions.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/app/api/sessions.py)).
+- Hypothetical Document Embeddings (HyDE): Zero-shot query transformation via LLM hypothetical passage generation ([`app/services/hyde.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/app/services/hyde.py)).
+- Real-Time SSE Token Streaming: Server-Sent Events `/ask/stream` streaming tokens and citation events in real-time ([`app/api/questions.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/app/api/questions.py)).
+- Interactive Slack Bot Webhook Integration: Full Slack bot commands and events integration ([`app/api/slack.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/app/api/slack.py)).
 - Nuxt 3 Frontend: Reactive chat, document manager, and citation inspector ([`web-ui`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/web-ui)).
 
 ### Planned for Future Release (TODO Items):
 
 > [!NOTE]
-> TODO 1: Hypothetical Document Embeddings (HyDE)
-> - Status: Planned for future release.
-> - Description: Generate hypothetical answer passages with the LLM before embedding to improve zero-shot vector recall on complex questions.
-
-> [!NOTE]
-> TODO 2: Real-Time SSE Token Streaming (/ask/stream)
-> - Status: Planned for future release.
-> - Description: Server-Sent Events endpoint to stream LLM tokens to the Nuxt frontend in real time.
-
-> [!NOTE]
-> TODO 3: Multi-Tenancy and Workspace Isolation
+> Multi-Tenancy and Workspace Isolation
 > - Status: Planned for future release.
 > - Description: Add tenant_id database partitioning and API token tenant extraction middleware.
-
-> [!NOTE]
-> TODO 4: Interactive Slack Bot Webhook Integration
-> - Status: Planned for future release.
-> - Description: Full bidirectional Slack bot (@askdocs, thread replies, and slash commands).

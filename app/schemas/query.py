@@ -14,6 +14,10 @@ class QuestionRequest(BaseModel):
         default=None,
         description="Filter documents by metadata (e.g., {'department': 'HR', 'grade': '9-12'})"
     )
+    use_hyde: bool = Field(
+        default=False,
+        description="Enable Hypothetical Document Embeddings (HyDE) for zero-shot question retrieval"
+    )
 
 
 class SourceCitation(BaseModel):
