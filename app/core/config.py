@@ -67,6 +67,11 @@ class Settings(BaseSettings):
     SLACK_BOT_TOKEN: str = ""
     SLACK_SIGNING_SECRET: str = ""
 
+    # Authentication & JWT Configuration
+    JWT_SECRET_KEY: str = "askdocs-default-jwt-secret-key-change-in-production"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
+
     # CORS Configuration
     # Comma-separated list of allowed origins
     # Defaults to localhost for development - override in production with env var

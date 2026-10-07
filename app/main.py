@@ -10,6 +10,7 @@ from app.api.extraction import router as extraction_router
 from app.api.comparison import router as comparison_router
 from app.api.evaluation import router as evaluation_router
 from app.api.slack import router as slack_router
+from app.api.auth import router as auth_router
 from app.core.config import settings
 
 app = FastAPI(
@@ -26,10 +27,11 @@ app.add_middleware(
     allow_origins=allowed_origins,
     allow_credentials=False,  # Set to False when using allow_origins (browsers reject credentials with *)
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allow_headers=["Content-Type", "X-API-Key"],
+    allow_headers=["Content-Type", "X-API-Key", "Authorization"],
 )
 
 # Include routers
+app.include_router(auth_router)
 app.include_router(documents_router)
 app.include_router(questions_router)
 app.include_router(sessions_router)

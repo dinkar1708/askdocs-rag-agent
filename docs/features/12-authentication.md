@@ -1,6 +1,6 @@
 # Authentication & Authorization
 
-**Status:** 100% IMPLEMENTED (API Key Header Authentication) | User Accounts & JWT/OAuth: TODO (Planned for Future Release)
+**Status:** 100% IMPLEMENTED
 
 User authentication and authorization system for secure access control.
 
@@ -12,11 +12,12 @@ User authentication and authorization system for secure access control.
 
 **Current State:**
 - ✅ API key authentication implemented (X-API-Key header)
-- ✅ All endpoints protected with API key validation
-- ✅ Returns 401 Unauthorized without key, 403 Forbidden with wrong key
-- ❌ No user accounts or session management
-- ❌ No role-based access control
-- ❌ Single shared API key (not per-user)
+- ✅ User accounts with email & password registration (`POST /auth/register`)
+- ✅ Secure PBKDF2 password hashing with per-user salt
+- ✅ JWT access tokens (`POST /auth/login`, `GET /auth/me`)
+- ✅ Role-based access control (Admin, User, Viewer)
+- ✅ User-owned sessions with backward compatibility for anonymous sessions
+- ✅ Full API endpoint protection and CORS headers configured
 
 **Target State:**
 - User login with email/password
@@ -288,9 +289,9 @@ localStorage.setItem('askdocs_session_id', '123')
 GET /sessions/123  // Returns session if exists
 ```
 
-### Future Implementation (v2.0 - User-Owned Sessions)
-
-**Status:** 🔴 Planned
+### User-Owned Sessions
+ 
+**Status:** ✅ Implemented
 
 Sessions will be linked to authenticated users:
 
@@ -476,7 +477,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES=15
 
 ---
 
-**Status:** Planned for future release
+**Status:** ✅ 100% IMPLEMENTED
 
 **Priority:** 🔵 **LOW - TO BE DONE LAST**
 - Current API key auth is sufficient for most use cases

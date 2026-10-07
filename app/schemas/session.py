@@ -32,6 +32,7 @@ class SessionCreate(BaseModel):
 class SessionResponse(BaseModel):
     """Schema for session response"""
     id: int
+    user_id: Optional[int] = None
     created_at: datetime
     last_accessed: datetime
     message_count: int
@@ -43,6 +44,7 @@ class SessionResponse(BaseModel):
 class SessionWithMessages(BaseModel):
     """Schema for session with full conversation history"""
     id: int
+    user_id: Optional[int] = None
     created_at: datetime
     last_accessed: datetime
     messages: List[MessageResponse]

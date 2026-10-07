@@ -1,7 +1,7 @@
 """SQLAlchemy database models"""
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Float, JSON
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Float, JSON, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.types import TypeDecorator
@@ -23,6 +23,25 @@ class TSVector(TypeDecorator):
             return dialect.type_descriptor(Text())
 
 
+class User(Base):
+    """User account for authentication and authorization"""
+
+    __tablename__ = "users"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
+    full_name = Column(String(255), nullable=True)
+    role = Column(String(50), default="user", nullable=False)  # 'admin', 'user', 'viewer'
+    is_active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    sessions = relationship("Session", back_populates="user")
+    documents = relationship("Document", back_populates="user")
+
+
 class Document(Base):
     """Uploaded document"""
 
@@ -35,9 +54,11 @@ class Document(Base):
     uploaded_at = Column(DateTime, default=datetime.utcnow)
     doc_metadata = Column(JSON, default={}, nullable=False)  # Custom metadata (department, grade, type, tags, etc.)
     content_hash = Column(String(64), unique=True, nullable=True)  # SHA-256 hash for duplicate detection
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
 
-    # Relationship to chunks
+    # Relationships
     chunks = relationship("Chunk", back_populates="document", cascade="all, delete-orphan")
+    user = relationship("User", back_populates="documents")
 
 
 class Chunk(Base):
@@ -68,11 +89,13 @@ class Session(Base):
     __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     last_accessed = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationship to messages
+    # Relationship to messages and user
     messages = relationship("Message", back_populates="session", cascade="all, delete-orphan")
+    user = relationship("User", back_populates="sessions")
 
 
 class Message(Base):
