@@ -1,6 +1,6 @@
 # Feature: MCP Integration
 
-**Status:** TODO (Planned for Future Release)
+**Status:** 100% IMPLEMENTED
 
 **What:** Expose document search and Q&A as Model Context Protocol (MCP) tools for AI assistants.
 
