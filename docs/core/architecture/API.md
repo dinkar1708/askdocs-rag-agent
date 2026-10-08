@@ -16,12 +16,13 @@ Complete REST API documentation with request/response examples.
 
 ## Authentication
 
-Currently open (no auth). For production, add:
-- API key header: `X-API-Key: your_key`
-- JWT tokens for multi-tenant
-- OAuth2 for user-facing apps
+Endpoints are secured using two supported authentication methods:
+1. **API Key Authentication:** Pass the configured API key via header `X-API-Key: your_key` (recommended for server-to-server and automated integrations).
+2. **JWT Bearer Token Authentication:** User login via `POST /auth/login` returns a JWT access token passed via `Authorization: Bearer <token>`.
+   - Supports Role-Based Access Control (RBAC): `admin`, `user`, and `viewer`.
+   - Admin-only routes (e.g. `/audit/logs`, `/auth/users`) require `role=admin`.
 
-See [Configuration](CONFIGURATION.md#security) for setup.
+See [Authentication & Authorization](features/12-authentication.md) and [Configuration](CONFIGURATION.md#security) for details.
 
 ---
 

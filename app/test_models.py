@@ -6,8 +6,8 @@ from pathlib import Path
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from db.models import Document, Chunk, Session
-from db.database import Base
+from app.db.models import Document, Chunk, Session
+from app.db.database import Base
 from datetime import datetime
 
 def test_model_definitions():

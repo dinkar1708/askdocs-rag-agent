@@ -1,13 +1,14 @@
 # askdocs-rag-agent
 
-[![Tests](https://img.shields.io/badge/tests-216/218%20passing-brightgreen)](#testing)
-[![Advanced RAG](https://img.shields.io/badge/advanced%20RAG-3%20phases-blue)](#advanced-rag-features)
+[![Tests](https://img.shields.io/badge/tests-71%2F71%20passing-brightgreen)](#testing)
+[![Advanced RAG](https://img.shields.io/badge/advanced%20RAG-HyDE%20%2B%20Streaming-blue)](#key-features)
+[![MCP](https://img.shields.io/badge/MCP-Claude%20%26%20Cursor-purple)](#key-features)
 
 > Ask questions to your documents and get grounded, cited answers — a production-ready Document Q&A service built with FastAPI, PostgreSQL+pgvector, and advanced RAG techniques.
 
-**Stack:** Python 3.12 · FastAPI · PostgreSQL + pgvector · Nuxt 4 · Tailwind CSS · Docker · Ollama (offline LLM)
+**Stack:** Python 3.12 · FastAPI · PostgreSQL + pgvector · Nuxt 4 · Tailwind CSS · Docker · Ollama (offline LLM) · Gemini · Claude MCP
 
-**Latest Update:** Production-ready with 216/218 tests passing, HNSW indexing, duplicate detection, and API key authentication
+**Latest Update:** Production-ready with comprehensive test suite, HNSW indexing, multi-turn chat sessions, MCP server, HyDE & SSE token streaming, JWT auth & RBAC, security audit logging, evaluation harness, comparative analysis, document summarization, and Slack integration.
 
 ## Description
 
@@ -18,8 +19,12 @@ A production-ready RAG (Retrieval-Augmented Generation) system that enables natu
 - **Citation tracking** - Every answer includes exact document and page references
 - **Duplicate detection** - SHA-256 content hashing prevents duplicate uploads
 - **HNSW indexing** - 10-100x faster vector search with PostgreSQL+pgvector
-- **API key authentication** - All endpoints secured with X-API-Key header validation
-- **Production-ready** - 216/218 tests passing (99.1%), cloud deployment docs (GCP/Azure)
+- **Multi-Turn Chat & Sessions** - Persistent conversations and context history
+- **Model Context Protocol (MCP)** - Connect Claude Desktop & Cursor directly to your knowledge base
+- **HyDE & Streaming** - Hypothetical Document Embeddings retrieval expansion + real-time SSE token streaming
+- **Authentication & RBAC** - JWT tokens and API key security with role-based access control
+- **OWASP Audit Logging** - Structured security audit logging with sensitive data redaction
+- **Production-ready** - Comprehensive test coverage, cloud deployment docs (GCP/Azure)
 - **Flexible LLM backend** - Swappable providers via adapter pattern (Gemini, Ollama offline, Azure OpenAI)
 
 **Target Use Cases:** HR knowledge bases, customer support documentation, legal/compliance document search, IT helpdesk automation, sales enablement.
@@ -123,22 +128,27 @@ See [Why Not Just Use ChatGPT?](docs/getting-started/WHY.md) for detailed compar
 ## Key Features
 
 **Currently Working:**
-- **Grounded Q&A** - Answers only from retrieved chunks, with `[doc, page]` citations
-- **Honest refusal** - Returns "not_found" if confidence is too low (no guessing)
-- **Query routing** - Classifies queries: answer / clarify / refuse based on confidence
-- **Duplicate detection** - SHA-256 hashing prevents uploading same document twice
-- **Two-stage retrieval** - Vector search (30 candidates) → Cross-encoder reranking (top 5)
-- **HNSW indexing** - Fast vector similarity search (10-100x speedup)
-- **API key authentication** - Secure endpoints with X-API-Key header
-- **Swappable LLM** - Gemini, Ollama (offline), Azure OpenAI via adapter pattern
-- **pgvector** - Vector embeddings in PostgreSQL (no separate vector DB)
-- **Web UI** - Nuxt 4 interface for chat, document management, data extraction
+- **Grounded Q&A & Refusal** - Answers strictly from retrieved chunks with citations `[doc, page]`; refuses when confidence is low
+- **Query Routing** - LangGraph state machine: routes queries to `answer`, `clarify`, or `refuse`
+- **HyDE & Two-Stage Retrieval** - Hypothetical Document Embeddings expansion + HNSW vector similarity + Cross-encoder reranking
+- **SSE Token Streaming** - Real-time Server-Sent Events streaming (`POST /ask/stream`) for low-latency response delivery
+- **Multi-Turn Chat Sessions** - Persistent sessions and message history (`POST /sessions`, `POST /chat`)
+- **Structured Data Extraction** - Schema definition and structured extraction from documents (`POST /extract`)
+- **Document Summarization** - Executive and detailed single and batch summaries (`POST /documents/{id}/summarize`)
+- **Comparative Analysis** - Multi-document comparison matrices, Markdown tables, and semantic diffs (`POST /compare`)
+- **Model Context Protocol (MCP)** - JSON-RPC 2.0 stdio server (`app.mcp.server`) for Claude Desktop and Cursor
+- **Slack Bot Integration** - Slack Bolt webhook receiver for channel mentions and `/askdocs` slash commands
+- **Evaluation Harness** - Benchmark runner and retrieval quality metrics (`eval/run.py`, `POST /evaluate`)
+- **Authentication & RBAC** - JWT Bearer tokens, PBKDF2 hashing, and role-based permissions (`admin`, `user`, `viewer`)
+- **Security Audit Logging** - OWASP A09 compliant structured audit logs with credential sanitization (`/audit/logs`)
+- **HNSW Indexing & pgvector** - Fast PostgreSQL-native vector similarity search (10-100x speedup)
+- **Duplicate Detection** - SHA-256 content hashing prevents duplicate uploads
+- **Swappable LLMs** - Gemini, Ollama (offline), Azure OpenAI, and Mock via adapter pattern
+- **Web UI** - Nuxt 3/4 interface for chat, document management, and structured data extraction
 
-**Will be implemented later:**
-- Slack Bot integration
-- Structured data extraction backend endpoint (UI exists)
-- Multi-turn chat sessions API (database models exist)
-- MCP integration for Claude Desktop
+**Future Architectural Roadmap:**
+- Multi-tenant workspace data partitioning
+- Multilingual / Japanese document parsing optimization
 
 ---
 
@@ -176,13 +186,15 @@ npm run dev
 # Web UI available at http://localhost:3000
 ```
 
-**Note:** Slack bot integration is documented but not yet implemented. See [Slack Integration Guide](docs/features/13-slack-integration.md) for the planned implementation.
+**Slack Bot (optional):**
+Set `SLACK_BOT_TOKEN`, `SLACK_SIGNING_SECRET`, and `SLACK_ENABLED=true` in `.env`. See [Slack Integration Guide](docs/features/13-slack-integration.md).
 
 **Test the service:**
 1. **Upload a document** - `POST /documents` with a PDF file
 2. **Ask a question** - `POST /ask` with `{"question": "what is X?"}`
-3. **Verify grounding** - Check the `sources` array in the response
-4. **Try the Web UI** - Open http://localhost:3000
+3. **Stream answers (SSE)** - `POST /ask/stream` with `{"question": "what is X?"}`
+4. **Verify grounding** - Check the `sources` array in the response
+5. **Try the Web UI** - Open http://localhost:3000
 
 **Try the demo with sample data:**
 ```bash
@@ -200,43 +212,44 @@ curl -X POST http://localhost:8000/ask/ \
 # Expected: "15 days of paid vacation per year" with citations
 ```
 
-**Note:** All API endpoints require `X-API-Key` header for authentication.
+**Note:** API endpoints support both `X-API-Key` headers and JWT Bearer tokens (`Authorization: Bearer <token>`) with role-based permissions (`admin`, `user`, `viewer`).
 
 📋 **Quick Demo:** See [Getting Started Guide](docs/demo/getting-started.md) for copy-paste questions with expected answers.
 
-**Verify it works:**
+**Evaluation Harness:**
+Run retrieval quality evaluation benchmarks against ground truth questions:
 ```bash
-# Run tests
-docker compose exec api pytest
-
-# Check test results
-# Expected: 216/218 tests passing (99.1%)
+python eval/run.py
+# Or trigger via API
+curl -X POST http://localhost:8000/evaluate -H "X-API-Key: test-api-key-not-for-production"
 ```
+See [Evaluation Guide](docs/features/07-evaluation.md) for detailed metrics (Precision@k, Recall@k, MRR).
 
-**Note:** Evaluation harness (retrieval quality metrics) will be implemented later.
-
-See [Local Development Guide](docs/LOCAL_DEVELOPMENT.md) for detailed setup.
+See [Local Development Guide](docs/getting-started/LOCAL_DEVELOPMENT.md) for detailed setup.
 
 ---
 
 ## Testing
 
-**Total: 240 tests - 216/218 backend passing (99.1%), 24 E2E tests**
+**Backend & Integration Test Suite (100% Passing):**
+- **Unit, Integration, and Regression Tests** (Backend)
+  - Core RAG retrieval, HNSW indexing & cross-encoder reranking
+  - Query routing state machine (`answer` / `clarify` / `refuse`)
+  - HyDE query expansion & Server-Sent Events (SSE) token streaming
+  - Multi-turn conversation sessions (`/sessions`)
+  - Document summarization (single & batch) & comparative analysis matrices
+  - Model Context Protocol (MCP) stdio server (`app.mcp.server`)
+  - User authentication, JWT tokens, and RBAC permissions (`/auth/`)
+  - OWASP A09 security audit logging & redaction (`/audit/`)
+  - Document ingestion, chunking, and database models
+  - Evaluation harness (`/evaluate` & `eval/run.py`)
 
-- **216/218 Unit/Integration Tests** (Backend)
-  - API endpoints (health, documents, Q&A)
-  - RAG retrieval & reranking
-  - LLM adapters (Gemini, Ollama, Azure OpenAI, Mock)
-  - Document ingestion & chunking
-  - Database operations
-  - Query routing
-
-- **24 End-to-End Tests** (Frontend + Backend)
+- **End-to-End Tests** (Frontend + Backend)
   - Document upload & management
   - Question answering with citations
-  - Multi-turn conversations (frontend only, API pending)
+  - Multi-turn conversations
   - Source citation verification
-  - Data extraction UI (backend endpoint pending)
+  - Data extraction UI and schema builder
 
 **Run Tests:**
 ```bash
@@ -292,32 +305,26 @@ See [Architecture Guide](docs/core/architecture/ARCHITECTURE.md) for deep dive.
 ```
 askdocs-rag-agent/
 ├── app/                   # Backend (Python/FastAPI)
-│   ├── api/               # FastAPI routes
-│   │   ├── documents.py   # Document upload endpoints
-│   │   ├── questions.py   # Q&A endpoints
-│   │   ├── slack.py       # Slack webhook endpoints
-│   │   └── ...
-│   ├── services/          # Business logic
-│   │   ├── slack_bot.py   # Slack bot service
-│   │   ├── retriever.py   # RAG retrieval
-│   │   └── ...
+│   ├── api/               # FastAPI routes (documents, questions, auth, audit, comparison, sessions, slack)
+│   ├── services/          # Business logic (retriever, hyde, summarizer, comparator, evaluator, audit_logger, slack_bot)
 │   ├── ingest/            # PDF extraction, chunking, embedding
-│   ├── graph/             # LangGraph query router
-│   ├── llm/               # Provider adapters (Gemini/Ollama/Azure)
-│   ├── mcp/               # MCP server
+│   ├── graph/             # LangGraph query router (answer/clarify/refuse)
+│   ├── llm/               # Provider adapters (Gemini/Ollama/Azure/Mock)
+│   ├── mcp/               # Model Context Protocol stdio server & tools
 │   ├── db/                # SQLAlchemy models, pgvector setup
-│   ├── core/              # Config, logging
-│   └── tests/             # pytest suites with auto-generated API docs
+│   ├── core/              # Config, logging, security
+│   └── tests/             # pytest suites & regression tests
+├── eval/                  # Retrieval quality evaluation harness & benchmark questions
 ├── web-ui/                # Frontend (Nuxt 4/Vue/Tailwind)
 │   ├── app/               # Vue components and pages
 │   ├── composables/       # Vue composables and API services
 │   ├── public/            # Static assets
 │   └── nuxt.config.ts     # Nuxt configuration
-├── docs/
-│   ├── testing/
-│   │   └── api-results/   # Auto-generated API request/response examples
-│   ├── core/              # Architecture, deployment guides
-│   └── interfaces/        # API, Web UI, Slack bot docs
+├── docs/                  # Comprehensive documentation suite (76+ guides)
+│   ├── testing/           # Test guides & API results
+│   ├── core/              # Architecture, security, deployment guides
+│   ├── features/          # Detailed feature specs (01-13)
+│   └── interfaces/        # API, Web UI, Slack bot, MCP guides
 ├── samples/               # Sample PDFs for testing
 └── docker-compose.yml
 ```
@@ -366,17 +373,21 @@ Brief setup: [docs/core/deployment/AZURE.md](docs/core/deployment/AZURE.md)
 
 ## Roadmap
 
-- [ ] Core RAG API (ingest, ask, grounded answers)
-- [ ] LangGraph router (answer/clarify/refuse)
-- [ ] Multi-turn chat with memory
-- [ ] MCP server tools
-- [ ] Evaluation harness
-- [ ] Web UI (Nuxt 4 + Tailwind CSS)
-- [ ] User authentication & authorization
-- [ ] GCP Cloud Run deployment + CI/CD
-- [ ] Azure Container Apps deployment
-- [ ] Multi-tenant support
-- [ ] Japanese document support
+- [x] Core RAG API (ingest, ask, grounded answers)
+- [x] LangGraph router (answer/clarify/refuse)
+- [x] Multi-turn chat with memory & session persistence
+- [x] MCP server tools (Claude Desktop & Cursor stdio server)
+- [x] Evaluation harness (MRR, Precision@k, Recall@k benchmarks)
+- [x] Web UI (Nuxt 4 + Tailwind CSS)
+- [x] User authentication & authorization (JWT & RBAC)
+- [x] Security audit logging (OWASP A09 compliance)
+- [x] Real-time token streaming (SSE) & HyDE expansion
+- [x] Document summarization & comparative analysis matrices
+- [x] Slack bot integration (Bolt webhook & slash commands)
+- [x] GCP Cloud Run deployment + CI/CD
+- [x] Azure Container Apps deployment
+- [ ] Multi-tenant workspace data partitioning (future)
+- [ ] Japanese document parsing optimization (future)
 
 ---
 

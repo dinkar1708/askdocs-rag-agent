@@ -63,6 +63,30 @@ Response:
 }
 ```
 
+### 4. Stream Answers (Server-Sent Events)
+
+```bash
+curl -N -X POST http://localhost:8000/ask/stream \
+  -H "X-API-Key: $ASKDOCS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"question": "Summarize the vacation policy"}'
+```
+
+### 5. Key Available Endpoints
+
+| Endpoint | Method | Purpose |
+|---|---|---|
+| `/ask` | `POST` | Grounded Q&A with citations |
+| `/ask/stream` | `POST` | Real-time token streaming via SSE |
+| `/sessions` | `POST`, `GET` | Create & list multi-turn chat sessions |
+| `/chat` | `POST` | Send conversation message with context history |
+| `/documents/{id}/summarize` | `POST` | Executive or detailed document summary |
+| `/compare` | `POST` | Cross-document comparison & difference matrix |
+| `/extract` | `POST` | Extract structured JSON data using a schema |
+| `/auth/register`, `/auth/login` | `POST` | User registration & JWT login |
+| `/evaluate` | `POST` | Run retrieval quality benchmark metrics |
+| `/audit/logs` | `GET` | Retrieve security audit events (Admin only) |
+
 ---
 
 ## Integration Examples

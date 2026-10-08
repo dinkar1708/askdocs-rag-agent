@@ -94,14 +94,14 @@ Pick how you want to use AskDocs:
 ### Testing
 
 **Backend (pytest) - Unit & Integration Tests:**
-- **[testing/README.md](testing/README.md)** - Python API testing (71 tests)
-  - Tests: Retrieval, reranking, semantic chunking, table extraction
+- **[testing/README.md](testing/README.md)** - Python API & service tests (71+ tests)
+  - Tests: Retrieval, reranking, HyDE, SSE streaming, auth & RBAC, sessions, MCP server, audit logs, summarization, comparisons
   - Providers: Mock (fast) or Ollama (real LLM)
   - Quick start: `pytest app/tests/ -v`
 
 **Frontend (Playwright) - E2E Tests:**
 - **[e2e-testing/README.md](e2e-testing/README.md)** - Web UI browser testing (23 tests)
-  - Tests: User flows, document upload, chat, citations
+  - Tests: User flows, document upload, chat, citations, schema builder
   - Providers: Mock, Ollama, or Gemini
   - Quick start: `cd web-ui && ./run-e2e-with-ollama.sh`
 
@@ -114,13 +114,20 @@ Pick how you want to use AskDocs:
 ### Features
 
 What the product does:
-- [Document Ingestion](features/01-document-ingestion.md)
-- [Grounded Q&A](features/02-grounded-qa.md)
-- [Document Management](features/03-document-management.md)
-- [Multi-turn Chat](features/04-multi-turn-chat.md)
-- [Query Routing](features/05-query-routing.md)
-- [MCP Integration](features/06-mcp-integration.md)
-- [Evaluation](features/07-evaluation.md)
+- [Document Ingestion](features/01-document-ingestion.md) - PDF parsing, metadata extraction, hash deduplication
+- [Grounded Q&A](features/02-grounded-qa.md) - Citation tracking and honest refusal
+- [Document Management](features/03-document-management.md) - Document listings, deletions, and chunk status
+- [Multi-turn Chat](features/04-multi-turn-chat.md) - Sessions API and conversational history
+- [Query Routing](features/05-query-routing.md) - LangGraph query router (answer/clarify/refuse)
+- [MCP Integration](features/06-mcp-integration.md) - Model Context Protocol stdio server for Claude & Cursor
+- [Evaluation](features/07-evaluation.md) - Precision, Recall, and MRR benchmark runner
+- [Reranking](features/08-reranking.md) - Cross-encoder re-ranking for higher precision
+- [Structured Extraction](features/08-structured-extraction.md) - Schema-based JSON data extraction
+- [Comparative Analysis](features/09-comparative-analysis.md) - Multi-doc comparison matrices & semantic diffs
+- [Advanced Filters](features/10-advanced-filters.md) - Metadata filtering by department, grade, doc type
+- [Document Summarization](features/11-document-summarization.md) - Single and batch document summaries
+- [Authentication & Authorization](features/12-authentication.md) - JWT Bearer tokens and RBAC roles
+- [Slack Integration](features/13-slack-integration.md) - Slack Bolt bot and `/askdocs` slash commands
 
 ---
 
@@ -188,15 +195,17 @@ Quality assurance:
 
 | Category | Count | Location |
 |---|---|---|
-| Core (shared) | 10 | `/docs/core/**/*.md` |
+| Core (shared) | 12 | `/docs/core/**/*.md` |
 | Interfaces | 4 | `/docs/interfaces/**/*.md` |
-| Features | 7 | `/docs/features/*.md` |
-| Development | 3 | `/docs/development/*.md` |
+| Features | 14 | `/docs/features/*.md` |
+| Development | 8 | `/docs/development/*.md` |
 | Business | 5 | `/docs/business/*.md` |
-| Project | 2 | `/docs/project/*.md` |
-| Testing | 1 | `/docs/testing/*.md` |
+| Technical & FAQ | 16 | `/docs/technical/**/*.md` |
+| Demo Guides | 4 | `/docs/demo/*.md` |
+| Project & Roadmap | 2 | `/docs/project/*.md` |
+| Testing | 2 | `/docs/testing/*.md` |
 | Getting Started | 2 | `/docs/getting-started/*.md` |
-| **Total** | **34 files** | All organized |
+| **Total** | **70+ files** | All organized |
 
 ---
 
