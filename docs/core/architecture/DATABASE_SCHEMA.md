@@ -104,10 +104,15 @@ Tracks asynchronous background processing through the LangGraph ingestion pipeli
 
 ---
 
-## 3. Future Schema Roadmap (TODO Items)
+## 3. Implemented Security & Evaluation Models
+
+- **User Accounts & Authentication:** Added `users` table, password hashing, and JWT tokens ([`app/db/models.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/app/db/models.py#L26-L42)).
+- **Session & Document Ownership:** Linked `user_id` foreign keys to `sessions` and `documents` tables.
+- **Security Audit Logs:** Added `audit_logs` table with indexed action, timestamp, and user tracking ([`app/db/models.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/app/db/models.py#L143-L161)).
+- **Evaluations & Ground Truth:** Automated benchmark suite and metrics reporting ([`eval/questions.json`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/eval/questions.json), [`eval/run.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/eval/run.py)).
+
+## 4. Future Schema Roadmap (Planned)
 
 > [!NOTE]
-> TODO (Planned for Future Release):
-> - Multi-Tenancy: Adding tenant_id INT NOT NULL and compound indexes (idx_chunks_tenant_embedding) to enable multi-tenant workspace isolation.
-> - User and Auth Models: Adding users and api_tokens tables for JWT/OAuth authentication and per-user permission policies.
-> - Evaluations and Ground Truth: Adding eval_queries and eval_metrics tables to record automated MRR and citation precision benchmarks.
+> Planned for Future Release:
+> - Multi-Tenancy: Adding `tenant_id INT NOT NULL` and compound indexes (`idx_chunks_tenant_embedding`) to enable multi-tenant workspace isolation.

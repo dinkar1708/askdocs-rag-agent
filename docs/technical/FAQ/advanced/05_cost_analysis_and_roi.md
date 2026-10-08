@@ -35,7 +35,7 @@ Cost Comparison for 10,000 Queries/Day:
 
 ---
 
-## 3. Feature Status and Roadmap (TODOs)
+## 3. Feature Status and Roadmap
 
 Author / Maintainer: [Dinakar Maurya](https://github.com/dinkar1708) ([dinkar1708/askdocs-rag-agent](https://github.com/dinkar1708/askdocs-rag-agent))
 
@@ -48,9 +48,15 @@ Author / Maintainer: [Dinakar Maurya](https://github.com/dinkar1708) ([dinkar170
 - Hypothetical Document Embeddings (HyDE): Zero-shot query transformation via LLM hypothetical passage generation ([`app/services/hyde.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/app/services/hyde.py)).
 - Real-Time SSE Token Streaming: Server-Sent Events `/ask/stream` streaming tokens and citation events in real-time ([`app/api/questions.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/app/api/questions.py)).
 - Interactive Slack Bot Webhook Integration: Full Slack bot commands and events integration ([`app/api/slack.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/app/api/slack.py)).
+- Model Context Protocol (MCP) Server: JSON-RPC stdio MCP tools for Claude Desktop and agent CLI ([`app/mcp/server.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/app/mcp/server.py)).
+- Evaluation Harness: Automated retrieval and grounding evaluation benchmark runner ([`eval/run.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/eval/run.py)).
+- Comparative Analysis: Multi-document comparison, markdown table matrix, and semantic diff ([`app/api/comparison.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/app/api/comparison.py)).
+- Document Summarization: Executive & detailed document and batch summarization ([`app/services/document_summarizer.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/app/services/document_summarizer.py)).
+- User Authentication & RBAC: JWT authentication, PBKDF2 hashing, and user-owned sessions ([`app/api/auth.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/app/api/auth.py)).
+- Structured Security Audit Logging: OWASP A09 compliant logging service and admin analytics ([`app/api/audit.py`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/app/api/audit.py)).
 - Nuxt 3 Frontend: Reactive chat, document manager, and citation inspector ([`web-ui`](file:///Users/dinakarmaurya/Documents/Personal/askdocs-rag-agent/web-ui)).
 
-### Planned for Future Release (TODO Items):
+### Planned for Future Release:
 
 > [!NOTE]
 > Multi-Tenancy and Workspace Isolation

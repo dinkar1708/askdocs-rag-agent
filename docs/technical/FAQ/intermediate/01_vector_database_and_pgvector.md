@@ -106,9 +106,13 @@ class Chunk(Base):
 
 ---
 
-## 3. Future Database Roadmap (TODOs)
+## 3. Database Roadmap Status
+
+- **User Authentication & Permissions:** ✅ **100% IMPLEMENTED** (`users` table, JWT Bearer tokens, ownership tracking on `sessions` and `documents`).
+- **Security Audit Logs:** ✅ **100% IMPLEMENTED** (`audit_logs` table with indexed timestamp, action, and user_id).
+
+### Future Roadmap:
 
 > [!NOTE]
-> TODO (Planned for Future Release):
+> Planned for Future Release:
 > - Multi-Tenancy: Adding tenant_id to all tables and creating composite vector indexes (tenant_id, embedding).
-> - User Authentication: Creating users and refresh_tokens tables for enterprise Single Sign-On (SSO).
