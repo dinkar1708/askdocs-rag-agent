@@ -25,6 +25,7 @@ from app.schemas.auth import (
     PasswordChange,
     UserListResponse,
 )
+from app.services.audit import log_audit_event
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +66,15 @@ async def register_user(
     db.commit()
     db.refresh(user)
 
+    log_audit_event(
+        db=db,
+        action="USER_REGISTER",
+        user_id=user.id,
+        resource_type="user",
+        resource_id=str(user.id),
+        details={"email": user.email, "role": user.role}
+    )
+
     logger.info(f"Registered new user: {user.email} (role: {user.role})")
     return user
 
@@ -79,6 +89,12 @@ async def login_user(
     """
     user = db.query(User).filter(User.email == login_data.email.lower()).first()
     if not user or not verify_password(login_data.password, user.hashed_password):
+        log_audit_event(
+            db=db,
+            action="AUTH_FAILURE",
+            resource_type="auth",
+            details={"email": login_data.email}
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
@@ -86,6 +102,13 @@ async def login_user(
         )
 
     if not user.is_active:
+        log_audit_event(
+            db=db,
+            action="AUTH_DEACTIVATED",
+            user_id=user.id,
+            resource_type="user",
+            details={"email": user.email}
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Account is deactivated. Contact administrator.",
@@ -96,6 +119,15 @@ async def login_user(
         "user_id": user.id,
         "role": user.role,
     })
+
+    log_audit_event(
+        db=db,
+        action="USER_LOGIN",
+        user_id=user.id,
+        resource_type="user",
+        resource_id=str(user.id),
+        details={"email": user.email}
+    )
 
     return TokenResponse(
         access_token=token,
@@ -124,6 +156,13 @@ async def change_password(
     Change password for the currently authenticated user.
     """
     if not verify_password(password_data.old_password, current_user.hashed_password):
+        log_audit_event(
+            db=db,
+            action="PASSWORD_CHANGE_FAILURE",
+            user_id=current_user.id,
+            resource_type="user",
+            resource_id=str(current_user.id)
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Incorrect current password",
@@ -131,6 +170,14 @@ async def change_password(
 
     current_user.hashed_password = hash_password(password_data.new_password)
     db.commit()
+
+    log_audit_event(
+        db=db,
+        action="PASSWORD_CHANGE_SUCCESS",
+        user_id=current_user.id,
+        resource_type="user",
+        resource_id=str(current_user.id)
+    )
     return {"message": "Password changed successfully"}
 
 

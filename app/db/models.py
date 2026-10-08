@@ -139,3 +139,22 @@ class DocumentProcessingJob(Base):
 
     # Relationship to final document
     result_document = relationship("Document", foreign_keys=[result_document_id])
+
+
+class AuditLog(Base):
+    """Audit log entry for security and compliance tracking"""
+
+    __tablename__ = "audit_logs"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    ip_address = Column(String(45), nullable=True)
+    action = Column(String(100), nullable=False, index=True)
+    resource_type = Column(String(50), nullable=True)
+    resource_id = Column(String(100), nullable=True)
+    details = Column(JSON, default={}, nullable=True)
+
+    # Relationship to user
+    user = relationship("User")

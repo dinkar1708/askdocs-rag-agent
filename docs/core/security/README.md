@@ -125,9 +125,9 @@ This directory contains comprehensive security documentation covering all aspect
 | A04: Insecure Design | 🟡 IN PROGRESS | Security checklist, reviews |
 | A05: Security Misconfiguration | 🟡 IN PROGRESS | Deployment security docs |
 | A06: Vulnerable Components | 🟡 ONGOING | Dependency updates required |
-| A07: Authentication Failures | 🟡 PARTIAL | API keys, rate limiting needed |
+| A07: Authentication Failures | 🟢 COVERED | API keys, PBKDF2 password hashing, JWT Bearer tokens |
 | A08: Data Integrity Failures | 🟢 COVERED | ORM prevents tampering |
-| A09: Logging Failures | 🔴 TODO | Audit logging needed |
+| A09: Logging Failures | 🟢 COVERED | Structured audit logging & admin review endpoints |
 | A10: SSRF | 🟡 PARTIAL | LLM API calls need validation |
 
 ---

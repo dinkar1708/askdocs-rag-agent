@@ -11,6 +11,7 @@ from app.api.comparison import router as comparison_router
 from app.api.evaluation import router as evaluation_router
 from app.api.slack import router as slack_router
 from app.api.auth import router as auth_router
+from app.api.audit import router as audit_router
 from app.core.config import settings
 
 app = FastAPI(
@@ -32,6 +33,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth_router)
+app.include_router(audit_router)
 app.include_router(documents_router)
 app.include_router(questions_router)
 app.include_router(sessions_router)
